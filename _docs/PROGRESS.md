@@ -24,10 +24,7 @@
 - Email: Resend + React Email templates
 - Deployment: Vercel (planned)
 
-### Next Steps (Session 2)
-- [ ] Initialise Next.js 14 app in `src/` directory
-- [ ] Install and configure dependencies (Tailwind, shadcn/ui, Supabase, Anthropic SDK, Stripe, Resend)
-- [ ] Create Supabase project and run initial schema migrations
+### Next Steps (Session 2) — COMPLETED in same sitting
 - [ ] Set up Supabase Auth with email/social providers
 - [ ] Begin SAML 2.0 SSO configuration (coordinate with Swinburne IT)
 - [ ] Build auth middleware and role detection
@@ -35,13 +32,34 @@
 
 ---
 
-## Session 2 — [date TBD]
+## Session 2 — 2026-04-03
 
 ### Completed
-- [ ] ...
+- [x] Installed Node.js v24 via nvm (no sudo required)
+- [x] Initialised Next.js 14 App Router + TypeScript + Tailwind
+- [x] Installed all dependencies: Supabase SSR, Anthropic SDK, Stripe, Resend, React Email, qrcode
+- [x] Built `src/lib/` clients — Supabase (server + browser + admin), Anthropic, Stripe, Resend
+- [x] Built `src/lib/anthropic/agent-runner.ts` — core tool-use loop for all agents
+- [x] Built `src/middleware.ts` — auth protection + role-based route guards
+- [x] Built `src/app/auth/callback/route.ts` — OAuth/SAML callback with auto user creation + role assignment
+- [x] Built `src/app/api/webhooks/stripe/route.ts` — handles checkout, refund, payment_failed events
+- [x] Built `src/types/index.ts` — full TypeScript type definitions for all DB entities
+- [x] Written `supabase/migrations/001_initial_schema.sql` — all tables, RLS policies, indexes
+- [x] Updated homepage (`src/app/page.tsx`) with SVU branding
+- [x] Created `.env.example` with all required environment variable keys
+- [x] TypeScript check passing (0 errors)
+- [x] Initialised git repo, made initial commit (41 files)
+- [x] Created private GitHub repo at github.com/CKnoxie/SVU_Booking and pushed
 
-### Next Steps
-- [ ] ...
+### Next Steps (Session 3)
+- [ ] Create Supabase project at supabase.com
+- [ ] Run `supabase/migrations/001_initial_schema.sql` in Supabase SQL editor
+- [ ] Fill in `.env.local` with Supabase URL + anon key + service role key
+- [ ] Set up Supabase Auth providers (Google OAuth + email magic link)
+- [ ] Begin SAML 2.0 SSO config (contact Swinburne IT)
+- [ ] Install shadcn/ui and build shared layout components (navbar, sidebar)
+- [ ] Build admin dashboard skeleton (`/admin`)
+- [ ] Build staff booking flow (`/staff/book`)
 
 ---
 
