@@ -7,7 +7,7 @@ const PROTECTED_PATHS = ['/admin', '/staff', '/dashboard', '/bookings', '/accoun
 // Routes only accessible to super_admin
 const ADMIN_ONLY_PATHS = ['/admin']
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(

@@ -15,21 +15,21 @@
 
 | Field | Value |
 |-------|-------|
-| **Phase** | Phase 1 complete — Project setup & architecture documentation |
-| **Last Session** | Session 1 — 2026-04-03 |
-| **Last Completed Task** | Created full `_docs/` knowledge base (all 9 files) |
+| **Phase** | Phase 2 in progress — App foundation built, DB live |
+| **Last Session** | Session 3 — 2026-04-03 |
+| **Last Completed Task** | Supabase DB live, `.env.local` configured, homepage running at localhost:3000 |
 | **Current Blockers** | Awaiting Swinburne IT contact for SAML SSO setup; Stripe account TBD |
 
 ---
 
 ## Next Steps (Start Here)
 
-1. **Initialise Next.js 14 app** in `src/` directory with TypeScript + Tailwind
-2. **Install dependencies**: `@supabase/ssr`, `@supabase/supabase-js`, `@anthropic-ai/sdk`, `stripe`, `resend`, `qrcode`, `shadcn/ui`, `react-email`
-3. **Create Supabase project** and run initial schema migrations (see `DATABASE_SCHEMA.md`)
-4. **Set up Supabase Auth** — enable email, Google OAuth, and SAML 2.0 providers
-5. **Build auth middleware** — role detection, protected routes, redirect logic
-6. **Create app layout** — navigation, sidebar structure for admin vs. staff vs. public views
+1. **Set up Supabase Auth providers** — enable Google OAuth + email magic link in Supabase dashboard
+2. **Build login page** (`/login`) — unified entry point for all user types
+3. **Build admin dashboard skeleton** (`/admin`) — bookings overview, approvals queue
+4. **Build staff booking flow** (`/staff/book`) — slot browser + booking form
+5. **Install shadcn/ui** — component library for consistent UI
+6. **Begin SAML 2.0 SSO config** — contact Swinburne IT for IdP metadata
 
 See [PROGRESS.md](PROGRESS.md) for the full session log and open questions.
 

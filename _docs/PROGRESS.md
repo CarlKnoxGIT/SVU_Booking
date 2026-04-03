@@ -51,15 +51,32 @@
 - [x] Initialised git repo, made initial commit (41 files)
 - [x] Created private GitHub repo at github.com/CKnoxie/SVU_Booking and pushed
 
-### Next Steps (Session 3)
-- [ ] Create Supabase project at supabase.com
-- [ ] Run `supabase/migrations/001_initial_schema.sql` in Supabase SQL editor
-- [ ] Fill in `.env.local` with Supabase URL + anon key + service role key
+### Next Steps (Session 3) — COMPLETED in same sitting
+
+---
+
+## Session 3 — 2026-04-03
+
+### Completed
+- [x] Created Supabase project (`neibpbkholgoypswyalx`)
+- [x] Ran `001_initial_schema.sql` — all 9 tables created with RLS policies (fixed function-before-table ordering bug)
+- [x] Created `.env.local` with Supabase URL, anon key, service role key
+- [x] Fixed Next.js 16 `middleware.ts` → `proxy.ts` rename + export rename
+- [x] Cleared `.next` cache and confirmed dev server starts clean
+- [x] Homepage live at `http://localhost:3000` — SVU branding, three feature cards
+
+### Decisions Made
+- Supabase project region: closest to Melbourne (Sydney)
+- Next.js version is 16.2.2 (newer than planned 14 — middleware is now called `proxy`)
+- Dev server runs on port 3000
+
+### Next Steps (Session 4)
 - [ ] Set up Supabase Auth providers (Google OAuth + email magic link)
-- [ ] Begin SAML 2.0 SSO config (contact Swinburne IT)
-- [ ] Install shadcn/ui and build shared layout components (navbar, sidebar)
+- [ ] Build login page (`/login`)
 - [ ] Build admin dashboard skeleton (`/admin`)
 - [ ] Build staff booking flow (`/staff/book`)
+- [ ] Install shadcn/ui components
+- [ ] Begin SAML 2.0 SSO config (contact Swinburne IT)
 
 ---
 

@@ -4,7 +4,7 @@
 
 | Layer | Technology | Rationale |
 |-------|-----------|-----------|
-| **Framework** | Next.js 14 (App Router) + TypeScript | Full-stack React, API routes, SSR, excellent DX |
+| **Framework** | Next.js 16.2.2 (App Router) + TypeScript | Full-stack React, API routes, SSR, excellent DX |
 | **Styling** | Tailwind CSS + shadcn/ui | Utility-first, accessible components, rapid prototyping |
 | **Database** | Supabase (PostgreSQL + Realtime + RLS) | Managed Postgres, built-in auth, real-time subscriptions, RLS |
 | **Auth** | Supabase Auth + SAML 2.0 | Handles all auth flows; SAML for Swinburne SSO |
@@ -17,13 +17,16 @@
 
 ---
 
-## Framework: Next.js 14
+## Framework: Next.js 16.2.2
 
 - **App Router** for all routes (not Pages Router)
 - **Server Components** by default; Client Components only where interactivity is needed
 - **API Routes** (`app/api/`) for webhooks (Stripe, calendar), agent triggers, and internal APIs
 - **Server Actions** for form submissions where appropriate
 - TypeScript strict mode enabled
+
+### Breaking Changes vs. Next.js 14
+- `middleware.ts` is now `proxy.ts`, and the exported function must be named `proxy` (not `middleware`)
 
 ### Key Directories
 ```
@@ -38,6 +41,7 @@ src/
 │   ├── anthropic/          # Anthropic client + agent runner
 │   ├── stripe/             # Stripe client
 │   └── resend/             # Resend email client
+├── proxy.ts                # Auth + role-based route protection (replaces middleware.ts)
 └── types/                  # TypeScript type definitions
 ```
 
