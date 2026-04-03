@@ -3,13 +3,6 @@
 -- Run this in the Supabase SQL editor or via supabase db push
 -- ============================================================
 
--- ─── Helper function ──────────────────────────────────────────────────────────
-
-CREATE OR REPLACE FUNCTION get_user_role()
-RETURNS TEXT AS $$
-  SELECT role FROM users WHERE auth_id = auth.uid()
-$$ LANGUAGE SQL SECURITY DEFINER;
-
 -- ─── users ────────────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS users (
@@ -24,6 +17,13 @@ CREATE TABLE IF NOT EXISTS users (
   created_at    TIMESTAMPTZ DEFAULT NOW(),
   updated_at    TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- ─── Helper function (needs users table to exist first) ───────────────────────
+
+CREATE OR REPLACE FUNCTION get_user_role()
+RETURNS TEXT AS $$
+  SELECT role FROM users WHERE auth_id = auth.uid()
+$$ LANGUAGE SQL SECURITY DEFINER;
 
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 
