@@ -70,12 +70,40 @@
 - Next.js version is 16.2.2 (newer than planned 14 — middleware is now called `proxy`)
 - Dev server runs on port 3000
 
-### Next Steps (Session 4)
-- [ ] Set up Supabase Auth providers (Google OAuth + email magic link)
-- [ ] Build login page (`/login`)
-- [ ] Build admin dashboard skeleton (`/admin`)
-- [ ] Build staff booking flow (`/staff/book`)
-- [ ] Install shadcn/ui components
+### Next Steps (Session 4) — COMPLETED in same sitting
+
+---
+
+## Session 4 — 2026-04-03
+
+### Completed
+- [x] Installed shadcn/ui v4.1.2 — init with Tailwind v4, added Button, Input, Label, Card components
+- [x] Noted: shadcn now uses Base UI (`@base-ui/react/button`) not Radix — no `asChild` prop; use `render` prop or `buttonVariants` on Link directly
+- [x] Built `/login` page — email magic link (Server Action + `useActionState`) + Google OAuth button
+- [x] Built `/auth/callback` (already existed from session 2) — handles both OAuth code exchange and auto user-creation
+- [x] Built `/admin/layout.tsx` — super_admin role guard, sidebar nav (Dashboard, Bookings, Events, Users, Maintenance, Reports)
+- [x] Built `/admin/page.tsx` — stats cards (total bookings, pending, users, revenue MTD) + recent bookings table
+- [x] Built `/admin/actions.ts` — signOut server action
+- [x] Built `/staff/layout.tsx` — staff/super_admin role guard, sidebar with Admin Panel link for admins
+- [x] Built `/staff/page.tsx` — personal booking dashboard split into upcoming / past
+- [x] Built `/staff/book/page.tsx` + `booking-form.tsx` — full booking request form (type selector, title, description, date/time, duration, attendee count)
+- [x] Built `/staff/book/actions.ts` — `createBookingRequest` server action inserts booking and redirects to confirm
+- [x] Built `/staff/book/confirm/page.tsx` — post-submission confirmation page showing booking details
+- [x] TypeScript check: 0 errors
+
+### Decisions Made
+- shadcn/ui v4 uses Base UI buttons — `asChild` is not available; use `buttonVariants` + `<Link>` for navigation buttons
+- `useActionState` requires server action signature `(prevState, formData)` — added `_prevState` param to all actions
+- `signInWithGoogle` redirects on both success and failure (no error object return) so it satisfies `() => Promise<void>` for form action type
+
+### Next Steps (Session 5)
+- [ ] Enable Google OAuth in Supabase dashboard (Client ID + Secret)
+- [ ] Enable email magic link in Supabase dashboard (already on by default — verify SMTP config)
+- [ ] Build `/admin/bookings` — full bookings list with approve/reject actions
+- [ ] Build `/admin/users` — user list with role management
+- [ ] Build `/events` — public events listing page
+- [ ] Add conflict detection to `createBookingRequest` (check for overlapping confirmed bookings)
+- [ ] Wire up first AI agent — BookingIntakeAgent for school group / external hire flows
 - [ ] Begin SAML 2.0 SSO config (contact Swinburne IT)
 
 ---
