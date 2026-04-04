@@ -16,7 +16,7 @@ export default function LoginPage({
           </Link>
           <h1 className="mt-3 text-2xl font-bold text-white">Sign in</h1>
           <p className="mt-1 text-sm text-zinc-400">
-            Staff use your Swinburne email for SSO access.
+            Staff use your Swinburne email to sign in.
           </p>
         </div>
 

@@ -12,15 +12,9 @@ const NAV_ITEMS = [
   { href: '/admin/reports', label: 'Reports' },
 ]
 
-export default async function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) redirect('/login?next=/admin')
 
@@ -32,40 +26,58 @@ export default async function AdminLayout({
 
   if (profile?.role !== 'super_admin') redirect('/')
 
+  const initials = profile?.full_name
+    ? profile.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+    : '?'
+
   return (
-    <div className="flex min-h-screen bg-zinc-950 text-white">
+    <div className="flex min-h-screen bg-black text-white">
       {/* Sidebar */}
-      <aside className="w-56 flex-shrink-0 border-r border-white/10 flex flex-col">
-        <div className="p-5 border-b border-white/10">
-          <p className="text-xs font-semibold tracking-widest text-indigo-400 uppercase">SVU Admin</p>
-          <p className="mt-1 text-sm font-medium text-white truncate">
-            {profile?.full_name ?? user.email}
-          </p>
+      <aside className="w-52 flex-shrink-0 flex flex-col border-r border-white/[0.06]">
+        {/* Logo */}
+        <div className="px-5 pt-7 pb-6">
+          <span className="text-[10px] font-bold tracking-[0.15em] text-indigo-400 uppercase">SVU</span>
+          <p className="text-[10px] tracking-[0.1em] text-white/30 uppercase mt-0.5">Admin</p>
         </div>
 
-        <nav className="flex-1 py-4">
+        {/* Nav */}
+        <nav className="flex-1 px-2">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="flex items-center px-5 py-2.5 text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+              className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] text-white/50 hover:text-white hover:bg-white/[0.06] transition-all duration-150"
             >
               {item.label}
             </Link>
           ))}
         </nav>
 
-        <form action={signOut} className="p-4 border-t border-white/10">
-          <button
-            type="submit"
-            className="w-full text-left text-sm text-zinc-500 hover:text-white transition-colors"
-          >
-            Sign out
-          </button>
-        </form>
+        {/* User */}
+        <div className="p-4 border-t border-white/[0.06]">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="h-7 w-7 rounded-full bg-indigo-600/30 flex items-center justify-center text-[11px] font-semibold text-indigo-300 flex-shrink-0">
+              {initials}
+            </div>
+            <div className="min-w-0">
+              <p className="text-[12px] font-medium text-white truncate">
+                {profile?.full_name?.split(' ')[0] ?? 'Admin'}
+              </p>
+              <p className="text-[10px] text-white/30 truncate">{user.email}</p>
+            </div>
+          </div>
+          <form action={signOut}>
+            <button
+              type="submit"
+              className="w-full text-left text-[12px] text-white/25 hover:text-white/60 transition-colors"
+            >
+              Sign out
+            </button>
+          </form>
+        </div>
       </aside>
 
-      {/* Main content */}
+      {/* Content */}
       <main className="flex-1 overflow-auto">{children}</main>
     </div>
   )

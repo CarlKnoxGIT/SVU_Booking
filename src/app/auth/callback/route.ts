@@ -11,42 +11,44 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error) {
-      // Ensure user record exists in our users table
-      const { data: { user } } = await supabase.auth.getUser()
-
-      if (user) {
-        const { data: existing } = await supabase
-          .from('users')
-          .select('id')
-          .eq('auth_id', user.id)
-          .single()
-
-        if (!existing) {
-          // Determine role from email domain
-          const email = user.email ?? ''
-          const role = email.endsWith('@swinburne.edu.au') ? 'staff' : 'public'
-
-          await supabase.from('users').insert({
-            auth_id: user.id,
-            email,
-            full_name: user.user_metadata?.full_name ?? null,
-            role,
-          })
-        }
-      }
-
-      const forwardedHost = request.headers.get('x-forwarded-host')
-      const isLocalEnv = process.env.NODE_ENV === 'development'
-
-      if (isLocalEnv) {
-        return NextResponse.redirect(`${origin}${next}`)
-      } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`)
-      } else {
-        return NextResponse.redirect(`${origin}${next}`)
-      }
+      await ensureUserRecord(supabase)
+      return NextResponse.redirect(`${origin}${next}`)
     }
   }
 
-  return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`)
+  // No code — may be implicit flow with fragment tokens.
+  // Redirect to a client-side handler that can read the fragment.
+  const nextParam = next !== '/' ? `?next=${encodeURIComponent(next)}` : ''
+  return NextResponse.redirect(`${origin}/auth/confirm${nextParam}`)
+}
+
+async function ensureUserRecord(supabase: Awaited<ReturnType<typeof createClient>>) {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
+  const { data: existing } = await supabase
+    .from('users')
+    .select('id')
+    .eq('auth_id', user.id)
+    .single()
+
+  if (!existing) {
+    const email = user.email ?? ''
+    const SUPER_ADMINS = (process.env.SUPER_ADMIN_EMAILS ?? '')
+      .split(',')
+      .map((e) => e.trim().toLowerCase())
+
+    const role = SUPER_ADMINS.includes(email.toLowerCase())
+      ? 'super_admin'
+      : email.endsWith('@swin.edu.au') || email.endsWith('@swinburne.edu.au')
+      ? 'staff'
+      : 'public'
+
+    await supabase.from('users').insert({
+      auth_id: user.id,
+      email,
+      full_name: user.user_metadata?.full_name ?? null,
+      role,
+    })
+  }
 }

@@ -39,7 +39,7 @@ export function LoginForm() {
             name="email"
             type="email"
             required
-            placeholder="you@swinburne.edu.au"
+            placeholder="you@swin.edu.au"
             className="border-white/10 bg-white/5 text-white placeholder:text-zinc-500 focus-visible:ring-indigo-500"
           />
         </div>
