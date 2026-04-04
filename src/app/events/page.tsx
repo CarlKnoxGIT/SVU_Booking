@@ -1,35 +1,52 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import Image from 'next/image'
+import SwinburneLogo from '@/components/swinburne-logo'
+import { ParallaxHero } from '@/components/parallax-hero'
 
 export default async function EventsPage() {
   const supabase = await createClient()
 
   const { data: events } = await supabase
     .from('events')
-    .select('id, title, description, event_date, start_time, end_time, ticket_price, max_capacity, tickets_sold')
+    .select('id, title, description, event_date, start_time, end_time, ticket_price, max_capacity, tickets_sold, humanitix_url')
     .eq('is_published', true)
     .gte('event_date', new Date().toISOString().split('T')[0])
     .order('event_date', { ascending: true })
 
   return (
     <main className="bg-black text-white">
+      {/* Nav */}
+      <nav className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-8 py-6">
+        <Link href="/">
+          <SwinburneLogo className="h-8 w-auto" />
+        </Link>
+        <Link
+          href="/login"
+          className="rounded-full border border-white/15 bg-white/5 backdrop-blur-sm px-4 py-1.5 text-[12px] font-medium text-white/60 hover:text-white hover:bg-white/10 transition-all duration-200"
+        >
+          Staff sign in
+        </Link>
+      </nav>
+
       {/* Hero */}
       <div className="relative h-72 overflow-hidden">
-        <Image
-          src="/images/SVU11C.jpg"
-          alt="SVU events"
-          fill
-          priority
-          className="object-cover object-center"
-          sizes="100vw"
-        />
+        <ParallaxHero>
+          <Image
+            src="/images/SVU11C.jpg"
+            alt="SVU events"
+            fill
+            priority
+            className="object-cover object-center"
+            sizes="100vw"
+          />
+        </ParallaxHero>
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black" />
         <div className="absolute inset-0 flex flex-col items-center justify-end pb-10 text-center">
           <Link href="/" className="text-[10px] font-bold tracking-[0.2em] text-white/40 uppercase hover:text-white/70 transition-colors mb-3">
             Swinburne's Virtual Universe
           </Link>
-          <h1 className="text-4xl font-bold tracking-tight">Upcoming Events</h1>
+          <h1 className="text-4xl font-light tracking-tight">Upcoming Events</h1>
           <p className="mt-2 text-sm text-white/40">Immersive experiences on a 100m² curved LED wall.</p>
         </div>
       </div>
@@ -78,12 +95,14 @@ export default async function EventsPage() {
                     </div>
 
                     {!soldOut && (
-                      <Link
-                        href={`/events/${event.id}/tickets`}
+                      <a
+                        href={event.humanitix_url ?? `/events/${event.id}/tickets`}
+                        target={event.humanitix_url ? '_blank' : undefined}
+                        rel={event.humanitix_url ? 'noopener noreferrer' : undefined}
                         className="flex-shrink-0 rounded-xl bg-swin-red px-4 py-2 text-[13px] font-semibold text-white hover:bg-swin-red-hover transition-all duration-200"
                       >
                         Get tickets
-                      </Link>
+                      </a>
                     )}
                   </div>
                 </div>

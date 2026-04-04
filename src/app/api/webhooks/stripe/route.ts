@@ -2,6 +2,7 @@ import { stripe } from '@/lib/stripe/client'
 import { createAdminClient } from '@/lib/supabase/server'
 import { headers } from 'next/headers'
 import type Stripe from 'stripe'
+import crypto from 'crypto'
 
 export async function POST(request: Request) {
   const body = await request.text()
@@ -51,6 +52,62 @@ export async function POST(request: Request) {
       }
 
       if (eventId) {
+        const qty = Number(session.metadata?.quantity ?? 1)
+
+        // Resolve or create user from Stripe customer email
+        const customerEmail = session.customer_details?.email
+        let userId: string | null = session.metadata?.user_id ?? null
+
+        if (!userId && customerEmail) {
+          const { data: existing } = await supabase
+            .from('users')
+            .select('id')
+            .eq('email', customerEmail)
+            .single()
+
+          if (existing) {
+            userId = existing.id
+          } else {
+            const { data: guest } = await supabase
+              .from('users')
+              .insert({
+                email: customerEmail,
+                full_name: session.customer_details?.name ?? null,
+                role: 'public',
+              })
+              .select('id')
+              .single()
+            userId = guest?.id ?? null
+          }
+        }
+
+        if (userId) {
+          // Record payment
+          const { data: payment } = await supabase
+            .from('payments')
+            .insert({
+              event_id: eventId,
+              user_id: userId,
+              stripe_payment_id: session.payment_intent as string,
+              stripe_customer_id: session.customer as string,
+              amount: (session.amount_total ?? 0) / 100,
+              currency: session.currency ?? 'aud',
+              status: 'succeeded',
+            })
+            .select('id')
+            .single()
+
+          // Create ticket record
+          await supabase.from('tickets').insert({
+            event_id: eventId,
+            user_id: userId,
+            payment_id: payment?.id ?? null,
+            qr_code: crypto.randomUUID(),
+            quantity: qty,
+            status: 'active',
+          })
+        }
+
         // Increment tickets_sold
         const { data: evt } = await supabase
           .from('events')
@@ -58,7 +115,6 @@ export async function POST(request: Request) {
           .eq('id', eventId)
           .single()
 
-        const qty = Number(session.metadata?.quantity ?? 1)
         await supabase
           .from('events')
           .update({ tickets_sold: (evt?.tickets_sold ?? 0) + qty })

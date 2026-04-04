@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import SwinburneLogo from '@/components/swinburne-logo'
+import { ParallaxHero } from '@/components/parallax-hero'
 
 export default function Home() {
   return (
@@ -19,18 +20,20 @@ export default function Home() {
 
       {/* ── Hero ─────────────────────────────────────────────── */}
       <section className="relative h-screen min-h-[700px] flex flex-col items-center justify-center overflow-hidden">
-        <Image
-          src="/images/SVU19BC.jpg"
-          alt="Visitors standing before the SVU LED wall displaying a nebula"
-          fill
-          priority
-          className="object-cover object-center scale-[1.02]"
-          sizes="100vw"
-        />
+        <ParallaxHero>
+          <Image
+            src="/images/SVU19BC.jpg"
+            alt="Visitors standing before the SVU LED wall displaying a nebula"
+            fill
+            priority
+            className="object-cover object-center"
+            sizes="100vw"
+          />
+        </ParallaxHero>
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/85" />
 
         <div className="relative z-10 text-center px-6 max-w-3xl mx-auto">
-          <h1 className="text-5xl sm:text-[72px] font-bold tracking-tight leading-[1.04] mb-5">
+          <h1 className="text-5xl sm:text-[72px] font-light tracking-[-1.5px] leading-[1.04] mb-5">
             Step inside<br />the universe
           </h1>
           <p className="text-base sm:text-lg text-white/50 mb-10 leading-relaxed max-w-xl mx-auto">
@@ -70,7 +73,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             {/* Big tile */}
-            <div className="lg:col-span-2 relative rounded-3xl overflow-hidden aspect-[16/10] group cursor-pointer">
+            <div className="lg:col-span-2 relative overflow-hidden aspect-[16/10] group cursor-pointer">
               <Image
                 src="/images/SVU07BCropped5.jpg"
                 alt="Presenter with Saturn rings on the LED wall"
@@ -81,7 +84,7 @@ export default function Home() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
               <div className="absolute bottom-0 left-0 p-8">
                 <p className="text-[10px] font-bold tracking-[0.18em] text-swin-red-light uppercase mb-2">Public Events</p>
-                <h3 className="text-2xl font-bold leading-tight mb-2">Immersive<br />experiences</h3>
+                <h3 className="text-2xl font-light leading-tight mb-2">Immersive<br />experiences</h3>
                 <p className="text-sm text-white/50 max-w-xs leading-relaxed">
                   Curated shows blending real scientific data with cinematic visuals. Open to everyone.
                 </p>
@@ -96,7 +99,7 @@ export default function Home() {
 
             {/* Right column */}
             <div className="flex flex-col gap-4">
-              <div className="relative rounded-3xl overflow-hidden flex-1 min-h-[220px] group cursor-pointer">
+              <div className="relative overflow-hidden flex-1 min-h-[220px] group cursor-pointer">
                 <Image
                   src="/images/SVU01D.jpg"
                   alt="Audience in 3D glasses"
@@ -107,14 +110,14 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
                 <div className="absolute bottom-0 left-0 p-6">
                   <p className="text-[10px] font-bold tracking-[0.18em] text-white/40 uppercase mb-1">Schools</p>
-                  <h3 className="text-lg font-bold">Educational visits</h3>
+                  <h3 className="text-lg font-light">Educational visits</h3>
                   <Link href="/school-groups" className="mt-3 inline-flex text-[12px] text-swin-red-light hover:text-swin-red-lighter font-medium transition-colors">
                     Book a visit →
                   </Link>
                 </div>
               </div>
 
-              <div className="relative rounded-3xl overflow-hidden flex-1 min-h-[220px] group cursor-pointer">
+              <div className="relative overflow-hidden flex-1 min-h-[220px] group cursor-pointer">
                 <Image
                   src="/images/SVU20B.jpg"
                   alt="Visitors exploring visualisation up close"
@@ -125,7 +128,7 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
                 <div className="absolute bottom-0 left-0 p-6">
                   <p className="text-[10px] font-bold tracking-[0.18em] text-white/40 uppercase mb-1">Corporate</p>
-                  <h3 className="text-lg font-bold">Private hire</h3>
+                  <h3 className="text-lg font-light">Private hire</h3>
                   <Link href="/enquire" className="mt-3 inline-flex text-[12px] text-swin-red-light hover:text-swin-red-lighter font-medium transition-colors">
                     Enquire →
                   </Link>
@@ -148,7 +151,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent flex items-center">
           <div className="px-12 sm:px-16 max-w-lg">
             <p className="text-[11px] font-bold tracking-[0.18em] text-swin-red-light uppercase mb-3">Hire the space</p>
-            <h2 className="text-3xl sm:text-4xl font-bold leading-tight mb-4">
+            <h2 className="text-3xl sm:text-4xl font-light leading-tight mb-4">
               Your event.<br />An unforgettable stage.
             </h2>
             <p className="text-white/45 text-sm leading-relaxed mb-7">

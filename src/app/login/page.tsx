@@ -12,7 +12,7 @@ export default function LoginPage() {
             <SwinburneLogo className="h-10 w-auto" />
           </Link>
           <div className="text-center">
-            <h1 className="text-xl font-bold text-white">Staff sign in</h1>
+            <h1 className="text-xl font-light text-white">Staff sign in</h1>
             <p className="mt-1 text-sm text-white/40">
               Use your Swinburne email address.
             </p>
