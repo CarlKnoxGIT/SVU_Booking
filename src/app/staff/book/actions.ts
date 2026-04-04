@@ -5,9 +5,7 @@ import { redirect } from 'next/navigation'
 
 export async function createBookingRequest(_prevState: unknown, formData: FormData) {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) return { error: 'Not authenticated' }
 
@@ -33,13 +31,36 @@ export async function createBookingRequest(_prevState: unknown, formData: FormDa
     return { error: 'Please fill in all required fields.' }
   }
 
+  // Get the SVU facility ID
+  const { data: facility } = await supabase
+    .from('facilities')
+    .select('id')
+    .eq('is_active', true)
+    .single()
+
+  if (!facility) return { error: 'Facility not found.' }
+
   const startAt = new Date(`${startDate}T${startTime}:00`)
   const endAt = new Date(startAt.getTime() + durationMinutes * 60_000)
+
+  // Basic conflict check
+  const { data: conflicts } = await supabase
+    .from('bookings')
+    .select('id')
+    .eq('facility_id', facility.id)
+    .eq('status', 'confirmed')
+    .lt('start_time', endAt.toISOString())
+    .gt('end_time', startAt.toISOString())
+
+  if (conflicts && conflicts.length > 0) {
+    return { error: 'This time slot conflicts with an existing confirmed booking. Please choose a different time.' }
+  }
 
   const { data: booking, error } = await supabase
     .from('bookings')
     .insert({
       user_id: profile.id,
+      facility_id: facility.id,
       title,
       booking_type: bookingType,
       description: description || null,

@@ -5,10 +5,11 @@ export default async function EventsPage() {
   const supabase = await createClient()
 
   const { data: events } = await supabase
-    .from('public_events')
-    .select('id, title, description, start_time, end_time, ticket_price, tickets_total, tickets_sold')
-    .gte('start_time', new Date().toISOString())
-    .order('start_time', { ascending: true })
+    .from('events')
+    .select('id, title, description, event_date, start_time, end_time, ticket_price, max_capacity, tickets_sold')
+    .eq('is_published', true)
+    .gte('event_date', new Date().toISOString().split('T')[0])
+    .order('event_date', { ascending: true })
 
   return (
     <main className="relative min-h-screen bg-black text-white">
@@ -34,9 +35,9 @@ export default async function EventsPage() {
         {events && events.length > 0 ? (
           <div className="space-y-4">
             {events.map((event) => {
-              const ticketsLeft = event.tickets_total - (event.tickets_sold ?? 0)
+              const ticketsLeft = (event.max_capacity ?? 0) - (event.tickets_sold ?? 0)
               const soldOut = ticketsLeft <= 0
-              const date = event.start_time ? new Date(event.start_time) : null
+              const date = event.event_date ? new Date(event.event_date) : null
 
               return (
                 <div
@@ -48,8 +49,7 @@ export default async function EventsPage() {
                       {date && (
                         <p className="mb-2 text-[11px] font-semibold tracking-wide text-indigo-400 uppercase">
                           {date.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'long' })}
-                          {' · '}
-                          {date.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                          {event.start_time && <> · {event.start_time.slice(0, 5)}</>}
                         </p>
                       )}
                       <h2 className="text-[18px] font-semibold text-white">{event.title}</h2>
