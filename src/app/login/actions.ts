@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { ensureUserRecord } from '@/app/auth/callback/route'
+import { ensureUserRecord } from '@/lib/auth/ensure-user-record'
 
 export async function signInWithPassword(_prevState: unknown, formData: FormData) {
   const email = formData.get('email') as string
@@ -14,10 +14,7 @@ export async function signInWithPassword(_prevState: unknown, formData: FormData
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
   if (error) {
-    if (error.message.toLowerCase().includes('invalid')) {
-      return { error: 'Incorrect email or password.' }
-    }
-    return { error: error.message }
+    return { error: 'Incorrect email or password.' }
   }
 
   if (data.user) await ensureUserRecord(data.user)
