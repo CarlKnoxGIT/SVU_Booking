@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default async function EventsPage() {
   const supabase = await createClient()
@@ -12,24 +13,28 @@ export default async function EventsPage() {
     .order('event_date', { ascending: true })
 
   return (
-    <main className="relative min-h-screen bg-black text-white">
-      {/* Glow */}
-      <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 h-[400px] w-[600px] rounded-full bg-indigo-600/8 blur-[100px]" />
-
-      <div className="relative z-10 mx-auto max-w-3xl px-6 py-20">
-        {/* Header */}
-        <div className="mb-16 text-center">
-          <Link
-            href="/"
-            className="text-[10px] font-bold tracking-[0.2em] text-indigo-400 uppercase hover:text-indigo-300 transition-colors"
-          >
+    <main className="bg-black text-white">
+      {/* Hero */}
+      <div className="relative h-72 overflow-hidden">
+        <Image
+          src="/images/SVU11C.jpg"
+          alt="SVU events"
+          fill
+          priority
+          className="object-cover object-center"
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black" />
+        <div className="absolute inset-0 flex flex-col items-center justify-end pb-10 text-center">
+          <Link href="/" className="text-[10px] font-bold tracking-[0.2em] text-white/40 uppercase hover:text-white/70 transition-colors mb-3">
             Swinburne's Virtual Universe
           </Link>
-          <h1 className="mt-4 text-4xl font-semibold tracking-tight">Upcoming Events</h1>
-          <p className="mt-3 text-sm text-white/40">
-            Immersive experiences on a 100m² curved LED wall.
-          </p>
+          <h1 className="text-4xl font-bold tracking-tight">Upcoming Events</h1>
+          <p className="mt-2 text-sm text-white/40">Immersive experiences on a 100m² curved LED wall.</p>
         </div>
+      </div>
+
+      <div className="mx-auto max-w-3xl px-6 pb-20">
 
         {/* Events */}
         {events && events.length > 0 ? (
