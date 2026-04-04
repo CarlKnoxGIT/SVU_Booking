@@ -35,7 +35,7 @@ export default async function AdminDashboard() {
         {stats.map((s) => (
           <div key={s.label} className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-5">
             <p className="text-[11px] font-medium tracking-wide text-white/35 uppercase">{s.label}</p>
-            <p className={`mt-3 text-4xl font-semibold tracking-tight ${s.highlight ? 'text-indigo-400' : 'text-white'}`}>
+            <p className={`mt-3 text-4xl font-semibold tracking-tight ${s.highlight ? 'text-swin-red-light' : 'text-white'}`}>
               {s.value}
             </p>
           </div>

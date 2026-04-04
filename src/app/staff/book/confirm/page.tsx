@@ -65,7 +65,7 @@ export default async function BookingConfirmPage({
           <Link href="/staff/book" className={cn(buttonVariants({ variant: 'outline' }), 'flex-1 border-white/10 bg-white/5 text-white hover:bg-white/10')}>
             Book another
           </Link>
-          <Link href="/staff" className={cn(buttonVariants(), 'flex-1 bg-indigo-600 hover:bg-indigo-500 text-white')}>
+          <Link href="/staff" className={cn(buttonVariants(), 'flex-1 bg-swin-red hover:bg-swin-red-hover text-white')}>
             My bookings
           </Link>
         </div>

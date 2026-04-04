@@ -38,7 +38,7 @@ export default async function StaffDashboard() {
           </h1>
           <p className="mt-1 text-sm text-zinc-500">Your SVU booking history and upcoming sessions.</p>
         </div>
-        <Link href="/staff/book" className={cn(buttonVariants(), 'bg-indigo-600 hover:bg-indigo-500 text-white')}>
+        <Link href="/staff/book" className={cn(buttonVariants(), 'bg-swin-red hover:bg-swin-red-hover text-white')}>
           New booking
         </Link>
       </div>
@@ -124,7 +124,7 @@ function EmptyState({ message, cta }: { message: string; cta?: boolean }) {
       {cta && (
         <Link
           href="/staff/book"
-          className="mt-4 inline-block text-sm text-indigo-400 hover:text-indigo-300"
+          className="mt-4 inline-block text-sm text-swin-red-light hover:text-swin-red-lighter"
         >
           Book your first session →
         </Link>

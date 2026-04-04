@@ -58,7 +58,7 @@ export default async function AdminUsersPage() {
                   name="role"
                   defaultValue={u.role}
                   onChange={(e) => (e.target.form as HTMLFormElement).requestSubmit()}
-                  className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-[12px] text-white/70 focus:outline-none focus:ring-1 focus:ring-indigo-500 [color-scheme:dark] cursor-pointer"
+                  className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-[12px] text-white/70 focus:outline-none focus:ring-1 focus:ring-swin-red [color-scheme:dark] cursor-pointer"
                 >
                   {ROLES.map((r) => (
                     <option key={r} value={r} className="bg-zinc-900">

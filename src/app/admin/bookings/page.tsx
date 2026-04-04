@@ -61,7 +61,7 @@ export default async function AdminBookingsPage() {
                     <input type="hidden" name="id" value={b.id} />
                     <button
                       type="submit"
-                      className="rounded-lg bg-indigo-600 px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-indigo-500 transition-all"
+                      className="rounded-lg bg-swin-red px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-swin-red-hover transition-all"
                     >
                       Approve
                     </button>

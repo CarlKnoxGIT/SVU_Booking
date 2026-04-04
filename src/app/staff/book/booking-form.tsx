@@ -42,7 +42,7 @@ export function BookingForm() {
           {BOOKING_TYPES.map((type) => (
             <label
               key={type.value}
-              className="relative flex cursor-pointer flex-col rounded-xl border border-white/10 bg-white/5 p-4 hover:border-indigo-500/50 hover:bg-white/10 transition-colors has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-500/10"
+              className="relative flex cursor-pointer flex-col rounded-xl border border-white/10 bg-white/5 p-4 hover:border-swin-red/50 hover:bg-white/10 transition-colors has-[:checked]:border-swin-red has-[:checked]:bg-swin-red-hover/10"
             >
               <input
                 type="radio"
@@ -69,7 +69,7 @@ export function BookingForm() {
           name="title"
           required
           placeholder="e.g. COS30049 Week 8 Lab"
-          className="border-white/10 bg-white/5 text-white placeholder:text-zinc-500 focus-visible:ring-indigo-500"
+          className="border-white/10 bg-white/5 text-white placeholder:text-zinc-500 focus-visible:ring-swin-red"
         />
       </div>
 
@@ -83,7 +83,7 @@ export function BookingForm() {
           name="description"
           rows={3}
           placeholder="Brief description of the session purpose and any special requirements…"
-          className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+          className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-swin-red resize-none"
         />
       </div>
 
@@ -100,7 +100,7 @@ export function BookingForm() {
             required
             defaultValue={defaultDate}
             min={defaultDate}
-            className="border-white/10 bg-white/5 text-white focus-visible:ring-indigo-500 [color-scheme:dark]"
+            className="border-white/10 bg-white/5 text-white focus-visible:ring-swin-red [color-scheme:dark]"
           />
         </div>
         <div className="space-y-2">
@@ -114,7 +114,7 @@ export function BookingForm() {
             required
             defaultValue="09:00"
             step="900"
-            className="border-white/10 bg-white/5 text-white focus-visible:ring-indigo-500 [color-scheme:dark]"
+            className="border-white/10 bg-white/5 text-white focus-visible:ring-swin-red [color-scheme:dark]"
           />
         </div>
       </div>
@@ -129,7 +129,7 @@ export function BookingForm() {
             id="duration_minutes"
             name="duration_minutes"
             defaultValue="60"
-            className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-swin-red"
           >
             {DURATION_OPTIONS.map((d) => (
               <option key={d.value} value={d.value} className="bg-zinc-900">
@@ -149,7 +149,7 @@ export function BookingForm() {
             min="1"
             max="100"
             placeholder="e.g. 25"
-            className="border-white/10 bg-white/5 text-white placeholder:text-zinc-500 focus-visible:ring-indigo-500"
+            className="border-white/10 bg-white/5 text-white placeholder:text-zinc-500 focus-visible:ring-swin-red"
           />
         </div>
       </div>
@@ -163,7 +163,7 @@ export function BookingForm() {
       <Button
         type="submit"
         disabled={pending}
-        className="w-full bg-indigo-600 hover:bg-indigo-500 text-white"
+        className="w-full bg-swin-red hover:bg-swin-red-hover text-white"
       >
         {pending ? 'Submitting…' : 'Submit booking request'}
       </Button>

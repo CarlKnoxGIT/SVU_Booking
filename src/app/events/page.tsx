@@ -52,7 +52,7 @@ export default async function EventsPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       {date && (
-                        <p className="mb-2 text-[11px] font-semibold tracking-wide text-indigo-400 uppercase">
+                        <p className="mb-2 text-[11px] font-semibold tracking-wide text-swin-red-light uppercase">
                           {date.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'long' })}
                           {event.start_time && <> · {event.start_time.slice(0, 5)}</>}
                         </p>
@@ -80,7 +80,7 @@ export default async function EventsPage() {
                     {!soldOut && (
                       <Link
                         href={`/events/${event.id}/tickets`}
-                        className="flex-shrink-0 rounded-xl bg-indigo-600 px-4 py-2 text-[13px] font-semibold text-white hover:bg-indigo-500 transition-all duration-200"
+                        className="flex-shrink-0 rounded-xl bg-swin-red px-4 py-2 text-[13px] font-semibold text-white hover:bg-swin-red-hover transition-all duration-200"
                       >
                         Get tickets
                       </Link>

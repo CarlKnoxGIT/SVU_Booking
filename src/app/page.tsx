@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import SwinburneLogo from '@/components/swinburne-logo'
 
 export default function Home() {
   return (
@@ -7,9 +8,7 @@ export default function Home() {
 
       {/* ── Nav ──────────────────────────────────────────────── */}
       <nav className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-8 py-6">
-        <p className="text-[11px] font-bold tracking-[0.18em] text-white/50 uppercase">
-          Swinburne's Virtual Universe
-        </p>
+        <SwinburneLogo className="h-8 w-auto" />
         <Link
           href="/login"
           className="rounded-full border border-white/15 bg-white/5 backdrop-blur-sm px-4 py-1.5 text-[12px] font-medium text-white/60 hover:text-white hover:bg-white/10 transition-all duration-200"
@@ -81,7 +80,7 @@ export default function Home() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
               <div className="absolute bottom-0 left-0 p-8">
-                <p className="text-[10px] font-bold tracking-[0.18em] text-indigo-400 uppercase mb-2">Public Events</p>
+                <p className="text-[10px] font-bold tracking-[0.18em] text-swin-red-light uppercase mb-2">Public Events</p>
                 <h3 className="text-2xl font-bold leading-tight mb-2">Immersive<br />experiences</h3>
                 <p className="text-sm text-white/50 max-w-xs leading-relaxed">
                   Curated shows blending real scientific data with cinematic visuals. Open to everyone.
@@ -109,7 +108,7 @@ export default function Home() {
                 <div className="absolute bottom-0 left-0 p-6">
                   <p className="text-[10px] font-bold tracking-[0.18em] text-white/40 uppercase mb-1">Schools</p>
                   <h3 className="text-lg font-bold">Educational visits</h3>
-                  <Link href="/school-groups" className="mt-3 inline-flex text-[12px] text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
+                  <Link href="/school-groups" className="mt-3 inline-flex text-[12px] text-swin-red-light hover:text-swin-red-lighter font-medium transition-colors">
                     Book a visit →
                   </Link>
                 </div>
@@ -127,7 +126,7 @@ export default function Home() {
                 <div className="absolute bottom-0 left-0 p-6">
                   <p className="text-[10px] font-bold tracking-[0.18em] text-white/40 uppercase mb-1">Corporate</p>
                   <h3 className="text-lg font-bold">Private hire</h3>
-                  <Link href="/enquire" className="mt-3 inline-flex text-[12px] text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
+                  <Link href="/enquire" className="mt-3 inline-flex text-[12px] text-swin-red-light hover:text-swin-red-lighter font-medium transition-colors">
                     Enquire →
                   </Link>
                 </div>
@@ -148,7 +147,7 @@ export default function Home() {
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent flex items-center">
           <div className="px-12 sm:px-16 max-w-lg">
-            <p className="text-[11px] font-bold tracking-[0.18em] text-indigo-400 uppercase mb-3">Hire the space</p>
+            <p className="text-[11px] font-bold tracking-[0.18em] text-swin-red-light uppercase mb-3">Hire the space</p>
             <h2 className="text-3xl sm:text-4xl font-bold leading-tight mb-4">
               Your event.<br />An unforgettable stage.
             </h2>
@@ -168,9 +167,12 @@ export default function Home() {
       {/* ── Footer ───────────────────────────────────────────── */}
       <footer className="border-t border-white/[0.06] py-10 px-8">
         <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-[12px] text-white/20">
-            © 2026 Swinburne University of Technology · Hawthorn Campus, Melbourne
-          </p>
+          <div className="flex items-center gap-4">
+            <SwinburneLogo className="h-7 w-auto opacity-60" />
+            <p className="text-[12px] text-white/20">
+              Hawthorn Campus, Melbourne
+            </p>
+          </div>
           <div className="flex gap-6 text-[12px] text-white/25">
             <Link href="/events" className="hover:text-white/60 transition-colors">Events</Link>
             <Link href="/school-groups" className="hover:text-white/60 transition-colors">Schools</Link>

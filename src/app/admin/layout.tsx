@@ -36,7 +36,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <aside className="w-52 flex-shrink-0 flex flex-col border-r border-white/[0.06]">
         {/* Logo */}
         <div className="px-5 pt-7 pb-6">
-          <span className="text-[10px] font-bold tracking-[0.15em] text-indigo-400 uppercase">SVU</span>
+          <span className="text-[10px] font-bold tracking-[0.15em] text-swin-red-light uppercase">SVU</span>
           <p className="text-[10px] tracking-[0.1em] text-white/30 uppercase mt-0.5">Admin</p>
         </div>
 
@@ -56,7 +56,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         {/* User */}
         <div className="p-4 border-t border-white/[0.06]">
           <div className="flex items-center gap-3 mb-3">
-            <div className="h-7 w-7 rounded-full bg-indigo-600/30 flex items-center justify-center text-[11px] font-semibold text-indigo-300 flex-shrink-0">
+            <div className="h-7 w-7 rounded-full bg-swin-red/30 flex items-center justify-center text-[11px] font-semibold text-swin-red-lighter flex-shrink-0">
               {initials}
             </div>
             <div className="min-w-0">

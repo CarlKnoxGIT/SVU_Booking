@@ -18,7 +18,7 @@ export default async function AdminEventsPage() {
         </div>
         <Link
           href="/admin/events/new"
-          className="rounded-xl bg-indigo-600 px-4 py-2 text-[13px] font-semibold text-white hover:bg-indigo-500 transition-all"
+          className="rounded-xl bg-swin-red px-4 py-2 text-[13px] font-semibold text-white hover:bg-swin-red-hover transition-all"
         >
           Create event
         </Link>
@@ -52,7 +52,7 @@ export default async function AdminEventsPage() {
         ) : (
           <div className="px-6 py-16 text-center">
             <p className="text-sm text-white/25">No events yet.</p>
-            <Link href="/admin/events/new" className="mt-3 inline-block text-[13px] text-indigo-400 hover:text-indigo-300">
+            <Link href="/admin/events/new" className="mt-3 inline-block text-[13px] text-swin-red-light hover:text-swin-red-lighter">
               Create your first event →
             </Link>
           </div>

@@ -40,7 +40,7 @@ export function LoginForm() {
             type="email"
             required
             placeholder="you@swin.edu.au"
-            className="border-white/10 bg-white/5 text-white placeholder:text-zinc-500 focus-visible:ring-indigo-500"
+            className="border-white/10 bg-white/5 text-white placeholder:text-zinc-500 focus-visible:ring-swin-red"
           />
         </div>
 
@@ -51,7 +51,7 @@ export function LoginForm() {
         <Button
           type="submit"
           disabled={pending}
-          className="w-full bg-indigo-600 hover:bg-indigo-500 text-white"
+          className="w-full bg-swin-red hover:bg-swin-red-hover text-white"
         >
           {pending ? 'Sending…' : 'Send magic link'}
         </Button>
