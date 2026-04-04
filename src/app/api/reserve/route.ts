@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
+import { sendTicketConfirmation } from '@/lib/email/send-ticket-confirmation'
 import crypto from 'crypto'
 
 export async function POST(req: NextRequest) {
@@ -14,7 +15,7 @@ export async function POST(req: NextRequest) {
   // Verify event exists, is published, is free, and has capacity
   const { data: event } = await supabase
     .from('events')
-    .select('id, title, max_capacity, tickets_sold, ticket_price, is_free')
+    .select('id, title, event_date, start_time, end_time, max_capacity, tickets_sold, ticket_price, is_free')
     .eq('id', eventId)
     .eq('is_published', true)
     .single()
@@ -71,6 +72,20 @@ export async function POST(req: NextRequest) {
     .from('events')
     .update({ tickets_sold: (event.tickets_sold ?? 0) + quantity })
     .eq('id', eventId)
+
+  // Send confirmation email (silently skipped if RESEND_API_KEY not set)
+  const eventDate = new Date(event.event_date)
+    .toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+
+  await sendTicketConfirmation({
+    to: email,
+    name,
+    eventTitle: event.title,
+    eventDate,
+    startTime: event.start_time?.slice(0, 5) ?? '',
+    endTime: event.end_time?.slice(0, 5) ?? '',
+    quantity,
+  }).catch(() => {}) // never block the response on email failure
 
   return NextResponse.json({ success: true })
 }
