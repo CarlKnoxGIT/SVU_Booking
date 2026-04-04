@@ -44,9 +44,15 @@ export default async function AdminEventsPage() {
                   {e.tickets_sold ?? 0}/{e.max_capacity} tickets sold
                 </p>
               </div>
-              <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium ${e.is_published ? 'bg-emerald-500/10 text-emerald-400' : 'bg-white/[0.06] text-white/35'}`}>
-                {e.is_published ? 'Published' : 'Draft'}
-              </span>
+              <div className="flex items-center gap-3">
+                <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium ${e.is_published ? 'bg-emerald-500/10 text-emerald-400' : 'bg-white/[0.06] text-white/35'}`}>
+                  {e.is_published ? 'Published' : 'Draft'}
+                </span>
+                <Link href={`/admin/events/${e.id}/edit`}
+                  className="text-[12px] text-white/25 hover:text-white/60 transition-colors">
+                  Edit
+                </Link>
+              </div>
             </div>
           ))
         ) : (

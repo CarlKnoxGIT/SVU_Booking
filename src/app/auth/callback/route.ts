@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import type { User } from '@supabase/supabase-js'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -8,10 +9,10 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
-    if (!error) {
-      await ensureUserRecord(supabase)
+    if (!error && data.user) {
+      await ensureUserRecord(data.user)
       return NextResponse.redirect(`${origin}${next}`)
     }
   }
@@ -22,9 +23,8 @@ export async function GET(request: Request) {
   return NextResponse.redirect(`${origin}/auth/confirm${nextParam}`)
 }
 
-async function ensureUserRecord(supabase: Awaited<ReturnType<typeof createClient>>) {
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return
+export async function ensureUserRecord(user: User) {
+  const supabase = await createClient()
 
   const { data: existing } = await supabase
     .from('users')

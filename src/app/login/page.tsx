@@ -14,7 +14,7 @@ export default function LoginPage() {
           <div className="text-center">
             <h1 className="text-xl font-light text-white">Staff sign in</h1>
             <p className="mt-1 text-sm text-white/40">
-              Use your Swinburne email address.
+              Staff and admin access only.
             </p>
           </div>
         </div>
