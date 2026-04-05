@@ -15,7 +15,7 @@ export async function updateEvent(_prevState: State, formData: FormData): Promis
   const ticket_price = parseFloat(formData.get('ticket_price') as string) || 0
   const max_capacity = parseInt(formData.get('max_capacity') as string) || 60
   const humanitix_url = (formData.get('humanitix_url') as string) || null
-  const is_published = formData.get('is_published') === 'true'
+  const is_published = formData.getAll('is_published').includes('true')
   const is_free = ticket_price === 0
 
   if (!title || !event_date || !start_time || !end_time) {

@@ -1,7 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { buttonVariants } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
 
 export default async function StaffDashboard() {
   const supabase = await createClient()
@@ -38,7 +36,7 @@ export default async function StaffDashboard() {
           </h1>
           <p className="mt-1 text-sm text-zinc-500">Your SVU booking history and upcoming sessions.</p>
         </div>
-        <Link href="/staff/book" className={cn(buttonVariants(), 'bg-swin-red hover:bg-swin-red-hover text-white')}>
+        <Link href="/staff/book" className="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium bg-swin-red hover:bg-swin-red-hover text-white transition-colors">
           New booking
         </Link>
       </div>

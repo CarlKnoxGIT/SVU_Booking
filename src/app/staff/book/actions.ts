@@ -1,9 +1,27 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 
-export async function createBookingRequest(_prevState: unknown, formData: FormData) {
+export async function getWeekBookings(weekStart: string) {
+  const supabase = createAdminClient()
+  const start = new Date(weekStart)
+  const end = new Date(start)
+  end.setDate(end.getDate() + 7)
+
+  const { data, error } = await supabase
+    .from('bookings')
+    .select('id, title, status, start_time, end_time, booking_type, user_id, users!bookings_user_id_fkey(full_name)')
+    .in('status', ['pending', 'confirmed'])
+    .gte('start_time', start.toISOString())
+    .lt('start_time', end.toISOString())
+    .order('start_time')
+
+  if (error) console.error('[getWeekBookings] error:', error)
+  console.log('[getWeekBookings] start:', start.toISOString(), 'rows:', data?.length ?? 0, data)
+  return data ?? []
+}
+
+export async function createBookingRequest(_prevState: unknown, formData: FormData): Promise<{ error?: string; success?: boolean; bookingId?: string } | null> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -23,12 +41,20 @@ export async function createBookingRequest(_prevState: unknown, formData: FormDa
   const bookingType = formData.get('booking_type') as string
   const description = (formData.get('description') as string)?.trim()
   const startDate = formData.get('start_date') as string
-  const startTime = formData.get('start_time') as string
-  const durationMinutes = parseInt(formData.get('duration_minutes') as string, 10)
+  const durationValue = formData.get('duration_minutes') as string
   const attendeeCount = parseInt(formData.get('attendee_count') as string, 10)
+
+  const isAllDay = durationValue === 'allday'
+  const isCustom = durationValue === 'custom'
+
+  const startTime = isAllDay ? '08:00' : (formData.get('start_time') as string)
+  const endTime = isCustom ? (formData.get('end_time') as string) : null
 
   if (!title || !bookingType || !startDate || !startTime) {
     return { error: 'Please fill in all required fields.' }
+  }
+  if (isCustom && !endTime) {
+    return { error: 'Please specify an end time.' }
   }
 
   // Get the SVU facility ID
@@ -41,7 +67,16 @@ export async function createBookingRequest(_prevState: unknown, formData: FormDa
   if (!facility) return { error: 'Facility not found.' }
 
   const startAt = new Date(`${startDate}T${startTime}:00`)
-  const endAt = new Date(startAt.getTime() + durationMinutes * 60_000)
+  let endAt: Date
+  if (isAllDay) {
+    endAt = new Date(`${startDate}T20:00:00`)
+  } else if (isCustom && endTime) {
+    endAt = new Date(`${startDate}T${endTime}:00`)
+    if (endAt <= startAt) return { error: 'End time must be after start time.' }
+  } else {
+    const durationMinutes = parseInt(durationValue, 10)
+    endAt = new Date(startAt.getTime() + durationMinutes * 60_000)
+  }
 
   // Basic conflict check
   const { data: conflicts } = await supabase
@@ -74,5 +109,5 @@ export async function createBookingRequest(_prevState: unknown, formData: FormDa
 
   if (error) return { error: error.message }
 
-  redirect(`/staff/book/confirm?id=${booking.id}`)
+  return { success: true, bookingId: booking.id }
 }

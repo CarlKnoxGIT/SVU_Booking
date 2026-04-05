@@ -9,5 +9,5 @@ export async function updateEnquiryStatus(formData: FormData) {
 
   const supabase = await createClient()
   await supabase.from('enquiries').update({ status }).eq('id', id)
-  revalidatePath('/admin/enquiries')
+  revalidatePath('/admin')
 }

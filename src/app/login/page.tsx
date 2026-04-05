@@ -21,7 +21,13 @@ export default function LoginPage() {
 
         <LoginForm />
 
-        <p className="mt-8 text-center text-xs text-white/20">
+        <p className="mt-6 text-center text-xs text-white/20">
+          Need access?{' '}
+          <Link href="/staff/register" className="text-white/40 hover:text-white transition-colors">
+            Request a staff account
+          </Link>
+        </p>
+        <p className="mt-3 text-center text-xs text-white/20">
           Public event tickets?{' '}
           <Link href="/events" className="text-swin-red-light hover:text-white transition-colors">
             Browse upcoming events

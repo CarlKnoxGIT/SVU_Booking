@@ -1,5 +1,5 @@
-'use server'
-
+import QRCode from 'qrcode'
+import { createAdminClient } from '@/lib/supabase/server'
 import { resend, FROM_ADDRESS } from '@/lib/resend/client'
 
 interface TicketConfirmationParams {
@@ -10,18 +10,46 @@ interface TicketConfirmationParams {
   startTime: string   // e.g. "12:00"
   endTime: string     // e.g. "12:45"
   quantity: number
+  qrCode?: string     // UUID stored on the ticket record
 }
 
 export async function sendTicketConfirmation(params: TicketConfirmationParams) {
-  if (!process.env.RESEND_API_KEY) return // silently skip if not configured
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('[email] RESEND_API_KEY not set — skipping')
+    return
+  }
 
-  const { to, name, eventTitle, eventDate, startTime, endTime, quantity } = params
+  const { to, name, eventTitle, eventDate, startTime, endTime, quantity, qrCode } = params
+
+  // Upload QR to Supabase Storage and get a public URL
+  let qrImageUrl: string | null = null
+  if (qrCode) {
+    try {
+      const png = await QRCode.toBuffer(qrCode, { width: 300, margin: 2, color: { dark: '#000000', light: '#ffffff' } })
+      const supabase = createAdminClient()
+      const path = `${qrCode}.png`
+      const { error: uploadError } = await supabase.storage.from('qr-codes').upload(path, png, {
+        contentType: 'image/png',
+        upsert: true,
+      })
+      if (uploadError) {
+        console.error('[email] QR storage upload error:', uploadError)
+      } else {
+        const { data } = supabase.storage.from('qr-codes').getPublicUrl(path)
+        qrImageUrl = data.publicUrl
+        console.log('[email] QR image URL:', qrImageUrl)
+      }
+    } catch (err) {
+      console.error('[email] QR upload failed:', err)
+    }
+  }
 
   const ticketWord = quantity === 1 ? 'ticket' : 'tickets'
 
-  await resend.emails.send({
+  const result = await resend.emails.send({
     from: FROM_ADDRESS,
     to,
+    replyTo: 'cknox@swin.edu.au',
     subject: `You're in — ${eventTitle}`,
     html: `<!DOCTYPE html>
 <html>
@@ -64,7 +92,7 @@ export async function sendTicketConfirmation(params: TicketConfirmationParams) {
             <tr>
               <td style="padding-bottom:12px;">
                 <p style="margin:0;font-size:11px;font-weight:700;letter-spacing:0.16em;color:rgba(255,255,255,0.25);text-transform:uppercase;">Location</p>
-                <p style="margin:4px 0 0;font-size:14px;color:rgba(255,255,255,0.8);">Swinburne's Virtual Universe<br>John Street, Hawthorn VIC 3122</p>
+                <p style="margin:4px 0 0;font-size:14px;color:rgba(255,255,255,0.8);">Swinburne, Hawthorn Campus<br>ATC Building, Room 103</p>
               </td>
             </tr>
             <tr>
@@ -76,11 +104,19 @@ export async function sendTicketConfirmation(params: TicketConfirmationParams) {
           </table>
         </td></tr>
 
+        <!-- QR Code -->
+        ${qrImageUrl ? `
+        <tr><td style="padding:32px 0 0;text-align:center;">
+          <p style="margin:0 0 16px;font-size:11px;font-weight:700;letter-spacing:0.16em;color:rgba(255,255,255,0.25);text-transform:uppercase;text-align:left;">Your ticket</p>
+          <img src="${qrImageUrl}" width="160" height="160" alt="Entry QR code" style="display:block;margin:0 auto;border:1px solid rgba(255,255,255,0.08);padding:12px;background:#fff;" />
+          <p style="margin:12px 0 0;font-size:11px;color:rgba(255,255,255,0.2);">Show this QR code at the door</p>
+        </td></tr>` : ''}
+
         <!-- What to expect -->
         <tr><td style="padding:32px 0;">
           <p style="margin:0 0 16px;font-size:11px;font-weight:700;letter-spacing:0.16em;color:rgba(255,255,255,0.25);text-transform:uppercase;">On the day</p>
           <p style="margin:0 0 8px;font-size:13px;color:rgba(255,255,255,0.5);line-height:1.7;">· Arrive 10 minutes before your session.</p>
-          <p style="margin:0 0 8px;font-size:13px;color:rgba(255,255,255,0.5);line-height:1.7;">· Entry is via John Street, Hawthorn Campus.</p>
+          <p style="margin:0 0 8px;font-size:13px;color:rgba(255,255,255,0.5);line-height:1.7;">· Head to ATC Building, Room 103.</p>
           <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.5);line-height:1.7;">· Show this email at the door.</p>
         </td></tr>
 
@@ -98,4 +134,5 @@ export async function sendTicketConfirmation(params: TicketConfirmationParams) {
 </body>
 </html>`,
   })
+  console.log('[email] Resend result:', JSON.stringify(result))
 }

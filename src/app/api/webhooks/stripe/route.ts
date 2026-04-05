@@ -1,5 +1,6 @@
 import { stripe } from '@/lib/stripe/client'
 import { createAdminClient } from '@/lib/supabase/server'
+import { sendTicketConfirmation } from '@/lib/email/send-ticket-confirmation'
 import { headers } from 'next/headers'
 import type Stripe from 'stripe'
 import crypto from 'crypto'
@@ -98,14 +99,42 @@ export async function POST(request: Request) {
             .single()
 
           // Create ticket record
+          const qrCode = crypto.randomUUID()
           await supabase.from('tickets').insert({
             event_id: eventId,
             user_id: userId,
             payment_id: payment?.id ?? null,
-            qr_code: crypto.randomUUID(),
+            qr_code: qrCode,
             quantity: qty,
             status: 'active',
           })
+
+          // Send confirmation email
+          const { data: evtDetails } = await supabase
+            .from('events')
+            .select('title, event_date, start_time, end_time')
+            .eq('id', eventId)
+            .single()
+
+          if (evtDetails) {
+            const customerName = session.customer_details?.name ?? 'Guest'
+            const customerEmail = session.customer_details?.email
+            const eventDate = new Date(evtDetails.event_date).toLocaleDateString('en-AU', {
+              weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+            })
+            if (customerEmail) {
+              await sendTicketConfirmation({
+                to: customerEmail,
+                name: customerName,
+                eventTitle: evtDetails.title,
+                eventDate,
+                startTime: evtDetails.start_time?.slice(0, 5) ?? '',
+                endTime: evtDetails.end_time?.slice(0, 5) ?? '',
+                quantity: qty,
+                qrCode,
+              }).catch((err) => console.error('[stripe webhook] email send failed:', err))
+            }
+          }
         }
 
         // Increment tickets_sold

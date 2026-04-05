@@ -55,10 +55,11 @@ export async function POST(req: NextRequest) {
   }
 
   // Create ticket
+  const qrCode = crypto.randomUUID()
   const { error: ticketError } = await supabase.from('tickets').insert({
     event_id: eventId,
     user_id: userId,
-    qr_code: crypto.randomUUID(),
+    qr_code: qrCode,
     quantity,
     status: 'active',
   })
@@ -73,7 +74,7 @@ export async function POST(req: NextRequest) {
     .update({ tickets_sold: (event.tickets_sold ?? 0) + quantity })
     .eq('id', eventId)
 
-  // Send confirmation email (silently skipped if RESEND_API_KEY not set)
+  // Send confirmation email
   const eventDate = new Date(event.event_date)
     .toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 
@@ -85,7 +86,8 @@ export async function POST(req: NextRequest) {
     startTime: event.start_time?.slice(0, 5) ?? '',
     endTime: event.end_time?.slice(0, 5) ?? '',
     quantity,
-  }).catch(() => {}) // never block the response on email failure
+    qrCode,
+  }).catch((err) => console.error('[reserve] email send failed:', err))
 
-  return NextResponse.json({ success: true })
+  return NextResponse.json({ success: true, qrCode })
 }

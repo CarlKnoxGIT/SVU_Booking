@@ -1,16 +1,17 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import SwinburneLogo from '@/components/swinburne-logo'
+import QRCode from 'qrcode'
 
 export default async function TicketSuccessPage({
   params,
   searchParams,
 }: {
   params: Promise<{ id: string }>
-  searchParams: Promise<{ session_id?: string }>
+  searchParams: Promise<{ session_id?: string; qr?: string }>
 }) {
   const { id } = await params
-  await searchParams // consumed but not used — Stripe webhook handles fulfilment
+  const { qr } = await searchParams
 
   const supabase = await createClient()
 
@@ -19,6 +20,11 @@ export default async function TicketSuccessPage({
     .select('id, title, event_date, start_time')
     .eq('id', id)
     .single()
+
+  let qrDataUrl: string | null = null
+  if (qr) {
+    qrDataUrl = await QRCode.toDataURL(qr, { width: 200, margin: 2, color: { dark: '#000000', light: '#ffffff' } })
+  }
 
   const date = event?.event_date
     ? new Date(event.event_date).toLocaleDateString('en-AU', {
@@ -55,12 +61,20 @@ export default async function TicketSuccessPage({
             </p>
           )}
 
+          {qrDataUrl && (
+            <div className="border border-white/[0.07] bg-white/[0.02] p-6 mb-6 flex flex-col items-center gap-3">
+              <p className="text-[11px] text-white/30 uppercase tracking-wide font-bold self-start">Your entry ticket</p>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={qrDataUrl} alt="Entry QR code" className="w-40 h-40" />
+              <p className="text-[11px] text-white/25">Show this at the door</p>
+            </div>
+          )}
+
           <div className="border border-white/[0.07] bg-white/[0.02] p-6 mb-8 text-left space-y-3">
             <p className="text-[12px] text-white/30 uppercase tracking-wide font-bold mb-4">What happens next</p>
             {[
-              'A confirmation email will be sent to you shortly.',
-              'Your tickets include a QR code for entry on the day.',
-              'Arrive at Swinburne Hawthorn Campus 10 minutes before the session.',
+              'A confirmation email has been sent with your QR code.',
+              'Arrive at Swinburne Hawthorn Campus, ATC Building Room 103, 10 minutes before the session.',
             ].map((step, i) => (
               <div key={i} className="flex gap-3 text-[13px] text-white/50">
                 <span className="text-swin-red-light flex-shrink-0">·</span>

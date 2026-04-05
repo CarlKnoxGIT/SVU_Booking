@@ -77,8 +77,8 @@ export default function EnquirePage() {
             <div className="mt-12 border border-white/[0.07] bg-white/[0.02] p-6">
               <p className="text-[11px] font-bold tracking-[0.16em] text-white/25 uppercase mb-3">Location</p>
               <p className="text-[14px] text-white/70 leading-relaxed">
-                Swinburne University of Technology<br />
-                John Street, Hawthorn VIC 3122<br />
+                Swinburne, Hawthorn Campus<br />
+                ATC Building, Room 103<br />
                 <span className="text-white/35 text-[12px]">Free parking available on evenings and weekends</span>
               </p>
             </div>

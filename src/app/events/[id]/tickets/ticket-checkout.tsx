@@ -38,7 +38,7 @@ export function TicketCheckout({ eventId, ticketPrice, isFree, ticketsLeft }: Pr
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error ?? 'Something went wrong.'); setLoading(false); return }
-      router.push(`/events/${eventId}/tickets/success`)
+      router.push(`/events/${eventId}/tickets/success${data.qrCode ? `?qr=${data.qrCode}` : ''}`)
     } else {
       // Paid — redirect to Stripe
       const res = await fetch('/api/checkout', {

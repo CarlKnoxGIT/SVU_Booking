@@ -4,13 +4,13 @@ import Link from 'next/link'
 import { signOut } from './actions'
 
 const NAV_ITEMS = [
-  { href: '/admin', label: 'Dashboard' },
-  { href: '/admin/bookings', label: 'Bookings' },
-  { href: '/admin/events', label: 'Events' },
-  { href: '/admin/enquiries', label: 'Enquiries' },
-  { href: '/admin/users', label: 'Users' },
-  { href: '/admin/maintenance', label: 'Maintenance' },
-  { href: '/admin/reports', label: 'Reports' },
+  { href: '/admin#overview',       label: 'Overview' },
+  { href: '/admin#bookings',       label: 'Bookings' },
+  { href: '/admin#staff-requests', label: 'Staff Requests' },
+  { href: '/admin#events',         label: 'Events' },
+  { href: '/admin#enquiries',      label: 'Enquiries' },
+  { href: '/admin#checkin',        label: 'Check-in' },
+  { href: '/admin#users',          label: 'Users' },
 ]
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

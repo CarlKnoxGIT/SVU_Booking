@@ -68,7 +68,7 @@ export default async function TicketsPage({ params }: { params: Promise<{ id: st
 
             <div className="mt-8 space-y-3 border-t border-white/[0.06] pt-8">
               {[
-                { label: 'Venue', value: "Swinburne's Virtual Universe, Hawthorn Campus" },
+                { label: 'Venue', value: 'Swinburne, Hawthorn Campus — ATC Building, Room 103' },
                 { label: 'Duration', value: event.start_time && event.end_time ? `${event.start_time.slice(0,5)} – ${event.end_time.slice(0,5)}` : 'See event details' },
                 { label: 'Capacity', value: `${ticketsLeft} of ${event.max_capacity} tickets remaining` },
               ].map(({ label, value }) => (
