@@ -5,6 +5,7 @@ import { QrScanner } from './checkin/qr-scanner'
 import { approveStaffRequest, rejectStaffRequest } from './staff-requests/actions'
 import { EnquiryStatusSelector } from './enquiries/status-selector'
 import { RoleSelector } from './users/role-selector'
+import { DeleteUserButton } from './users/delete-button'
 
 
 const STATUS_STYLES: Record<string, string> = {
@@ -354,6 +355,7 @@ export default async function AdminPage() {
                   {u.full_name && <p className="text-[12px] text-white/35 truncate">{u.email}</p>}
                 </div>
                 <RoleSelector userId={u.id} role={u.role} />
+                <DeleteUserButton userId={u.id} />
               </div>
             ))}
           </div>
