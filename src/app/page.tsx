@@ -2,11 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import SwinburneLogo from '@/components/swinburne-logo'
 import { ParallaxHero } from '@/components/parallax-hero'
-import dynamic from 'next/dynamic'
-const SaturnAnimation = dynamic(
-  () => import('@/components/saturn-animation').then(m => m.SaturnAnimation),
-  { ssr: false }
-)
+import { SaturnAnimationLoader as SaturnAnimation } from '@/components/saturn-animation-loader'
 
 export default function Home() {
   return (
