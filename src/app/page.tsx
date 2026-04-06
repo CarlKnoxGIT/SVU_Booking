@@ -27,11 +27,11 @@ export default function Home() {
             alt="Visitors standing before the SVU LED wall"
             fill
             priority
-            className="object-cover object-center"
+            className="object-cover object-[center_65%]"
             sizes="100vw"
           />
         </ParallaxHero>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/80" />
 
         <div className="relative z-10 text-center px-6 max-w-3xl mx-auto">
           <h1 className="text-5xl sm:text-[72px] font-light tracking-[-1.5px] leading-[1.04] mb-5">
