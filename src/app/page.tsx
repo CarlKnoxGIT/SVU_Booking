@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import SwinburneLogo from '@/components/swinburne-logo'
 import { ParallaxHero } from '@/components/parallax-hero'
+import { SaturnAnimation } from '@/components/saturn-animation'
 
 export default function Home() {
   return (
@@ -54,17 +55,15 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Overview — dark beat, no photo ───────────────────── */}
-      <section className="bg-[#080808] py-24 px-10 sm:px-20">
-        <div className="max-w-5xl mx-auto">
-          <p className="text-[11px] font-bold tracking-[0.18em] text-white/25 uppercase mb-8">
-            Swinburne's Virtual Universe
-          </p>
-          <p className="text-2xl sm:text-[32px] font-light leading-relaxed text-white/75 max-w-3xl">
-            Immersive storytelling powered by real scientific data — a 100m² stereoscopic LED wall, high-performance GPU rendering, and 360° audio, letting audiences explore the cosmos with unparalleled fidelity.
-          </p>
-        </div>
-      </section>
+      {/* ── Saturn animation — scroll-scrubbed fly-through ────── */}
+      <SaturnAnimation>
+        <p className="text-[11px] font-bold tracking-[0.18em] text-white/40 uppercase mb-5">
+          Swinburne's Virtual Universe
+        </p>
+        <p className="text-2xl sm:text-[28px] font-light leading-relaxed text-white/80 max-w-2xl">
+          Immersive storytelling powered by real scientific data — a 100m² stereoscopic LED wall, high-performance GPU rendering, and 360° audio.
+        </p>
+      </SaturnAnimation>
 
       {/* ── Public Events — SVU07B, photo left ───────────────── */}
       <section className="relative min-h-[520px] flex flex-col lg:flex-row overflow-hidden">
