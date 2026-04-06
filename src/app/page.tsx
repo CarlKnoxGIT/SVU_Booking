@@ -30,13 +30,13 @@ export default function Home() {
             sizes="100vw"
           />
         </ParallaxHero>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/85" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/80" />
 
         <div className="relative z-10 text-center px-6 max-w-3xl mx-auto">
           <h1 className="text-5xl sm:text-[72px] font-light tracking-[-1.5px] leading-[1.04] mb-5">
             Step inside<br />the universe
           </h1>
-          <p className="text-base sm:text-lg text-white/80 mb-10 leading-relaxed max-w-xl mx-auto">
+          <p className="text-base sm:text-lg text-white/70 mb-10 leading-relaxed max-w-xl mx-auto">
             100m² curved LED wall. 360° immersive audio. Real scientific data.
             <br className="hidden sm:block" />Experience space like never before.
           </p>
@@ -56,35 +56,43 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Scroll hint */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40">
           <div className="w-px h-8 bg-white/40 animate-pulse" />
         </div>
       </section>
 
-      {/* ── Overview — editorial statement ───────────────────── */}
-      <section className="py-28 px-6 border-t border-white/[0.06]">
-        <div className="mx-auto max-w-4xl">
-          <p className="text-[11px] font-bold tracking-[0.18em] text-white/25 uppercase mb-8">
+      {/* ── Overview — full-width photo + centred text overlay ── */}
+      <section className="relative min-h-[560px] flex items-center overflow-hidden">
+        <Image
+          src="/images/SVU07BCropped5.jpg"
+          alt="Presenter with Saturn rings on the SVU LED wall"
+          fill
+          className="object-cover object-center"
+          sizes="100vw"
+        />
+        {/* Gradient: heavy left so text is readable, fades to photo on right */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 to-black/20" />
+
+        <div className="relative z-10 px-10 sm:px-20 py-28 max-w-2xl">
+          <p className="text-[11px] font-bold tracking-[0.18em] text-white/40 uppercase mb-6">
             Overview
           </p>
-          <p className="text-3xl sm:text-4xl font-light leading-[1.25] text-white/90 mb-8 max-w-3xl">
+          <p className="text-2xl sm:text-3xl font-light leading-relaxed text-white/90 mb-6">
             Swinburne's Virtual Universe brings the cosmos closer with immersive storytelling powered by real scientific data and cinematic visuals.
           </p>
-          <p className="text-[15px] text-white/40 leading-relaxed max-w-xl">
-            Visitors can witness black holes, pulsars, and cosmological simulations in a powerful visual format — making advanced astrophysics accessible to everyone.
+          <p className="text-[15px] text-white/55 leading-relaxed">
+            Visitors can witness black holes, pulsars, and cosmological simulations — making advanced astrophysics accessible to everyone.
           </p>
         </div>
       </section>
 
       {/* ── Experience tiles ─────────────────────────────────── */}
-      <section className="pb-20 px-6">
+      <section className="py-20 px-6">
         <div className="mx-auto max-w-6xl">
           <p className="text-[11px] font-bold tracking-[0.18em] text-white/25 uppercase mb-8">
             Experiences
           </p>
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            {/* Big tile */}
             <div className="lg:col-span-2 relative overflow-hidden aspect-[16/10] group cursor-pointer">
               <Image
                 src="/images/SVU07BCropped5.jpg"
@@ -109,7 +117,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right column */}
             <div className="flex flex-col gap-4">
               <div className="relative overflow-hidden flex-1 min-h-[220px] group cursor-pointer">
                 <Image
@@ -151,80 +158,88 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Technology — split: image left / text right ───────── */}
-      <section className="flex flex-col lg:flex-row min-h-[540px] border-t border-white/[0.06]">
-        <div className="relative lg:w-1/2 min-h-[320px] lg:min-h-0 overflow-hidden">
-          <Image
-            src="/images/SVU20B.jpg"
-            alt="Visitors exploring the SVU visualisation up close"
-            fill
-            className="object-cover"
-            sizes="(max-width: 1024px) 100vw, 50vw"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/40" />
-        </div>
-        <div className="lg:w-1/2 flex items-center px-10 sm:px-16 py-20 bg-black">
+      {/* ── Technology — photo full-bleed, text panel on right ── */}
+      <section className="relative min-h-[540px] flex flex-col lg:flex-row overflow-hidden">
+        <Image
+          src="/images/SVU20B.jpg"
+          alt="Visitors exploring the SVU LED wall up close"
+          fill
+          className="object-cover"
+          sizes="100vw"
+        />
+        {/* Gradient pulls dark from right where text lives */}
+        <div className="absolute inset-0 bg-gradient-to-l from-black/90 via-black/60 to-black/10" />
+
+        {/* Spacer — photo shows through on the left */}
+        <div className="hidden lg:block lg:w-1/2" />
+
+        {/* Text panel — right half */}
+        <div className="relative z-10 lg:w-1/2 flex items-center px-10 sm:px-16 py-24">
           <div className="max-w-md">
             <p className="text-[11px] font-bold tracking-[0.18em] text-swin-red-light uppercase mb-6">Technology</p>
-            <h2 className="text-3xl font-light leading-snug mb-6">
+            <h2 className="text-3xl font-light leading-snug text-white/90 mb-6">
               A 100m² LED wall.<br />Built for the cosmos.
             </h2>
             <p className="text-[15px] text-white/60 leading-relaxed mb-4">
               At the heart of the SVU is a curved LED wall delivering stereoscopic 3D visuals driven by high-performance GPUs and real-time rendering engines.
             </p>
-            <p className="text-[14px] text-white/35 leading-relaxed">
+            <p className="text-[14px] text-white/40 leading-relaxed">
               The system supports scientific data visualisation at extreme resolutions, allowing audiences to explore space with unparalleled fidelity.
             </p>
           </div>
         </div>
       </section>
 
-      {/* ── Collaboration — split: text left / image right ────── */}
-      <section className="flex flex-col-reverse lg:flex-row min-h-[480px] border-t border-white/[0.06]">
-        <div className="lg:w-1/2 flex items-center px-10 sm:px-16 py-20 bg-black">
+      {/* ── Collaboration — photo full-bleed, text panel on left ─ */}
+      <section className="relative min-h-[500px] flex flex-col lg:flex-row overflow-hidden">
+        <Image
+          src="/images/SVU01D.jpg"
+          alt="Audience experiencing the SVU together"
+          fill
+          className="object-cover"
+          sizes="100vw"
+        />
+        {/* Gradient pulls dark from left where text lives */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-black/10" />
+
+        {/* Text panel — left half */}
+        <div className="relative z-10 lg:w-1/2 flex items-center px-10 sm:px-16 py-24">
           <div className="max-w-md">
             <p className="text-[11px] font-bold tracking-[0.18em] text-swin-red-light uppercase mb-6">Collaboration</p>
-            <h2 className="text-3xl font-light leading-snug mb-6">
+            <h2 className="text-3xl font-light leading-snug text-white/90 mb-6">
               Where science,<br />art, and technology meet.
             </h2>
             <p className="text-[15px] text-white/60 leading-relaxed mb-4">
               The SVU is a hub for scientists, artists, educators, and technologists to co-create unique, meaningful experiences.
             </p>
-            <p className="text-[14px] text-white/35 leading-relaxed">
+            <p className="text-[14px] text-white/40 leading-relaxed">
               Through partnerships with institutions and industry, we're redefining how science is communicated.
             </p>
           </div>
         </div>
-        <div className="relative lg:w-1/2 min-h-[320px] lg:min-h-0 overflow-hidden">
-          <Image
-            src="/images/SVU01D.jpg"
-            alt="Audience experiencing the SVU together"
-            fill
-            className="object-cover"
-            sizes="(max-width: 1024px) 100vw, 50vw"
-          />
-          <div className="absolute inset-0 bg-gradient-to-l from-transparent to-black/40" />
-        </div>
+
+        {/* Spacer — photo shows through on the right */}
+        <div className="hidden lg:block lg:w-1/2" />
       </section>
 
-      {/* ── Future — full-width dark with inline text ─────────── */}
-      <section className="py-24 px-6 border-t border-white/[0.06]">
-        <div className="mx-auto max-w-6xl flex flex-col sm:flex-row gap-16 sm:gap-24 items-start">
+      {/* ── Future — dark rest moment before CTA ─────────────── */}
+      <section className="bg-[#080808] py-24 px-10 sm:px-20">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row gap-16 sm:gap-24 items-start">
           <div className="sm:w-1/2">
             <p className="text-[11px] font-bold tracking-[0.18em] text-white/25 uppercase mb-6">Future</p>
-            <p className="text-2xl font-light leading-relaxed text-white/80">
+            <p className="text-2xl font-light leading-relaxed text-white/70">
               The SVU is a constantly evolving platform — expanding into generative storytelling, immersive gaming, and AI-driven science communication.
             </p>
           </div>
-          <div className="sm:w-1/2 flex flex-col justify-center gap-6 pt-1 sm:pt-10">
-            <p className="text-[14px] text-white/40 leading-relaxed">
+          <div className="sm:w-1/2 flex flex-col justify-center gap-5 pt-1 sm:pt-10">
+            <p className="text-[15px] text-white/40 leading-relaxed">
               The future is bright, and the universe is just getting started.
             </p>
             <div className="pt-2">
               <p className="text-[13px] text-white/25 mb-4">For enquiries or a tour of the SVU.</p>
               <a
                 href="mailto:cknox@swin.edu.au"
-                className="inline-flex rounded-full border border-white/15 px-5 py-2.5 text-[13px] font-medium text-white/50 hover:text-white hover:border-white/30 transition-all duration-200"
+                className="inline-flex rounded-full border border-white/15 px-5 py-2.5 text-[13px] font-medium text-white/45 hover:text-white/80 hover:border-white/30 transition-all duration-200"
               >
                 Get in touch →
               </a>
@@ -248,7 +263,7 @@ export default function Home() {
             <h2 className="text-3xl sm:text-4xl font-light leading-tight mb-4">
               Your event.<br />An unforgettable stage.
             </h2>
-            <p className="text-white/45 text-sm leading-relaxed mb-7">
+            <p className="text-white/50 text-sm leading-relaxed mb-7">
               Corporate events, product launches, and private experiences on a 100m² curved LED wall with 360° audio.
             </p>
             <Link
