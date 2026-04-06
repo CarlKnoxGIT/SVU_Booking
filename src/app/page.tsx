@@ -139,6 +139,81 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── About blurbs ─────────────────────────────────────── */}
+      <section className="py-24 px-6 border-t border-white/[0.06]">
+        <div className="mx-auto max-w-6xl">
+          <p className="text-[11px] font-bold tracking-[0.18em] text-white/25 uppercase mb-16">
+            About the SVU
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-14">
+
+            <div>
+              <p className="text-[10px] font-bold tracking-[0.18em] text-swin-red-light uppercase mb-3">Overview</p>
+              <p className="text-[15px] font-light text-white/80 leading-relaxed">
+                Swinburne's Virtual Universe brings the cosmos closer with immersive storytelling powered by real scientific data and cinematic visuals.
+              </p>
+              <p className="mt-3 text-[13px] text-white/40 leading-relaxed">
+                Visitors can witness black holes, pulsars, and cosmological simulations in a powerful visual format.
+              </p>
+            </div>
+
+            <div>
+              <p className="text-[10px] font-bold tracking-[0.18em] text-swin-red-light uppercase mb-3">Technology</p>
+              <p className="text-[15px] font-light text-white/80 leading-relaxed">
+                At the heart of the SVU is a 100m² LED wall delivering stereoscopic 3D visuals driven by high-performance GPUs and real-time rendering engines.
+              </p>
+              <p className="mt-3 text-[13px] text-white/40 leading-relaxed">
+                The system supports scientific data visualisation at extreme resolutions, allowing audiences to explore space with unparalleled fidelity.
+              </p>
+            </div>
+
+            <div>
+              <p className="text-[10px] font-bold tracking-[0.18em] text-swin-red-light uppercase mb-3">Experiences</p>
+              <p className="text-[15px] font-light text-white/80 leading-relaxed">
+                The SVU showcases interactive stories of cosmic events — from the birth of stars to the collision of black holes.
+              </p>
+              <p className="mt-3 text-[13px] text-white/40 leading-relaxed">
+                Each experience is designed to evoke awe and curiosity, making advanced astrophysics accessible to everyone.
+              </p>
+            </div>
+
+            <div>
+              <p className="text-[10px] font-bold tracking-[0.18em] text-swin-red-light uppercase mb-3">Collaboration</p>
+              <p className="text-[15px] font-light text-white/80 leading-relaxed">
+                The SVU is a hub for scientists, artists, educators, and technologists to co-create unique, meaningful experiences.
+              </p>
+              <p className="mt-3 text-[13px] text-white/40 leading-relaxed">
+                Through partnerships with institutions and industry, we're redefining how science is communicated.
+              </p>
+            </div>
+
+            <div>
+              <p className="text-[10px] font-bold tracking-[0.18em] text-swin-red-light uppercase mb-3">Future</p>
+              <p className="text-[15px] font-light text-white/80 leading-relaxed">
+                The SVU is a constantly evolving platform — expanding into generative storytelling, immersive gaming, and AI-driven science communication.
+              </p>
+              <p className="mt-3 text-[13px] text-white/40 leading-relaxed">
+                The future is bright, and the universe is just getting started.
+              </p>
+            </div>
+
+            <div className="flex flex-col justify-center">
+              <p className="text-[13px] text-white/30 leading-relaxed mb-5">
+                For enquiries or a tour of Swinburne's Virtual Universe.
+              </p>
+              <a
+                href="mailto:cknox@swin.edu.au"
+                className="self-start rounded-full border border-white/15 px-5 py-2.5 text-[13px] font-medium text-white/60 hover:text-white hover:border-white/30 transition-all duration-200"
+              >
+                Get in touch →
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
       {/* ── Full-width CTA band ──────────────────────────────── */}
       <section className="relative overflow-hidden">
         <Image
