@@ -10,20 +10,20 @@ export function ParallaxHero({ children }: { children: React.ReactNode }) {
     if (!el) return
 
     let rafId: number
-    let lastScrollY = window.scrollY
+
+    function update() {
+      if (!el) return
+      // Negative translateY — image moves up as you scroll, never reveals black at top.
+      // scale(1.2) gives 20% overflow so the image always covers the section.
+      el.style.transform = `translateY(${-window.scrollY * 0.3}px) scale(1.2)`
+    }
 
     function onScroll() {
       if (rafId) return
-      rafId = requestAnimationFrame(() => {
-        lastScrollY = window.scrollY
-        if (el) {
-          // Move background up at 40% scroll rate for parallax depth
-          el.style.transform = `translateY(${lastScrollY * 0.4}px) scale(1.02)`
-        }
-        rafId = 0
-      })
+      rafId = requestAnimationFrame(() => { update(); rafId = 0 })
     }
 
+    update() // set immediately on mount — no flash
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => {
       window.removeEventListener('scroll', onScroll)
