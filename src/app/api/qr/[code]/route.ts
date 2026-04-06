@@ -10,7 +10,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ cod
     color: { dark: '#000000', light: '#ffffff' },
   })
 
-  return new Response(png, {
+  return new Response(png as unknown as BodyInit, {
     headers: {
       'Content-Type': 'image/png',
       'Cache-Control': 'public, max-age=31536000, immutable',
