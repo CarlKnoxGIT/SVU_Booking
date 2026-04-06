@@ -1,17 +1,24 @@
 'use client'
 
+import { useTransition } from 'react'
 import { cancelBooking } from './actions'
 
 export function CancelBookingButton({ bookingId }: { bookingId: string }) {
+  const [pending, startTransition] = useTransition()
+
+  function handleClick() {
+    if (!confirm('Cancel this booking?')) return
+    startTransition(() => cancelBooking(bookingId))
+  }
+
   return (
-    <form action={cancelBooking.bind(null, bookingId)}>
-      <button
-        type="submit"
-        className="text-[11px] text-white/20 hover:text-red-400 transition-colors"
-        onClick={e => { if (!confirm('Cancel this booking?')) e.preventDefault() }}
-      >
-        Cancel
-      </button>
-    </form>
+    <button
+      type="button"
+      disabled={pending}
+      onClick={handleClick}
+      className="text-[11px] text-white/20 hover:text-red-400 transition-colors disabled:opacity-40"
+    >
+      {pending ? 'Cancelling…' : 'Cancel'}
+    </button>
   )
 }

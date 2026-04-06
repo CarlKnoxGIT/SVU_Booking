@@ -36,7 +36,7 @@ export default function Home() {
           <h1 className="text-5xl sm:text-[72px] font-light tracking-[-1.5px] leading-[1.04] mb-5">
             Step inside<br />the universe
           </h1>
-          <p className="text-base sm:text-lg text-white/50 mb-10 leading-relaxed max-w-xl mx-auto">
+          <p className="text-base sm:text-lg text-white/80 mb-10 leading-relaxed max-w-xl mx-auto">
             100m² curved LED wall. 360° immersive audio. Real scientific data.
             <br className="hidden sm:block" />Experience space like never before.
           </p>
