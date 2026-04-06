@@ -29,9 +29,11 @@ export function TicketCheckout({ eventId, ticketPrice, isFree, ticketsLeft }: Pr
     setLoading(true)
     setError(null)
 
+    const base = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
+
     if (isFree) {
       // Free reservation — no Stripe needed
-      const res = await fetch('/api/reserve', {
+      const res = await fetch(`${base}/api/reserve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ eventId, quantity, name, email }),
@@ -41,7 +43,7 @@ export function TicketCheckout({ eventId, ticketPrice, isFree, ticketsLeft }: Pr
       router.push(`/events/${eventId}/tickets/success${data.qrCode ? `?qr=${data.qrCode}` : ''}`)
     } else {
       // Paid — redirect to Stripe
-      const res = await fetch('/api/checkout', {
+      const res = await fetch(`${base}/api/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ eventId, quantity }),
