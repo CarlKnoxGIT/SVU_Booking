@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
   const unitPrice = Math.round(Number(event.ticket_price) * 100) // cents
 
   const origin = req.headers.get('origin') ?? process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 
   const stripe = getStripe()
   const session = await stripe.checkout.sessions.create({
@@ -55,8 +56,8 @@ export async function POST(req: NextRequest) {
       event_id: eventId,
       quantity: String(quantity),
     },
-    success_url: `${origin}/events/${eventId}/tickets/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${origin}/events/${eventId}/tickets`,
+    success_url: `${origin}${basePath}/events/${eventId}/tickets/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${origin}${basePath}/events/${eventId}/tickets`,
   })
 
   return NextResponse.json({ url: session.url })
