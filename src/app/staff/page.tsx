@@ -113,6 +113,14 @@ function BookingCard({ booking: b, muted }: { booking: Booking; muted?: boolean 
         >
           {b.status}
         </span>
+        {b.status === 'pending' && !muted && (
+          <Link
+            href={`/staff/bookings/${b.id}/edit`}
+            className="text-[11px] text-white/20 hover:text-white transition-colors"
+          >
+            Edit
+          </Link>
+        )}
         {(b.status === 'pending' || b.status === 'confirmed') && !muted && (
           <CancelBookingButton bookingId={b.id} />
         )}

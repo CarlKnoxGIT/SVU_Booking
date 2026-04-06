@@ -6,7 +6,9 @@ import { approveStaffRequest, rejectStaffRequest } from './staff-requests/action
 import { EnquiryStatusSelector } from './enquiries/status-selector'
 import { RoleSelector } from './users/role-selector'
 import { DeleteUserButton } from './users/delete-button'
-
+import { InviteStaff } from './users/invite-staff'
+import { BroadcastForm } from './broadcast/broadcast-form'
+import { DuplicateEventButton } from './events/duplicate-button'
 
 const STATUS_STYLES: Record<string, string> = {
   new: 'bg-swin-red/10 text-swin-red-light',
@@ -66,12 +68,14 @@ export default async function AdminPage() {
 
   const isPast = (dateStr: string) => new Date(dateStr) < new Date()
 
+  const base = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
+
   return (
     <div className="max-w-5xl px-10 py-10 space-y-16">
 
       {/* ── Bookings ─────────────────────────────────── */}
       <section id="bookings">
-        <SectionHeader title="Bookings" subtitle="Click any block to approve, decline, or cancel.">
+        <SectionHeader title="Bookings" subtitle="Click any block to approve, decline, edit, or cancel.">
           <Link href="/admin/bookings" className="text-[12px] text-white/30 hover:text-white/60 transition-colors">
             Full view →
           </Link>
@@ -190,9 +194,18 @@ export default async function AdminPage() {
       {/* ── Events ───────────────────────────────────── */}
       <section id="events">
         <SectionHeader title="Events" subtitle="Manage public events and ticketing.">
-          <Link href="/admin/events/new" className="rounded-xl bg-swin-red px-4 py-2 text-[12px] font-semibold text-white hover:bg-swin-red-hover transition-all">
-            Create event
-          </Link>
+          <div className="flex items-center gap-3">
+            <a
+              href={`${base}/api/admin/reports/attendance`}
+              className="text-[12px] text-white/30 hover:text-white/60 transition-colors"
+              title="Download attendance report"
+            >
+              ↓ Report
+            </a>
+            <Link href="/admin/events/new" className="rounded-xl bg-swin-red px-4 py-2 text-[12px] font-semibold text-white hover:bg-swin-red-hover transition-all">
+              Create event
+            </Link>
+          </div>
         </SectionHeader>
 
         {events.length > 0 ? (
@@ -231,6 +244,14 @@ export default async function AdminPage() {
                     <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium ${e.is_published ? 'bg-emerald-500/10 text-emerald-400' : 'bg-white/[0.06] text-white/35'}`}>
                       {e.is_published ? 'Published' : 'Draft'}
                     </span>
+                    <a
+                      href={`${base}/api/admin/events/${e.id}/guests`}
+                      className="text-[12px] text-white/25 hover:text-white/60 transition-colors"
+                      title="Download guest list CSV"
+                    >
+                      ↓ Guests
+                    </a>
+                    <DuplicateEventButton eventId={e.id} />
                     <Link href={`/admin/events/${e.id}/edit`} className="text-[12px] text-white/25 hover:text-white/60 transition-colors">
                       Edit
                     </Link>
@@ -341,6 +362,11 @@ export default async function AdminPage() {
       <section id="users">
         <SectionHeader title="Users" subtitle="Manage user accounts and roles." />
 
+        <div className="mb-6">
+          <p className="text-[11px] font-bold tracking-[0.12em] text-white/25 uppercase mb-3">Invite staff</p>
+          <InviteStaff />
+        </div>
+
         {users.length > 0 ? (
           <div className="rounded-2xl border border-white/[0.07] overflow-hidden">
             {users.map((u, i) => (
@@ -364,7 +390,18 @@ export default async function AdminPage() {
         )}
       </section>
 
-      <div className="h-16" /> {/* bottom padding */}
+      <Divider />
+
+      {/* ── Broadcast ────────────────────────────────── */}
+      <section id="broadcast">
+        <SectionHeader
+          title="Broadcast"
+          subtitle="Send an email to all staff with confirmed bookings in a date range."
+        />
+        <BroadcastForm />
+      </section>
+
+      <div className="h-16" />
     </div>
   )
 }

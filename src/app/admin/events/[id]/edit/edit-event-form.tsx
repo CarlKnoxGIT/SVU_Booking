@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import { useState } from 'react'
+import { ImageUpload } from '../../image-upload'
 
 type State = { error?: string } | null
 
@@ -21,6 +22,7 @@ interface Event {
   max_capacity: number
   humanitix_url: string | null
   is_published: boolean
+  image_url?: string | null
 }
 
 export function EditEventForm({ event }: { event: Event }) {
@@ -78,6 +80,11 @@ export function EditEventForm({ event }: { event: Event }) {
               defaultValue={event.max_capacity}
               className="border-white/10 bg-white/5 text-white focus-visible:ring-swin-red" />
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-[12px] text-white/50 uppercase tracking-wide">Event image <span className="normal-case text-white/20">(optional)</span></Label>
+          <ImageUpload name="image_url" currentUrl={event.image_url} />
         </div>
 
         <div className="space-y-2">

@@ -17,6 +17,7 @@ export async function createEvent(_prevState: State, formData: FormData): Promis
   const max_capacity = parseInt(formData.get('max_capacity') as string) || 60
   const is_published = formData.getAll('is_published').includes('true')
   const humanitix_url = (formData.get('humanitix_url') as string) || null
+  const image_url = (formData.get('image_url') as string) || null
   const is_free = ticket_price === 0
 
   if (!title || !event_date || !start_time || !end_time) {
@@ -36,6 +37,7 @@ export async function createEvent(_prevState: State, formData: FormData): Promis
       is_free,
       is_published,
       humanitix_url,
+      image_url,
       tickets_sold: 0,
     })
     .select('id')

@@ -15,6 +15,7 @@ export async function updateEvent(_prevState: State, formData: FormData): Promis
   const ticket_price = parseFloat(formData.get('ticket_price') as string) || 0
   const max_capacity = parseInt(formData.get('max_capacity') as string) || 60
   const humanitix_url = (formData.get('humanitix_url') as string) || null
+  const image_url = (formData.get('image_url') as string) || null
   const is_published = formData.getAll('is_published').includes('true')
   const is_free = ticket_price === 0
 
@@ -25,7 +26,7 @@ export async function updateEvent(_prevState: State, formData: FormData): Promis
   const supabase = await createClient()
   const { error } = await supabase
     .from('events')
-    .update({ title, description: description || null, event_date, start_time, end_time, ticket_price, max_capacity, humanitix_url, is_published, is_free, updated_at: new Date().toISOString() })
+    .update({ title, description: description || null, event_date, start_time, end_time, ticket_price, max_capacity, humanitix_url, image_url, is_published, is_free, updated_at: new Date().toISOString() })
     .eq('id', id)
 
   if (error) {

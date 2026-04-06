@@ -71,6 +71,142 @@ export async function getAdminWeekBookings(weekStart: string) {
   return data ?? []
 }
 
+export async function bulkDeleteBookings(ids: string[]) {
+  const supabase = createAdminClient()
+  await supabase.from('bookings').delete().in('id', ids)
+  revalidatePath('/admin')
+}
+
+export async function bulkApproveBookings(ids: string[]) {
+  const supabase = createAdminClient()
+  await supabase
+    .from('bookings')
+    .update({ status: 'confirmed', approved_at: new Date().toISOString() })
+    .in('id', ids)
+  // Send confirmation emails
+  await Promise.all(ids.map(id => sendBookingEmail(id, true).catch(() => {})))
+  revalidatePath('/admin')
+}
+
+export async function blockDates(fields: {
+  reason: string
+  start_date: string
+  end_date: string
+  start_time: string
+  end_time: string
+}) {
+  const supabase = createAdminClient()
+  const { data: facility } = await supabase.from('facilities').select('id').eq('is_active', true).single()
+  if (!facility) throw new Error('Facility not found')
+
+  // Get the admin user to assign bookings to
+  const { data: admin } = await supabase.from('users').select('id').eq('role', 'super_admin').limit(1).single()
+  if (!admin) throw new Error('No admin user found')
+
+  // Create one booking per day in the range
+  const start = new Date(fields.start_date)
+  const end = new Date(fields.end_date)
+  const rows = []
+  const cursor = new Date(start)
+  while (cursor <= end) {
+    const dateStr = cursor.toISOString().split('T')[0]
+    rows.push({
+      user_id: admin.id,
+      facility_id: facility.id,
+      title: fields.reason,
+      booking_type: 'maintenance',
+      status: 'confirmed',
+      start_time: new Date(`${dateStr}T${fields.start_time}:00`).toISOString(),
+      end_time: new Date(`${dateStr}T${fields.end_time}:00`).toISOString(),
+    })
+    cursor.setDate(cursor.getDate() + 1)
+  }
+
+  const { error } = await supabase.from('bookings').insert(rows)
+  if (error) throw new Error(error.message)
+  revalidatePath('/admin')
+}
+
+export async function adminCreateBooking(fields: {
+  title: string
+  booking_type: string
+  description: string | null
+  start_time: string
+  end_time: string
+  attendee_count: number | null
+  status: string
+}) {
+  const supabase = createAdminClient()
+
+  const { data: facility } = await supabase
+    .from('facilities')
+    .select('id')
+    .eq('is_active', true)
+    .single()
+
+  if (!facility) throw new Error('Facility not found')
+
+  const { error } = await supabase.from('bookings').insert({
+    ...fields,
+    facility_id: facility.id,
+    user_id: (await supabase.from('users').select('id').eq('role', 'super_admin').limit(1).single()).data?.id,
+  })
+
+  if (error) throw new Error(error.message)
+  revalidatePath('/admin')
+}
+
+export async function adminUpdateAllByTitle(
+  originalTitle: string,
+  fields: { title: string; booking_type: string; status: string; start_time_of_day: string; end_time_of_day: string }
+) {
+  const supabase = createAdminClient()
+  // Fetch all bookings with this title
+  const { data: matches } = await supabase
+    .from('bookings')
+    .select('id, start_time, end_time')
+    .eq('title', originalTitle)
+
+  if (!matches || matches.length === 0) return
+
+  // Update each one preserving its date but using new times
+  await Promise.all(matches.map(b => {
+    const date = b.start_time.slice(0, 10)
+    const newStart = new Date(`${date}T${fields.start_time_of_day}:00`)
+    const newEnd = new Date(`${date}T${fields.end_time_of_day}:00`)
+    return supabase.from('bookings').update({
+      title: fields.title,
+      booking_type: fields.booking_type,
+      status: fields.status,
+      start_time: newStart.toISOString(),
+      end_time: newEnd.toISOString(),
+    }).eq('id', b.id)
+  }))
+
+  revalidatePath('/admin')
+}
+
+export async function adminUpdateBooking(
+  id: string,
+  fields: {
+    title: string
+    booking_type: string
+    description: string | null
+    start_time: string
+    end_time: string
+    attendee_count: number | null
+    status: string
+  }
+) {
+  const supabase = createAdminClient()
+  const { error } = await supabase
+    .from('bookings')
+    .update(fields)
+    .eq('id', id)
+  if (error) throw new Error(error.message)
+  revalidatePath('/admin')
+}
+
 export async function approveBooking(formData: FormData) {
   const id = formData.get('id') as string
   const supabase = createAdminClient()

@@ -5,5 +5,11 @@
       "destination": "/bookings",
       "permanent": false
     }
+  ],
+  "crons": [
+    {
+      "path": "/bookings/api/cron/booking-reminders",
+      "schedule": "0 23 * * *"
+    }
   ]
 }

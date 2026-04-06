@@ -23,6 +23,7 @@ export type BookingType =
   | 'external_hire'
   | 'maintenance'
   | 'recurring'
+  | 'vip'
 
 export type BookingStatus =
   | 'pending'

@@ -14,6 +14,7 @@ const BOOKING_TYPES = [
   { value: 'public_event', label: 'Public Event' },
   { value: 'external_hire', label: 'External Hire' },
   { value: 'maintenance', label: 'Maintenance' },
+  { value: 'vip', label: 'VIP' },
 ]
 
 const DURATION_OPTIONS = [
@@ -61,12 +62,48 @@ function isSameDay(a: Date, b: Date) {
     a.getDate() === b.getDate()
 }
 
+function layoutBookings<T extends { start_time: string; end_time: string }>(bookings: T[]) {
+  const sorted = [...bookings].sort((a, b) =>
+    new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
+  )
+  const cols: T[][] = []
+  const colMap = new Map<T, number>()
+
+  for (const b of sorted) {
+    const start = new Date(b.start_time).getTime()
+    let placed = false
+    for (let c = 0; c < cols.length; c++) {
+      const last = cols[c][cols[c].length - 1]
+      if (new Date(last.end_time).getTime() <= start) {
+        cols[c].push(b)
+        colMap.set(b, c)
+        placed = true
+        break
+      }
+    }
+    if (!placed) { cols.push([b]); colMap.set(b, cols.length - 1) }
+  }
+
+  return sorted.map(b => {
+    const col = colMap.get(b)!
+    const bs = new Date(b.start_time).getTime()
+    const be = new Date(b.end_time).getTime()
+    const overlapping = sorted.filter(o => {
+      const os = new Date(o.start_time).getTime()
+      const oe = new Date(o.end_time).getTime()
+      return os < be && oe > bs
+    })
+    const totalCols = Math.max(...overlapping.map(o => colMap.get(o)!)) + 1
+    return { booking: b, col, totalCols }
+  })
+}
+
 export function BookingCalendar() {
   const [weekStart, setWeekStart] = useState(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d })
   const [bookings, setBookings] = useState<Booking[]>([])
   const [selectedSlot, setSelectedSlot] = useState<{ date: string; hour: number } | null>(null)
   const [panelOpen, setPanelOpen] = useState(false)
-  const [hourHeight, setHourHeight] = useState(Math.round(HOUR_HEIGHT * 0.44))
+  const hourHeight = Math.round(HOUR_HEIGHT * 0.44)
 
   const days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(weekStart)
@@ -132,23 +169,6 @@ export function BookingCalendar() {
                 Today
               </button>
             )}
-            <div className="flex items-center gap-1 rounded-lg border border-white/[0.08] bg-white/[0.03] px-1 py-1">
-              <button
-                onClick={() => setHourHeight(h => Math.max(28, h - 16))}
-                className="w-6 h-6 flex items-center justify-center rounded text-white/40 hover:text-white hover:bg-white/[0.06] transition-colors text-[14px] leading-none"
-                title="Zoom out"
-              >−</button>
-              <button
-                onClick={() => setHourHeight(HOUR_HEIGHT)}
-                className="px-2 text-[10px] text-white/30 hover:text-white/60 transition-colors tabular-nums"
-                title="Reset zoom"
-              >{Math.round((hourHeight / HOUR_HEIGHT) * 100)}%</button>
-              <button
-                onClick={() => setHourHeight(h => Math.min(120, h + 16))}
-                className="w-6 h-6 flex items-center justify-center rounded text-white/40 hover:text-white hover:bg-white/[0.06] transition-colors text-[14px] leading-none"
-                title="Zoom in"
-              >+</button>
-            </div>
             <div className="flex items-center gap-3 text-[11px] text-white/30 flex-wrap">
               <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm bg-blue-400/70" />Academic</span>
               <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm bg-violet-400/70" />School</span>
@@ -209,14 +229,22 @@ export function BookingCalendar() {
                     />
                   ))}
 
-                  {/* Booking blocks */}
-                  {dayBookings.map(b => {
+                  {/* Booking blocks — stacked with per-layer opacity */}
+                  {layoutBookings(dayBookings).map(({ booking: b, col, totalCols }) => {
                     const start = new Date(b.start_time)
                     const end = new Date(b.end_time)
                     const startFrac = start.getHours() + start.getMinutes() / 60
                     const endFrac = end.getHours() + end.getMinutes() / 60
-                    const top = (startFrac - START_HOUR) * hourHeight
-                    const height = Math.max((endFrac - startFrac) * hourHeight, 20)
+                    const baseTop = (startFrac - START_HOUR) * hourHeight
+                    const baseHeight = Math.max((endFrac - startFrac) * hourHeight, 20)
+
+                    const STACK_OFFSET = 12
+                    const stackShift = col * STACK_OFFSET
+                    const top = baseTop + stackShift
+                    const height = Math.max(baseHeight - stackShift, 20)
+
+                    let opacity = totalCols > 1 ? 1 / totalCols : 1
+                    if (b.status === 'pending') opacity *= 0.7
 
                     const typeColours: Record<string, string> = {
                       academic:      'bg-blue-500/25 border-blue-400/50 text-blue-200',
@@ -225,16 +253,16 @@ export function BookingCalendar() {
                       external_hire: 'bg-teal-500/25 border-teal-400/50 text-teal-200',
                       maintenance:   'bg-zinc-500/25 border-zinc-400/50 text-zinc-300',
                       recurring:     'bg-pink-500/25 border-pink-400/50 text-pink-200',
+                      vip:           'bg-yellow-500/25 border-yellow-400/50 text-yellow-200',
                     }
                     const base = typeColours[b.booking_type] ?? 'bg-white/10 border-white/20 text-white/60'
-                    const pending = b.status === 'pending' ? 'opacity-60 border-dashed' : ''
-                    const colours = `${base} ${pending}`
+                    const pending = b.status === 'pending' ? 'border-dashed' : ''
 
                     return (
                       <div
                         key={b.id}
-                        style={{ top, height, left: 2, right: 2 }}
-                        className={`absolute rounded border px-2 py-1 overflow-hidden pointer-events-none ${colours}`}
+                        style={{ top, height, left: 2, right: 2, zIndex: col, opacity }}
+                        className={`absolute rounded border px-2 py-1 overflow-hidden pointer-events-none ${base} ${pending}`}
                       >
                         <p className="text-[11px] font-medium leading-tight truncate">{b.title}</p>
                         {height > 36 && (

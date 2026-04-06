@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import Link from 'next/link'
+import { ImageUpload } from '../image-upload'
 
 type State = { error?: string } | null
 
@@ -113,6 +114,11 @@ export function NewEventForm() {
             className="border-white/10 bg-white/5 text-white focus-visible:ring-swin-red"
           />
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label className="text-[12px] text-white/50 uppercase tracking-wide">Event image <span className="normal-case text-white/20">(optional)</span></Label>
+        <ImageUpload name="image_url" />
       </div>
 
       <div className="space-y-2">

@@ -1,10 +1,11 @@
 'use client'
 
-import { useActionState, useState } from 'react'
-import { createBookingRequest } from './actions'
-import { Button } from '@/components/ui/button'
+import { useActionState } from 'react'
+import { updateBooking } from './actions'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 
 const BOOKING_TYPES = [
   { value: 'academic', label: 'Academic / Teaching', desc: 'Lecture, tutorial, or research session' },
@@ -19,28 +20,33 @@ const DURATION_OPTIONS = [
   { value: '120', label: '2 hours' },
   { value: '180', label: '3 hours' },
   { value: '240', label: '4 hours' },
+  { value: 'custom', label: 'Custom end time' },
 ]
+
+type Booking = {
+  id: string
+  title: string
+  booking_type: string
+  description: string | null
+  start_time: string
+  end_time: string
+  attendee_count: number | null
+}
 
 type State = { error?: string } | null
 
-export function BookingForm() {
+export function EditBookingForm({ booking }: { booking: Booking }) {
+  const updateWithId = updateBooking.bind(null, booking.id)
   const [state, formAction, pending] = useActionState(
-    createBookingRequest as (state: State, formData: FormData) => Promise<State>,
+    updateWithId as (state: State, formData: FormData) => Promise<State>,
     null
   )
 
-  const [bookingType, setBookingType] = useState('academic')
-  const [recurring, setRecurring] = useState(false)
-
-  // Default to tomorrow
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  const defaultDate = tomorrow.toISOString().split('T')[0]
-
-  // Default series end: 13 weeks from tomorrow
-  const defaultSeriesEnd = new Date(tomorrow)
-  defaultSeriesEnd.setDate(defaultSeriesEnd.getDate() + 91)
-  const defaultSeriesEndStr = defaultSeriesEnd.toISOString().split('T')[0]
+  const startAt = new Date(booking.start_time)
+  const endAt = new Date(booking.end_time)
+  const defaultDate = startAt.toISOString().split('T')[0]
+  const defaultStartTime = startAt.toTimeString().slice(0, 5)
+  const defaultEndTime = endAt.toTimeString().slice(0, 5)
 
   return (
     <form action={formAction} className="space-y-6">
@@ -57,8 +63,7 @@ export function BookingForm() {
                 type="radio"
                 name="booking_type"
                 value={type.value}
-                defaultChecked={type.value === 'academic'}
-                onChange={() => { setBookingType(type.value); if (type.value !== 'academic') setRecurring(false) }}
+                defaultChecked={booking.booking_type === type.value}
                 className="sr-only"
                 required
               />
@@ -78,7 +83,7 @@ export function BookingForm() {
           id="title"
           name="title"
           required
-          placeholder="e.g. COS30049 Week 8 Lab"
+          defaultValue={booking.title}
           className="border-white/10 bg-white/5 text-white placeholder:text-zinc-500 focus-visible:ring-swin-red"
         />
       </div>
@@ -92,7 +97,7 @@ export function BookingForm() {
           id="description"
           name="description"
           rows={3}
-          placeholder="Brief description of the session purpose and any special requirements…"
+          defaultValue={booking.description ?? ''}
           className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-swin-red resize-none"
         />
       </div>
@@ -101,7 +106,7 @@ export function BookingForm() {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="start_date" className="text-zinc-300">
-            {recurring ? 'First session date' : 'Date'} <span className="text-red-400">*</span>
+            Date <span className="text-red-400">*</span>
           </Label>
           <Input
             id="start_date"
@@ -109,7 +114,6 @@ export function BookingForm() {
             type="date"
             required
             defaultValue={defaultDate}
-            min={defaultDate}
             className="border-white/10 bg-white/5 text-white focus-visible:ring-swin-red [color-scheme:dark]"
           />
         </div>
@@ -122,7 +126,7 @@ export function BookingForm() {
             name="start_time"
             type="time"
             required
-            defaultValue="09:00"
+            defaultValue={defaultStartTime}
             step="900"
             className="border-white/10 bg-white/5 text-white focus-visible:ring-swin-red [color-scheme:dark]"
           />
@@ -132,21 +136,18 @@ export function BookingForm() {
       {/* Duration + attendees */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="duration_minutes" className="text-zinc-300">
-            Duration
+          <Label htmlFor="end_time" className="text-zinc-300">
+            End time <span className="text-red-400">*</span>
           </Label>
-          <select
-            id="duration_minutes"
-            name="duration_minutes"
-            defaultValue="60"
-            className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-swin-red"
-          >
-            {DURATION_OPTIONS.map((d) => (
-              <option key={d.value} value={d.value} className="bg-zinc-900">
-                {d.label}
-              </option>
-            ))}
-          </select>
+          <Input
+            id="end_time"
+            name="end_time"
+            type="time"
+            required
+            defaultValue={defaultEndTime}
+            step="900"
+            className="border-white/10 bg-white/5 text-white focus-visible:ring-swin-red [color-scheme:dark]"
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="attendee_count" className="text-zinc-300">
@@ -158,58 +159,11 @@ export function BookingForm() {
             type="number"
             min="1"
             max="100"
-            placeholder="e.g. 25"
+            defaultValue={booking.attendee_count ?? ''}
             className="border-white/10 bg-white/5 text-white placeholder:text-zinc-500 focus-visible:ring-swin-red"
           />
         </div>
       </div>
-
-      {/* Recurring toggle — academic only */}
-      {bookingType === 'academic' && (
-        <div className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-4">
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              name="is_recurring"
-              value="1"
-              checked={recurring}
-              onChange={e => setRecurring(e.target.checked)}
-              className="w-4 h-4 rounded border-white/20 bg-white/5 accent-swin-red"
-            />
-            <div>
-              <p className="text-sm font-medium text-white">Repeat this booking</p>
-              <p className="text-xs text-zinc-500">Automatically create multiple sessions on a regular schedule</p>
-            </div>
-          </label>
-
-          {recurring && (
-            <div className="grid gap-4 sm:grid-cols-2 pt-1">
-              <div className="space-y-2">
-                <Label htmlFor="recurrence_pattern" className="text-zinc-300">Repeat every</Label>
-                <select
-                  id="recurrence_pattern"
-                  name="recurrence_pattern"
-                  defaultValue="weekly"
-                  className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-swin-red"
-                >
-                  <option value="weekly" className="bg-zinc-900">Week</option>
-                  <option value="biweekly" className="bg-zinc-900">2 weeks</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="series_end" className="text-zinc-300">Until</Label>
-                <Input
-                  id="series_end"
-                  name="series_end"
-                  type="date"
-                  defaultValue={defaultSeriesEndStr}
-                  className="border-white/10 bg-white/5 text-white focus-visible:ring-swin-red [color-scheme:dark]"
-                />
-              </div>
-            </div>
-          )}
-        </div>
-      )}
 
       {state?.error && (
         <p className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
@@ -217,13 +171,21 @@ export function BookingForm() {
         </p>
       )}
 
-      <Button
-        type="submit"
-        disabled={pending}
-        className="w-full bg-swin-red hover:bg-swin-red-hover text-white"
-      >
-        {pending ? 'Submitting…' : 'Submit booking request'}
-      </Button>
+      <div className="flex gap-3">
+        <Button
+          type="submit"
+          disabled={pending}
+          className="flex-1 bg-swin-red hover:bg-swin-red-hover text-white"
+        >
+          {pending ? 'Saving…' : 'Save changes'}
+        </Button>
+        <Link
+          href="/staff"
+          className="inline-flex items-center justify-center rounded-md border border-white/10 px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors"
+        >
+          Cancel
+        </Link>
+      </div>
     </form>
   )
 }
