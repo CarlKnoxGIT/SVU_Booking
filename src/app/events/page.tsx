@@ -13,6 +13,7 @@ export default async function EventsPage() {
     .eq('is_published', true)
     .gte('event_date', new Date().toISOString().split('T')[0])
     .order('event_date', { ascending: true })
+    .order('start_time', { ascending: true })
 
   return (
     <main className="bg-black text-white">
