@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { getStripe } from '@/lib/stripe/client'
 import { createAdminClient } from '@/lib/supabase/server'
 import { sendTicketConfirmation } from '@/lib/email/send-ticket-confirmation'
