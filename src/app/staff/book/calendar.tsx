@@ -77,7 +77,7 @@ export function BookingCalendar() {
   const loadBookings = useCallback(async () => {
     const data = await getWeekBookings(formatDate(weekStart))
     console.log('[calendar] bookings loaded:', data)
-    setBookings(data as Booking[])
+    setBookings(data as unknown as Booking[])
   }, [weekStart])
 
   useEffect(() => { loadBookings() }, [loadBookings])
