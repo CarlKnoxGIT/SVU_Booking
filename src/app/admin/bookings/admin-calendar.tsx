@@ -67,7 +67,7 @@ export function AdminBookingCalendar() {
   const loadBookings = useCallback(async () => {
     setLoading(true)
     const data = await getAdminWeekBookings(formatDate(weekStart))
-    setBookings(data as Booking[])
+    setBookings(data as unknown as Booking[])
     setLoading(false)
   }, [weekStart])
 
