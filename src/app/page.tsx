@@ -20,7 +20,7 @@ export default function Home() {
       </nav>
 
       {/* ── Hero ─────────────────────────────────────────────── */}
-      <section className="relative h-screen min-h-[700px] flex flex-col items-center justify-center overflow-hidden">
+      <section className="relative z-10 h-screen min-h-[700px] flex flex-col items-center justify-center overflow-hidden">
         <ParallaxHero>
           <Image
             src="/images/SVU19BC.jpg"

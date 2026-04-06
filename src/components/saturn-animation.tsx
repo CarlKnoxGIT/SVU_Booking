@@ -80,7 +80,7 @@ export function SaturnAnimation({ children }: { children?: React.ReactNode }) {
   }, [])
 
   return (
-    <section ref={sectionRef} className="relative" style={{ height: '250vh' }}>
+    <section ref={sectionRef} className="relative" style={{ height: '160vh', marginTop: '-20vh' }}>
       <div className="sticky top-0 h-screen overflow-hidden">
 
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
