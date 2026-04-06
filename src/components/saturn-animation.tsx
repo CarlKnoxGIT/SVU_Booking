@@ -61,11 +61,6 @@ export function SaturnAnimation({ children }: { children?: React.ReactNode }) {
         paint(frame)
       }
 
-      // Text fades in immediately as section enters view (first 8% of scroll)
-      if (textRef.current) {
-        const t = Math.max(0, Math.min(1, progress / 0.08))
-        textRef.current.style.opacity = String(t)
-      }
 
       // Fade scroll hint out as soon as they start scrolling
       if (hintRef.current) {
@@ -110,7 +105,7 @@ export function SaturnAnimation({ children }: { children?: React.ReactNode }) {
         <div
           ref={textRef}
           className="absolute bottom-0 left-0 right-0 px-10 sm:px-20 pb-20 z-10"
-          style={{ opacity: 0, transition: 'opacity 0.3s ease' }}
+          style={{ opacity: 1 }}
         >
           {children}
         </div>
