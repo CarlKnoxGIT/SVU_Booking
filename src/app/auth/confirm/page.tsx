@@ -1,10 +1,18 @@
 'use client'
 
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 export default function AuthConfirmPage() {
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <AuthConfirm />
+    </Suspense>
+  )
+}
+
+function AuthConfirm() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -41,6 +49,10 @@ export default function AuthConfirmPage() {
     }
   }, [router, searchParams])
 
+  return <LoadingScreen />
+}
+
+function LoadingScreen() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-zinc-950">
       <p className="text-zinc-400 text-sm animate-pulse">Signing you in…</p>
