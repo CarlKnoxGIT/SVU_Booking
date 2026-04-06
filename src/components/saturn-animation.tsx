@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 
 const FRAME_COUNT = 44
+const FPS = 12
 const BASE_URL = 'https://outreach.ozgrav.org/portal2/wp-content/grand-media/image/SaturnAnim'
 
 function pad(n: number) {
@@ -12,11 +13,12 @@ function pad(n: number) {
 export function SaturnAnimation({ children }: { children?: React.ReactNode }) {
   const sectionRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const textRef = useRef<HTMLDivElement>(null)
-  const hintRef = useRef<HTMLDivElement>(null)
   const framesRef = useRef<HTMLImageElement[]>([])
   const currentFrameRef = useRef(0)
   const frameDims = useRef({ w: 0, h: 0 })
+  const rafRef = useRef<number | null>(null)
+  const lastTimeRef = useRef(0)
+  const isVisibleRef = useRef(false)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -47,80 +49,63 @@ export function SaturnAnimation({ children }: { children?: React.ReactNode }) {
       ctx.drawImage(img, (cw - fw * scale) / 2, (ch - fh * scale) / 2, fw * scale, fh * scale)
     }
 
-    function onScroll() {
-      if (!section) return
-      const rect = section.getBoundingClientRect()
-      const scrolled = -rect.top
-      const scrollable = section.offsetHeight - window.innerHeight
-      const progress = Math.max(0, Math.min(1, scrolled / scrollable))
-
-      // Advance frame
-      const frame = Math.min(FRAME_COUNT - 1, Math.floor(progress * FRAME_COUNT))
-      if (frame !== currentFrameRef.current) {
-        currentFrameRef.current = frame
-        paint(frame)
-      }
-
-
-      // Fade scroll hint out as soon as they start scrolling
-      if (hintRef.current) {
-        hintRef.current.style.opacity = String(Math.max(0, 1 - progress * 10))
-      }
+    function tick(time: number) {
+      if (!isVisibleRef.current) return
+      rafRef.current = requestAnimationFrame(tick)
+      if (time - lastTimeRef.current < 1000 / FPS) return
+      lastTimeRef.current = time
+      currentFrameRef.current = (currentFrameRef.current + 1) % FRAME_COUNT
+      paint(currentFrameRef.current)
     }
 
-    // Preload all frames
+    // Start/stop playback based on visibility
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        isVisibleRef.current = entry.isIntersecting
+        if (entry.isIntersecting) {
+          rafRef.current = requestAnimationFrame(tick)
+        } else {
+          if (rafRef.current) cancelAnimationFrame(rafRef.current)
+        }
+      })
+    }, { threshold: 0.1 })
+
+    observer.observe(section)
+
+    // Preload frames — paint frame 0 as soon as it arrives
     for (let i = 0; i < FRAME_COUNT; i++) {
       const img = new Image()
       img.src = BASE_URL + pad(i) + '.jpg'
       img.onload = () => {
-        if (i === 0) { resize(); onScroll() }
-        else paint(currentFrameRef.current)
+        if (i === 0) { resize(); paint(0) }
       }
       framesRef.current[i] = img
     }
 
     resize()
-    window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', resize)
+
     return () => {
-      window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', resize)
+      observer.disconnect()
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
     }
   }, [])
 
   return (
-    <section ref={sectionRef} className="relative" style={{ height: '300vh' }}>
-      <div className="sticky top-0 h-screen overflow-hidden">
+    <section ref={sectionRef} className="relative h-screen min-h-[600px] overflow-hidden">
 
-        {/* Animation canvas */}
-        <canvas
-          ref={canvasRef}
-          className="absolute inset-0 w-full h-full"
-        />
+      {/* Animation canvas */}
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
 
-        {/* Bottom gradient so text is readable */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/70 pointer-events-none" />
+      {/* Subtle vignette */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 pointer-events-none" />
 
-        {/* Overview text — fades in at 50% scroll */}
-        <div
-          ref={textRef}
-          className="absolute bottom-0 left-0 right-0 px-10 sm:px-20 pb-20 z-10"
-          style={{ opacity: 1 }}
-        >
-          {children}
-        </div>
-
-        {/* Scroll hint */}
-        <div
-          ref={hintRef}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none"
-          style={{ transition: 'opacity 0.3s ease' }}
-        >
-          <span className="text-[11px] tracking-[0.18em] text-white/40 uppercase">Scroll</span>
-          <div className="w-px h-6 bg-white/30 animate-pulse" />
-        </div>
-
+      {/* Text — centered, upper third */}
+      <div className="absolute inset-0 flex flex-col items-center justify-start pt-[18vh] px-6 text-center z-10">
+        {children}
       </div>
+
     </section>
   )
 }
