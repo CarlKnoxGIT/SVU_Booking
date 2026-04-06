@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { ensureUserRecord } from '@/lib/auth/ensure-user-record'
 
@@ -17,9 +17,18 @@ export async function signInWithPassword(_prevState: unknown, formData: FormData
     return { error: 'Incorrect email or password.' }
   }
 
-  if (data.user) await ensureUserRecord(data.user)
+  if (data.user) {
+    await ensureUserRecord(data.user)
+    const supabaseAdmin = createAdminClient()
+    const { data: profile } = await supabaseAdmin
+      .from('users')
+      .select('role')
+      .eq('auth_id', data.user.id)
+      .single()
+    redirect(profile?.role === 'super_admin' ? '/admin' : '/staff')
+  }
 
-  redirect('/admin')
+  redirect('/staff')
 }
 
 export async function signInWithGoogle(): Promise<void> {

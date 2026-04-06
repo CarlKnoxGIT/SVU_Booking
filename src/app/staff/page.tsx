@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import { CancelBookingButton } from './cancel-booking-button'
 
 export default async function StaffDashboard() {
   const supabase = await createClient()
@@ -106,11 +107,16 @@ function BookingCard({ booking: b, muted }: { booking: Booking; muted?: boolean 
           )}
         </p>
       </div>
-      <span
-        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${statusColours[b.status] ?? 'bg-zinc-500/10 text-zinc-400'}`}
-      >
-        {b.status}
-      </span>
+      <div className="flex items-center gap-3">
+        <span
+          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${statusColours[b.status] ?? 'bg-zinc-500/10 text-zinc-400'}`}
+        >
+          {b.status}
+        </span>
+        {(b.status === 'pending' || b.status === 'confirmed') && !muted && (
+          <CancelBookingButton bookingId={b.id} />
+        )}
+      </div>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { resend, FROM_ADDRESS } from '@/lib/resend/client'
 
 export async function getWeekBookings(weekStart: string) {
   const supabase = createAdminClient()
@@ -108,6 +109,36 @@ export async function createBookingRequest(_prevState: unknown, formData: FormDa
     .single()
 
   if (error) return { error: error.message }
+
+  // Notify staff their request was received
+  const { data: userRecord } = await supabase
+    .from('users')
+    .select('email, full_name')
+    .eq('id', profile.id)
+    .single()
+
+  if (userRecord?.email) {
+    const dateStr = startAt.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+    const timeStr = startAt.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: false })
+    resend.emails.send({
+      from: FROM_ADDRESS,
+      to: userRecord.email,
+      replyTo: 'cknox@swin.edu.au',
+      subject: `Booking request received — ${title}`,
+      html: `
+        <div style="font-family:sans-serif;background:#000;color:#fff;padding:32px;max-width:560px;">
+          <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.16em;color:rgba(255,255,255,0.3);text-transform:uppercase;">SVU Booking</p>
+          <h2 style="margin:0 0 24px;font-size:22px;font-weight:400;">Request received.</h2>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:20px 24px;margin-bottom:24px;">
+            <p style="margin:0 0 4px;font-size:11px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.12em;">Booking</p>
+            <p style="margin:0 0 16px;font-size:16px;color:#fff;">${title}</p>
+            <p style="margin:0 0 4px;font-size:11px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.12em;">Date &amp; Time</p>
+            <p style="margin:0;font-size:14px;color:rgba(255,255,255,0.8);">${dateStr} · ${timeStr}</p>
+          </div>
+          <p style="font-size:13px;color:rgba(255,255,255,0.5);">Your request is pending admin approval. You'll receive another email once it's reviewed.</p>
+        </div>`,
+    }).catch(err => console.error('[booking request email]', err))
+  }
 
   return { success: true, bookingId: booking.id }
 }

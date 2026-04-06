@@ -58,6 +58,13 @@ export async function POST(request: Request) {
       if (eventId) {
         const qty = Number(session.metadata?.quantity ?? 1)
 
+        // Verify event is published
+        const { data: evtCheck } = await supabase.from('events').select('is_published').eq('id', eventId).single()
+        if (!evtCheck?.is_published) {
+          console.warn('[stripe webhook] event not published, skipping ticket creation:', eventId)
+          break
+        }
+
         // Resolve or create user from Stripe customer email
         const customerEmail = session.customer_details?.email
         let userId: string | null = session.metadata?.user_id ?? null
