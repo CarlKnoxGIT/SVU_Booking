@@ -61,9 +61,9 @@ export function SaturnAnimation({ children }: { children?: React.ReactNode }) {
         paint(frame)
       }
 
-      // Fade text in from 50% scroll progress
+      // Text fades in immediately as section enters view (first 8% of scroll)
       if (textRef.current) {
-        const t = Math.max(0, Math.min(1, (progress - 0.5) / 0.35))
+        const t = Math.max(0, Math.min(1, progress / 0.08))
         textRef.current.style.opacity = String(t)
       }
 
