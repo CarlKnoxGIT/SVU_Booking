@@ -1,4 +1,4 @@
-import { stripe } from '@/lib/stripe/client'
+import { getStripe } from '@/lib/stripe/client'
 import { createAdminClient } from '@/lib/supabase/server'
 import { sendTicketConfirmation } from '@/lib/email/send-ticket-confirmation'
 import { headers } from 'next/headers'
@@ -14,6 +14,7 @@ export async function POST(request: Request) {
     return new Response('Missing stripe-signature header', { status: 400 })
   }
 
+  const stripe = getStripe()
   let event: Stripe.Event
 
   try {
