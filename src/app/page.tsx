@@ -62,15 +62,27 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Feature tiles ────────────────────────────────────── */}
-      <section className="py-20 px-6">
-        <div className="mx-auto max-w-6xl">
+      {/* ── Overview — editorial statement ───────────────────── */}
+      <section className="py-28 px-6 border-t border-white/[0.06]">
+        <div className="mx-auto max-w-4xl">
+          <p className="text-[11px] font-bold tracking-[0.18em] text-white/25 uppercase mb-8">
+            Overview
+          </p>
+          <p className="text-3xl sm:text-4xl font-light leading-[1.25] text-white/90 mb-8 max-w-3xl">
+            Swinburne's Virtual Universe brings the cosmos closer with immersive storytelling powered by real scientific data and cinematic visuals.
+          </p>
+          <p className="text-[15px] text-white/40 leading-relaxed max-w-xl">
+            Visitors can witness black holes, pulsars, and cosmological simulations in a powerful visual format — making advanced astrophysics accessible to everyone.
+          </p>
+        </div>
+      </section>
 
-          {/* Section label */}
+      {/* ── Experience tiles ─────────────────────────────────── */}
+      <section className="pb-20 px-6">
+        <div className="mx-auto max-w-6xl">
           <p className="text-[11px] font-bold tracking-[0.18em] text-white/25 uppercase mb-8">
             Experiences
           </p>
-
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             {/* Big tile */}
             <div className="lg:col-span-2 relative overflow-hidden aspect-[16/10] group cursor-pointer">
@@ -139,77 +151,84 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── About blurbs ─────────────────────────────────────── */}
+      {/* ── Technology — split: image left / text right ───────── */}
+      <section className="flex flex-col lg:flex-row min-h-[540px] border-t border-white/[0.06]">
+        <div className="relative lg:w-1/2 min-h-[320px] lg:min-h-0 overflow-hidden">
+          <Image
+            src="/images/SVU20B.jpg"
+            alt="Visitors exploring the SVU visualisation up close"
+            fill
+            className="object-cover"
+            sizes="(max-width: 1024px) 100vw, 50vw"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/40" />
+        </div>
+        <div className="lg:w-1/2 flex items-center px-10 sm:px-16 py-20 bg-black">
+          <div className="max-w-md">
+            <p className="text-[11px] font-bold tracking-[0.18em] text-swin-red-light uppercase mb-6">Technology</p>
+            <h2 className="text-3xl font-light leading-snug mb-6">
+              A 100m² LED wall.<br />Built for the cosmos.
+            </h2>
+            <p className="text-[15px] text-white/60 leading-relaxed mb-4">
+              At the heart of the SVU is a curved LED wall delivering stereoscopic 3D visuals driven by high-performance GPUs and real-time rendering engines.
+            </p>
+            <p className="text-[14px] text-white/35 leading-relaxed">
+              The system supports scientific data visualisation at extreme resolutions, allowing audiences to explore space with unparalleled fidelity.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Collaboration — split: text left / image right ────── */}
+      <section className="flex flex-col-reverse lg:flex-row min-h-[480px] border-t border-white/[0.06]">
+        <div className="lg:w-1/2 flex items-center px-10 sm:px-16 py-20 bg-black">
+          <div className="max-w-md">
+            <p className="text-[11px] font-bold tracking-[0.18em] text-swin-red-light uppercase mb-6">Collaboration</p>
+            <h2 className="text-3xl font-light leading-snug mb-6">
+              Where science,<br />art, and technology meet.
+            </h2>
+            <p className="text-[15px] text-white/60 leading-relaxed mb-4">
+              The SVU is a hub for scientists, artists, educators, and technologists to co-create unique, meaningful experiences.
+            </p>
+            <p className="text-[14px] text-white/35 leading-relaxed">
+              Through partnerships with institutions and industry, we're redefining how science is communicated.
+            </p>
+          </div>
+        </div>
+        <div className="relative lg:w-1/2 min-h-[320px] lg:min-h-0 overflow-hidden">
+          <Image
+            src="/images/SVU01D.jpg"
+            alt="Audience experiencing the SVU together"
+            fill
+            className="object-cover"
+            sizes="(max-width: 1024px) 100vw, 50vw"
+          />
+          <div className="absolute inset-0 bg-gradient-to-l from-transparent to-black/40" />
+        </div>
+      </section>
+
+      {/* ── Future — full-width dark with inline text ─────────── */}
       <section className="py-24 px-6 border-t border-white/[0.06]">
-        <div className="mx-auto max-w-6xl">
-          <p className="text-[11px] font-bold tracking-[0.18em] text-white/25 uppercase mb-16">
-            About the SVU
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-14">
-
-            <div>
-              <p className="text-[10px] font-bold tracking-[0.18em] text-swin-red-light uppercase mb-3">Overview</p>
-              <p className="text-[15px] font-light text-white/80 leading-relaxed">
-                Swinburne's Virtual Universe brings the cosmos closer with immersive storytelling powered by real scientific data and cinematic visuals.
-              </p>
-              <p className="mt-3 text-[13px] text-white/40 leading-relaxed">
-                Visitors can witness black holes, pulsars, and cosmological simulations in a powerful visual format.
-              </p>
-            </div>
-
-            <div>
-              <p className="text-[10px] font-bold tracking-[0.18em] text-swin-red-light uppercase mb-3">Technology</p>
-              <p className="text-[15px] font-light text-white/80 leading-relaxed">
-                At the heart of the SVU is a 100m² LED wall delivering stereoscopic 3D visuals driven by high-performance GPUs and real-time rendering engines.
-              </p>
-              <p className="mt-3 text-[13px] text-white/40 leading-relaxed">
-                The system supports scientific data visualisation at extreme resolutions, allowing audiences to explore space with unparalleled fidelity.
-              </p>
-            </div>
-
-            <div>
-              <p className="text-[10px] font-bold tracking-[0.18em] text-swin-red-light uppercase mb-3">Experiences</p>
-              <p className="text-[15px] font-light text-white/80 leading-relaxed">
-                The SVU showcases interactive stories of cosmic events — from the birth of stars to the collision of black holes.
-              </p>
-              <p className="mt-3 text-[13px] text-white/40 leading-relaxed">
-                Each experience is designed to evoke awe and curiosity, making advanced astrophysics accessible to everyone.
-              </p>
-            </div>
-
-            <div>
-              <p className="text-[10px] font-bold tracking-[0.18em] text-swin-red-light uppercase mb-3">Collaboration</p>
-              <p className="text-[15px] font-light text-white/80 leading-relaxed">
-                The SVU is a hub for scientists, artists, educators, and technologists to co-create unique, meaningful experiences.
-              </p>
-              <p className="mt-3 text-[13px] text-white/40 leading-relaxed">
-                Through partnerships with institutions and industry, we're redefining how science is communicated.
-              </p>
-            </div>
-
-            <div>
-              <p className="text-[10px] font-bold tracking-[0.18em] text-swin-red-light uppercase mb-3">Future</p>
-              <p className="text-[15px] font-light text-white/80 leading-relaxed">
-                The SVU is a constantly evolving platform — expanding into generative storytelling, immersive gaming, and AI-driven science communication.
-              </p>
-              <p className="mt-3 text-[13px] text-white/40 leading-relaxed">
-                The future is bright, and the universe is just getting started.
-              </p>
-            </div>
-
-            <div className="flex flex-col justify-center">
-              <p className="text-[13px] text-white/30 leading-relaxed mb-5">
-                For enquiries or a tour of Swinburne's Virtual Universe.
-              </p>
+        <div className="mx-auto max-w-6xl flex flex-col sm:flex-row gap-16 sm:gap-24 items-start">
+          <div className="sm:w-1/2">
+            <p className="text-[11px] font-bold tracking-[0.18em] text-white/25 uppercase mb-6">Future</p>
+            <p className="text-2xl font-light leading-relaxed text-white/80">
+              The SVU is a constantly evolving platform — expanding into generative storytelling, immersive gaming, and AI-driven science communication.
+            </p>
+          </div>
+          <div className="sm:w-1/2 flex flex-col justify-center gap-6 pt-1 sm:pt-10">
+            <p className="text-[14px] text-white/40 leading-relaxed">
+              The future is bright, and the universe is just getting started.
+            </p>
+            <div className="pt-2">
+              <p className="text-[13px] text-white/25 mb-4">For enquiries or a tour of the SVU.</p>
               <a
                 href="mailto:cknox@swin.edu.au"
-                className="self-start rounded-full border border-white/15 px-5 py-2.5 text-[13px] font-medium text-white/60 hover:text-white hover:border-white/30 transition-all duration-200"
+                className="inline-flex rounded-full border border-white/15 px-5 py-2.5 text-[13px] font-medium text-white/50 hover:text-white hover:border-white/30 transition-all duration-200"
               >
                 Get in touch →
               </a>
             </div>
-
           </div>
         </div>
       </section>
