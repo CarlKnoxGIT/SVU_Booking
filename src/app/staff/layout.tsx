@@ -4,8 +4,9 @@ import Link from 'next/link'
 import { signOut } from './actions'
 
 const NAV_ITEMS = [
-  { href: '/staff', label: 'My Bookings' },
-  { href: '/staff/book', label: 'New Booking' },
+  { href: '/staff', label: 'Calendar' },
+  { href: '/staff/checkin', label: 'Check-in' },
+  { href: '/staff/profile', label: 'Profile' },
 ]
 
 export default async function StaffLayout({ children }: { children: React.ReactNode }) {
@@ -28,7 +29,7 @@ export default async function StaffLayout({ children }: { children: React.ReactN
     : '?'
 
   return (
-    <div className="flex min-h-screen bg-black text-white">
+    <div className="flex h-screen bg-black text-white">
       <aside className="w-52 flex-shrink-0 flex flex-col border-r border-white/[0.06]">
         <div className="px-5 pt-7 pb-6">
           <span className="text-[10px] font-bold tracking-[0.15em] text-swin-red-light uppercase">SVU</span>
@@ -80,7 +81,7 @@ export default async function StaffLayout({ children }: { children: React.ReactN
         </div>
       </aside>
 
-      <main className="flex-1 overflow-auto">{children}</main>
+      <main className="flex-1 overflow-hidden">{children}</main>
     </div>
   )
 }

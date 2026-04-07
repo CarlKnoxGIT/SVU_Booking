@@ -4,14 +4,15 @@ import Link from 'next/link'
 import { signOut } from './actions'
 
 const NAV_ITEMS = [
-  { href: '/admin#overview',       label: 'Overview' },
-  { href: '/admin#bookings',       label: 'Bookings' },
-  { href: '/admin#staff-requests', label: 'Staff Requests' },
-  { href: '/admin#events',         label: 'Events' },
-  { href: '/admin#enquiries',      label: 'Enquiries' },
-  { href: '/admin#checkin',        label: 'Check-in' },
-  { href: '/admin#users',          label: 'Users' },
-  { href: '/admin#broadcast',      label: 'Broadcast' },
+  { href: '/admin',                   label: 'Dashboard' },
+  { href: '/admin#bookings',          label: 'Bookings' },
+  { href: '/admin#overview',          label: 'Overview' },
+  { href: '/admin#staff-requests',    label: 'Staff Requests' },
+  { href: '/admin#events',            label: 'Events' },
+  { href: '/admin#enquiries',         label: 'Enquiries' },
+  { href: '/admin#checkin',           label: 'Check-in' },
+  { href: '/admin#users',             label: 'Users' },
+  { href: '/admin#broadcast',         label: 'Broadcast' },
 ]
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -33,7 +34,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     : '?'
 
   return (
-    <div className="flex min-h-screen bg-black text-white">
+    <div className="flex h-screen bg-black text-white">
       {/* Sidebar */}
       <aside className="w-52 flex-shrink-0 flex flex-col border-r border-white/[0.06]">
         {/* Logo */}
@@ -80,7 +81,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </aside>
 
       {/* Content */}
-      <main className="flex-1 overflow-auto">{children}</main>
+      <main className="flex-1 overflow-y-auto">{children}</main>
     </div>
   )
 }

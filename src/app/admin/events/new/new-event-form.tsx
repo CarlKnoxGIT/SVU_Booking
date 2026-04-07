@@ -109,7 +109,7 @@ export function NewEventForm() {
             name="max_capacity"
             type="number"
             min="1"
-            max="60"
+            max="100"
             defaultValue="60"
             className="border-white/10 bg-white/5 text-white focus-visible:ring-swin-red"
           />

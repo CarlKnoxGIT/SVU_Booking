@@ -12,6 +12,7 @@ const BOOKING_TYPES = [
   { value: 'research', label: 'Research', desc: 'Research data capture or visualisation' },
   { value: 'maintenance', label: 'Maintenance', desc: 'Hardware calibration or technical work' },
   { value: 'vip', label: 'VIP', desc: 'VIP or special guest visit' },
+  { value: 'svu_demo', label: 'SVU Demo', desc: 'SVU demonstration session' },
 ]
 
 const DURATION_OPTIONS = [

@@ -1,11 +1,14 @@
 'use client'
 
-import { useState, useEffect, useActionState, useCallback } from 'react'
+import { useState, useEffect, useActionState, useCallback, useTransition, useRef } from 'react'
 import { getWeekBookings, createBookingRequest } from './actions'
+import { cancelBooking, cancelSeries } from '../actions'
+import Link from 'next/link'
+import { TimeSelect } from '@/components/ui/time-select'
 
 const HOUR_HEIGHT = 64
-const START_HOUR = 8
-const END_HOUR = 20
+const START_HOUR = 6
+const END_HOUR = 24
 const HOURS = Array.from({ length: END_HOUR - START_HOUR }, (_, i) => START_HOUR + i)
 
 const BOOKING_TYPES = [
@@ -15,6 +18,7 @@ const BOOKING_TYPES = [
   { value: 'external_hire', label: 'External Hire' },
   { value: 'maintenance', label: 'Maintenance' },
   { value: 'vip', label: 'VIP' },
+  { value: 'svu_demo', label: 'SVU Demo' },
 ]
 
 const DURATION_OPTIONS = [
@@ -37,7 +41,18 @@ type Booking = {
   end_time: string
   booking_type: string
   user_id: string
+  description: string | null
+  attendee_count: number | null
+  series_id: string | null
   users: { full_name: string | null } | null
+  source?: 'booking' | 'event'
+}
+
+function fracToTimeStr(frac: number): string {
+  const totalMins = Math.round(frac * 60)
+  const h = Math.floor(totalMins / 60)
+  const m = totalMins % 60
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
 }
 
 function getMondayOf(date: Date) {
@@ -98,12 +113,20 @@ function layoutBookings<T extends { start_time: string; end_time: string }>(book
   })
 }
 
-export function BookingCalendar() {
-  const [weekStart, setWeekStart] = useState(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d })
+export function BookingCalendar({ currentUserId }: { currentUserId: string }) {
+  const [weekStart, setWeekStart] = useState(() => getMondayOf(new Date()))
   const [bookings, setBookings] = useState<Booking[]>([])
-  const [selectedSlot, setSelectedSlot] = useState<{ date: string; hour: number } | null>(null)
+  const [selectedSlot, setSelectedSlot] = useState<{ date: string; startHour: number; endHour: number } | null>(null)
   const [panelOpen, setPanelOpen] = useState(false)
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
   const hourHeight = Math.round(HOUR_HEIGHT * 0.44)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [dragInfo, setDragInfo] = useState<{ day: Date; startFrac: number; currentFrac: number } | null>(null)
+
+  function yToFrac(y: number): number {
+    const raw = START_HOUR + Math.max(0, y) / hourHeight
+    return Math.min(Math.max(Math.round(raw * 4) / 4, START_HOUR), END_HOUR)
+  }
 
   const days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(weekStart)
@@ -112,7 +135,7 @@ export function BookingCalendar() {
   })
 
   const loadBookings = useCallback(async () => {
-    const data = await getWeekBookings(formatDate(weekStart))
+    const data = await getWeekBookings(weekStart.toISOString())
     console.log('[calendar] bookings loaded:', data)
     setBookings(data as unknown as Booking[])
   }, [weekStart])
@@ -127,10 +150,19 @@ export function BookingCalendar() {
   }
   function goToday() { setWeekStart(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d }) }
 
-  function handleSlotClick(date: Date, hour: number) {
-    setSelectedSlot({ date: formatDate(date), hour })
-    setPanelOpen(true)
-  }
+  useEffect(() => {
+    function onMouseUp() {
+      if (!dragInfo) return
+      const startFrac = Math.min(dragInfo.startFrac, dragInfo.currentFrac)
+      const endFrac = Math.max(dragInfo.startFrac, dragInfo.currentFrac)
+      const finalEnd = Math.min(endFrac - startFrac < 0.25 ? startFrac + 1 : endFrac, END_HOUR)
+      setDragInfo(null)
+      setSelectedSlot({ date: formatDate(dragInfo.day), startHour: startFrac, endHour: finalEnd })
+      setPanelOpen(true)
+    }
+    window.addEventListener('mouseup', onMouseUp)
+    return () => window.removeEventListener('mouseup', onMouseUp)
+  }, [dragInfo])
 
   function bookingForDay(day: Date) {
     return bookings.filter(b => isSameDay(new Date(b.start_time), day))
@@ -142,7 +174,7 @@ export function BookingCalendar() {
   return (
     <div className="flex h-full">
       {/* Calendar */}
-      <div className={`flex flex-col flex-1 min-w-0 transition-all duration-300 ${panelOpen ? 'mr-96' : ''}`}>
+      <div className={`flex flex-col flex-1 min-w-0 transition-all duration-300 ${panelOpen || selectedBooking ? 'mr-96' : ''}`}>
 
         {/* Toolbar */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
@@ -175,6 +207,7 @@ export function BookingCalendar() {
               <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm bg-orange-400/70" />Public event</span>
               <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm bg-teal-400/70" />External hire</span>
               <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm bg-zinc-400/70" />Maintenance</span>
+              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm bg-red-400/70" />SVU Demo</span>
               <span className="text-white/15">·</span>
               <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm border border-dashed border-white/40" />Pending</span>
               <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm border border-white/40" />Confirmed</span>
@@ -182,32 +215,31 @@ export function BookingCalendar() {
           </div>
         </div>
 
-        {/* Day headers */}
-        <div className="grid grid-cols-[48px_repeat(7,1fr)] border-b border-white/[0.06]">
-          <div /> {/* time gutter */}
-          {days.map((day, i) => {
-            const isToday = isSameDay(day, today)
-            return (
-              <div key={i} className="py-3 text-center border-l border-white/[0.04]">
-                <p className="text-[10px] text-white/30 uppercase tracking-wide">
-                  {day.toLocaleDateString('en-AU', { weekday: 'short' })}
-                </p>
-                <p className={`text-[15px] font-medium mt-0.5 ${isToday ? 'text-swin-red-light' : 'text-white/70'}`}>
-                  {day.getDate()}
-                </p>
-              </div>
-            )
-          })}
-        </div>
-
         {/* Time grid */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto" ref={scrollRef}>
           <div className="grid grid-cols-[48px_repeat(7,1fr)]">
+            {/* Day headers — sticky inside scroll container so columns share the same scrollbar-affected width */}
+            <div className="sticky top-0 z-10 bg-black col-span-full grid grid-cols-[48px_repeat(7,1fr)] border-b border-white/[0.06]">
+              <div /> {/* time gutter */}
+              {days.map((day, i) => {
+                const isToday = isSameDay(day, today)
+                return (
+                  <div key={i} className="py-3 text-center border-l border-white/[0.04]">
+                    <p className="text-[10px] text-white/30 uppercase tracking-wide">
+                      {day.toLocaleDateString('en-AU', { weekday: 'short' })}
+                    </p>
+                    <p className={`text-[15px] font-medium mt-0.5 ${isToday ? 'text-swin-red-light' : 'text-white/70'}`}>
+                      {day.getDate()}
+                    </p>
+                  </div>
+                )
+              })}
+            </div>
             {/* Time labels */}
             <div>
               {HOURS.map(h => (
                 <div key={h} style={{ height: hourHeight }} className="flex items-start justify-end pr-2 pt-1">
-                  <span className="text-[10px] text-white/20">{h}:00</span>
+                  <span className="text-[10px] text-white/20">{h === 24 ? '00:00' : `${h}:00`}</span>
                 </div>
               ))}
             </div>
@@ -218,16 +250,39 @@ export function BookingCalendar() {
               const isPast = day < today && !isSameDay(day, today)
 
               return (
-                <div key={di} className="relative border-l border-white/[0.04]">
+                <div
+                  key={di}
+                  className={`relative border-l border-white/[0.04] select-none ${!isPast ? 'cursor-crosshair' : 'cursor-not-allowed'}`}
+                  onMouseDown={e => {
+                    if (isPast || (e.target as HTMLElement).closest('[data-booking-block]')) return
+                    e.preventDefault()
+                    const rect = e.currentTarget.getBoundingClientRect()
+                    const y = e.clientY - rect.top + (scrollRef.current?.scrollTop ?? 0)
+                    const frac = yToFrac(y)
+                    setDragInfo({ day, startFrac: frac, currentFrac: frac })
+                  }}
+                  onMouseMove={e => {
+                    if (!dragInfo || !isSameDay(dragInfo.day, day)) return
+                    const rect = e.currentTarget.getBoundingClientRect()
+                    const y = e.clientY - rect.top + (scrollRef.current?.scrollTop ?? 0)
+                    setDragInfo(prev => prev ? { ...prev, currentFrac: yToFrac(y) } : null)
+                  }}
+                >
                   {/* Hour rows */}
                   {HOURS.map(h => (
-                    <div
-                      key={h}
-                      style={{ height: hourHeight }}
-                      className={`border-b border-white/[0.04] ${isPast ? 'cursor-not-allowed' : 'cursor-pointer hover:bg-white/[0.02]'} transition-colors`}
-                      onClick={() => !isPast && handleSlotClick(day, h)}
-                    />
+                    <div key={h} style={{ height: hourHeight }} className="border-b border-white/[0.04]" />
                   ))}
+
+                  {/* Drag selection highlight */}
+                  {dragInfo && isSameDay(dragInfo.day, day) && (
+                    <div
+                      className="absolute inset-x-0 bg-swin-red/15 border border-swin-red/30 rounded pointer-events-none"
+                      style={{
+                        top: (Math.min(dragInfo.startFrac, dragInfo.currentFrac) - START_HOUR) * hourHeight,
+                        height: Math.max(Math.abs(dragInfo.currentFrac - dragInfo.startFrac) * hourHeight, 2),
+                      }}
+                    />
+                  )}
 
                   {/* Booking blocks — stacked with per-layer opacity */}
                   {layoutBookings(dayBookings).map(({ booking: b, col, totalCols }) => {
@@ -254,6 +309,7 @@ export function BookingCalendar() {
                       maintenance:   'bg-zinc-500/25 border-zinc-400/50 text-zinc-300',
                       recurring:     'bg-pink-500/25 border-pink-400/50 text-pink-200',
                       vip:           'bg-yellow-500/25 border-yellow-400/50 text-yellow-200',
+                      svu_demo:      'bg-swin-red/20 border-swin-red/40 text-swin-red-lighter',
                     }
                     const base = typeColours[b.booking_type] ?? 'bg-white/10 border-white/20 text-white/60'
                     const pending = b.status === 'pending' ? 'border-dashed' : ''
@@ -261,8 +317,11 @@ export function BookingCalendar() {
                     return (
                       <div
                         key={b.id}
-                        style={{ top, height, left: 2, right: 2, zIndex: col, opacity }}
-                        className={`absolute rounded border px-2 py-1 overflow-hidden pointer-events-none ${base} ${pending}`}
+                        style={{ top, height, left: 2, right: 2, zIndex: col + 1, opacity }}
+                        data-booking-block="1"
+                        onMouseDown={e => e.stopPropagation()}
+                        onClick={e => { e.stopPropagation(); if (b.source !== 'event') { setSelectedBooking(b); setPanelOpen(false); setSelectedSlot(null) } }}
+                        className={`absolute rounded border px-2 py-1 overflow-hidden ${b.source === 'event' ? 'cursor-default' : 'cursor-pointer hover:brightness-125'} transition-all ${base} ${pending}`}
                       >
                         <p className="text-[11px] font-medium leading-tight truncate">{b.title}</p>
                         {height > 36 && (
@@ -285,12 +344,30 @@ export function BookingCalendar() {
         </div>
       </div>
 
-      {/* Booking panel */}
+      {/* Backdrop */}
+      {(panelOpen || selectedBooking) && (
+        <div
+          className="fixed inset-0 z-30"
+          onClick={() => { setPanelOpen(false); setSelectedSlot(null); setSelectedBooking(null) }}
+        />
+      )}
+
+      {/* New booking panel */}
       {panelOpen && selectedSlot && (
         <BookingPanel
           slot={selectedSlot}
           onClose={() => { setPanelOpen(false); setSelectedSlot(null) }}
           onSuccess={() => { setPanelOpen(false); setSelectedSlot(null); loadBookings() }}
+        />
+      )}
+
+      {/* Booking detail panel */}
+      {selectedBooking && (
+        <BookingDetailPanel
+          booking={selectedBooking}
+          isOwn={selectedBooking.user_id === currentUserId}
+          onClose={() => setSelectedBooking(null)}
+          onAction={() => { setSelectedBooking(null); loadBookings() }}
         />
       )}
     </div>
@@ -302,7 +379,7 @@ function BookingPanel({
   onClose,
   onSuccess,
 }: {
-  slot: { date: string; hour: number }
+  slot: { date: string; startHour: number; endHour: number }
   onClose: () => void
   onSuccess: () => void
 }) {
@@ -314,9 +391,13 @@ function BookingPanel({
     },
     null
   )
-  const [duration, setDuration] = useState('60')
 
-  const defaultTime = `${String(slot.hour).padStart(2, '0')}:00`
+  const draggedMins = Math.round((slot.endHour - slot.startHour) * 60)
+  const matchedDuration = DURATION_OPTIONS.find(d => d.value === String(draggedMins))
+  const [duration, setDuration] = useState(matchedDuration ? matchedDuration.value : draggedMins > 0 ? 'custom' : '60')
+
+  const defaultStartTime = fracToTimeStr(slot.startHour)
+  const defaultEndTime = fracToTimeStr(slot.endHour)
   const isAllDay = duration === 'allday'
   const isCustom = duration === 'custom'
 
@@ -369,12 +450,10 @@ function BookingPanel({
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <label className="text-[11px] font-bold tracking-[0.14em] text-white/30 uppercase">Start</label>
-              <input
-                name="start_time" type="time" required
-                defaultValue={isAllDay ? '08:00' : defaultTime} step="900"
-                disabled={isAllDay}
-                className="w-full bg-white/5 border border-white/10 px-3 py-2 text-[13px] text-white focus:outline-none focus:border-white/30 rounded [color-scheme:dark] disabled:opacity-40"
-              />
+              {isAllDay
+                ? <input type="hidden" name="start_time" value="08:00" />
+                : <TimeSelect name="start_time" defaultValue={defaultStartTime} required />
+              }
             </div>
             <div className="space-y-1.5">
               <label className="text-[11px] font-bold tracking-[0.14em] text-white/30 uppercase">Duration</label>
@@ -395,11 +474,7 @@ function BookingPanel({
           {isCustom && (
             <div className="space-y-1.5">
               <label className="text-[11px] font-bold tracking-[0.14em] text-white/30 uppercase">End time</label>
-              <input
-                name="end_time" type="time" required
-                defaultValue={`${String(Math.min(slot.hour + 1, 20)).padStart(2, '0')}:00`} step="900"
-                className="w-full bg-white/5 border border-white/10 px-3 py-2 text-[13px] text-white focus:outline-none focus:border-white/30 rounded [color-scheme:dark]"
-              />
+              <TimeSelect name="end_time" defaultValue={defaultEndTime} required />
             </div>
           )}
 
@@ -443,6 +518,173 @@ function BookingPanel({
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  )
+}
+
+const TYPE_LABELS: Record<string, string> = {
+  academic: 'Academic / Teaching',
+  school: 'School Group',
+  public_event: 'Public Event',
+  external_hire: 'External Hire',
+  maintenance: 'Maintenance',
+  vip: 'VIP',
+}
+
+const TYPE_COLOURS: Record<string, string> = {
+  academic:      'bg-blue-500/25 border-blue-400/50 text-blue-200',
+  school:        'bg-violet-500/25 border-violet-400/50 text-violet-200',
+  public_event:  'bg-orange-500/25 border-orange-400/50 text-orange-200',
+  external_hire: 'bg-teal-500/25 border-teal-400/50 text-teal-200',
+  maintenance:   'bg-zinc-500/25 border-zinc-400/50 text-zinc-300',
+  vip:           'bg-yellow-500/25 border-yellow-400/50 text-yellow-200',
+}
+
+const STATUS_COLOURS: Record<string, string> = {
+  pending:   'bg-amber-500/10 text-amber-400',
+  confirmed: 'bg-emerald-500/10 text-emerald-400',
+  cancelled: 'bg-red-500/10 text-red-400',
+  completed: 'bg-white/[0.06] text-white/30',
+}
+
+function BookingDetailPanel({
+  booking: b,
+  isOwn,
+  onClose,
+  onAction,
+}: {
+  booking: Booking
+  isOwn: boolean
+  onClose: () => void
+  onAction: () => void
+}) {
+  const [cancelPending, startCancelTransition] = useTransition()
+  const [seriesPending, startSeriesTransition] = useTransition()
+
+  const start = new Date(b.start_time)
+  const end = new Date(b.end_time)
+  const durationMins = (end.getTime() - start.getTime()) / 60_000
+  const durationLabel = durationMins >= 60
+    ? `${durationMins / 60}h`
+    : `${durationMins}min`
+
+  function handleCancel() {
+    if (!confirm('Cancel this booking?')) return
+    startCancelTransition(async () => {
+      await cancelBooking(b.id)
+      onAction()
+    })
+  }
+
+  function handleCancelSeries() {
+    if (!confirm('Cancel all upcoming sessions in this recurring series?')) return
+    startSeriesTransition(async () => {
+      await cancelSeries(b.series_id!)
+      onAction()
+    })
+  }
+
+  return (
+    <div className="fixed right-0 top-0 h-full w-96 bg-[#0a0a0a] border-l border-white/[0.07] flex flex-col z-40 shadow-2xl">
+      {/* Header */}
+      <div className="flex items-start justify-between px-6 py-5 border-b border-white/[0.06]">
+        <div className="flex-1 min-w-0 pr-4">
+          <p className="text-[11px] text-white/30 capitalize mb-1">
+            {TYPE_LABELS[b.booking_type] ?? b.booking_type}
+          </p>
+          <h2 className="text-[16px] font-medium text-white leading-snug">{b.title}</h2>
+        </div>
+        <button onClick={onClose} className="p-1.5 text-white/30 hover:text-white transition-colors flex-shrink-0">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Body */}
+      <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+
+        {/* Status */}
+        <div className="flex items-center gap-3">
+          <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[12px] font-medium capitalize ${STATUS_COLOURS[b.status] ?? 'bg-white/[0.06] text-white/30'}`}>
+            {b.status}
+          </span>
+          {b.series_id && (
+            <span className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium bg-pink-500/10 text-pink-400">
+              Recurring
+            </span>
+          )}
+        </div>
+
+        {/* Date & time */}
+        <div className="space-y-1">
+          <p className="text-[11px] font-bold tracking-[0.12em] text-white/25 uppercase">Date & Time</p>
+          <p className="text-[14px] text-white">
+            {start.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' })}
+          </p>
+          <p className="text-[13px] text-white/50">
+            {start.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: false })}
+            {' – '}
+            {end.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: false })}
+            {' · '}
+            {durationLabel}
+          </p>
+        </div>
+
+        {/* Booked by */}
+        {b.users?.full_name && (
+          <div className="space-y-1">
+            <p className="text-[11px] font-bold tracking-[0.12em] text-white/25 uppercase">Booked by</p>
+            <p className="text-[13px] text-white/70">{b.users.full_name}</p>
+          </div>
+        )}
+
+        {/* Attendees */}
+        {b.attendee_count && (
+          <div className="space-y-1">
+            <p className="text-[11px] font-bold tracking-[0.12em] text-white/25 uppercase">Attendees</p>
+            <p className="text-[13px] text-white/70">{b.attendee_count}</p>
+          </div>
+        )}
+
+        {/* Notes */}
+        {b.description && (
+          <div className="space-y-1">
+            <p className="text-[11px] font-bold tracking-[0.12em] text-white/25 uppercase">Notes</p>
+            <p className="text-[13px] text-white/60 leading-relaxed whitespace-pre-wrap">{b.description}</p>
+          </div>
+        )}
+
+        {/* Actions — own bookings only */}
+        {isOwn && (b.status === 'pending' || b.status === 'confirmed') && (
+          <div className="pt-2 border-t border-white/[0.06] space-y-3">
+            {b.status === 'pending' && (
+              <Link
+                href={`/staff/bookings/${b.id}/edit`}
+                className="block w-full text-center rounded-lg border border-white/10 bg-white/[0.04] py-2.5 text-[13px] text-white/70 hover:text-white hover:bg-white/[0.07] transition-colors"
+              >
+                Edit booking
+              </Link>
+            )}
+            <button
+              onClick={handleCancel}
+              disabled={cancelPending}
+              className="w-full rounded-lg border border-red-500/20 bg-red-500/5 py-2.5 text-[13px] text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-40"
+            >
+              {cancelPending ? 'Cancelling…' : 'Cancel this session'}
+            </button>
+            {b.series_id && (
+              <button
+                onClick={handleCancelSeries}
+                disabled={seriesPending}
+                className="w-full rounded-lg border border-white/10 py-2.5 text-[13px] text-white/30 hover:text-red-400 hover:border-red-500/20 transition-colors disabled:opacity-40"
+              >
+                {seriesPending ? 'Cancelling…' : 'Cancel entire series'}
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

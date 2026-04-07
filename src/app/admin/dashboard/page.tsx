@@ -1,15 +1,14 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { AdminBookingCalendar } from './bookings/admin-calendar'
-import { QrScanner } from './checkin/qr-scanner'
-import { approveStaffRequest, rejectStaffRequest } from './staff-requests/actions'
-import { approveBookingById, rejectBookingById } from './bookings/actions'
-import { EnquiryStatusSelector } from './enquiries/status-selector'
-import { RoleSelector } from './users/role-selector'
-import { DeleteUserButton } from './users/delete-button'
-import { InviteStaff } from './users/invite-staff'
-import { BroadcastForm } from './broadcast/broadcast-form'
-import { DuplicateEventButton } from './events/duplicate-button'
+import { QrScanner } from '../checkin/qr-scanner'
+import { approveStaffRequest, rejectStaffRequest } from '../staff-requests/actions'
+import { approveBookingById, rejectBookingById } from '../bookings/actions'
+import { EnquiryStatusSelector } from '../enquiries/status-selector'
+import { RoleSelector } from '../users/role-selector'
+import { DeleteUserButton } from '../users/delete-button'
+import { InviteStaff } from '../users/invite-staff'
+import { BroadcastForm } from '../broadcast/broadcast-form'
+import { DuplicateEventButton } from '../events/duplicate-button'
 
 const STATUS_STYLES: Record<string, string> = {
   new: 'bg-swin-red/10 text-swin-red-light',
@@ -22,7 +21,7 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
   school: 'School group', private: 'Private', other: 'Other',
 }
 
-export default async function AdminPage() {
+export default async function AdminDashboardPage() {
   const supabase = createAdminClient()
 
   const [
@@ -68,20 +67,12 @@ export default async function AdminPage() {
   }
 
   const isPast = (dateStr: string) => new Date(dateStr) < new Date()
+
   const base = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 
   return (
+    <div className="h-full overflow-y-auto">
     <div className="max-w-5xl px-10 py-10 space-y-16">
-
-      {/* ── Bookings calendar ────────────────────────── */}
-      <section id="bookings">
-        <SectionHeader title="Bookings" subtitle="Click any block to approve, decline, edit, or cancel." />
-        <div className="rounded-2xl border border-white/[0.07] overflow-hidden" style={{ height: 'calc(100vh - 120px)' }}>
-          <AdminBookingCalendar refreshKey={Date.now()} />
-        </div>
-      </section>
-
-      <Divider />
 
       {/* ── Overview ─────────────────────────────────── */}
       <section id="overview">
@@ -413,6 +404,7 @@ export default async function AdminPage() {
       </section>
 
       <div className="h-16" />
+    </div>
     </div>
   )
 }

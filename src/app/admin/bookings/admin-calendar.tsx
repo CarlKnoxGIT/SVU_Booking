@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react'
 import { getAdminWeekBookings, approveBookingById, rejectBookingById, adminUpdateBooking, adminUpdateAllByTitle, adminCreateBooking, bulkApproveBookings, bulkDeleteBookings, blockDates } from './actions'
+import { TimeSelect } from '@/components/ui/time-select'
 
 const HOUR_HEIGHT = 64
-const START_HOUR = 8
-const END_HOUR = 20
+const START_HOUR = 6
+const END_HOUR = 24
 const HOURS = Array.from({ length: END_HOUR - START_HOUR }, (_, i) => START_HOUR + i)
 
 const TYPE_COLOURS: Record<string, { block: string; dot: string }> = {
@@ -15,6 +16,7 @@ const TYPE_COLOURS: Record<string, { block: string; dot: string }> = {
   external_hire: { block: 'bg-teal-500/25 border-teal-400/50 text-teal-200',      dot: 'bg-teal-400/70' },
   maintenance:   { block: 'bg-zinc-500/25 border-zinc-400/50 text-zinc-300',      dot: 'bg-zinc-400/70' },
   vip:           { block: 'bg-yellow-500/25 border-yellow-400/50 text-yellow-200', dot: 'bg-yellow-400/70' },
+  svu_demo:      { block: 'bg-red-500/25 border-red-400/50 text-red-200',          dot: 'bg-red-400/70' },
 }
 
 type Booking = {
@@ -28,6 +30,14 @@ type Booking = {
   description: string | null
   user_id: string
   users: { full_name: string | null; email: string | null } | null
+  source?: 'booking' | 'event'
+}
+
+function fracToTimeStr(frac: number): string {
+  const totalMins = Math.round(frac * 60)
+  const h = Math.floor(totalMins / 60)
+  const m = totalMins % 60
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
 }
 
 function getMondayOf(date: Date) {
@@ -89,12 +99,20 @@ function layoutBookings<T extends { start_time: string; end_time: string }>(book
   })
 }
 
-export function AdminBookingCalendar() {
-  const [weekStart, setWeekStart] = useState(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d })
+export function AdminBookingCalendar({ refreshKey }: { refreshKey?: number }) {
+  const [weekStart, setWeekStart] = useState(() => getMondayOf(new Date()))
   const [bookings, setBookings] = useState<Booking[]>([])
   const [selected, setSelected] = useState<Booking | null>(null)
   const [creating, setCreating] = useState(false)
+  const [createSlot, setCreateSlot] = useState<{ day: Date; startFrac: number; endFrac: number } | null>(null)
   const hourHeight = Math.round(HOUR_HEIGHT * 0.44)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [selDrag, setSelDrag] = useState<{ day: Date; startFrac: number; currentFrac: number } | null>(null)
+
+  function yToFrac(y: number): number {
+    const raw = START_HOUR + Math.max(0, y) / hourHeight
+    return Math.min(Math.max(Math.round(raw * 4) / 4, START_HOUR), END_HOUR)
+  }
   const [loading, setLoading] = useState(false)
 
   // Drag state
@@ -153,12 +171,27 @@ export function AdminBookingCalendar() {
 
   const loadBookings = useCallback(async () => {
     setLoading(true)
-    const data = await getAdminWeekBookings(formatDate(weekStart))
+    const data = await getAdminWeekBookings(weekStart.toISOString())
     setBookings(data as unknown as Booking[])
     setLoading(false)
   }, [weekStart])
 
-  useEffect(() => { loadBookings() }, [loadBookings])
+  useEffect(() => { loadBookings() }, [loadBookings, refreshKey])
+
+  useEffect(() => {
+    function onMouseUp() {
+      if (!selDrag) return
+      const startFrac = Math.min(selDrag.startFrac, selDrag.currentFrac)
+      const endFrac = Math.max(selDrag.startFrac, selDrag.currentFrac)
+      const finalEnd = Math.min(endFrac - startFrac < 0.25 ? startFrac + 1 : endFrac, END_HOUR)
+      setSelDrag(null)
+      setCreateSlot({ day: selDrag.day, startFrac, endFrac: finalEnd })
+      setCreating(true)
+      setSelected(null)
+    }
+    window.addEventListener('mouseup', onMouseUp)
+    return () => window.removeEventListener('mouseup', onMouseUp)
+  }, [selDrag])
 
   // Keep selected booking in sync after reload
   useEffect(() => {
@@ -242,7 +275,7 @@ export function AdminBookingCalendar() {
               {selectMode ? `${selectedIds.size} selected` : 'Select'}
             </button>
             <button
-              onClick={() => { setCreating(true); setSelected(null) }}
+              onClick={() => { setCreating(true); setSelected(null); setCreateSlot(null) }}
               className="flex items-center gap-1.5 rounded-lg bg-swin-red hover:bg-swin-red-hover px-3 py-1.5 text-[12px] font-medium text-white transition-colors"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -253,36 +286,35 @@ export function AdminBookingCalendar() {
           </div>
         </div>
 
-        {/* Day headers */}
-        <div className="grid grid-cols-[48px_repeat(7,1fr)] border-b border-white/[0.06]">
-          <div />
-          {days.map((day, i) => {
-            const isToday = isSameDay(day, today)
-            const dayPending = bookingsForDay(day).filter(b => b.status === 'pending').length
-            return (
-              <div key={i} className="py-3 text-center border-l border-white/[0.04]">
-                <p className="text-[10px] text-white/30 uppercase tracking-wide">
-                  {day.toLocaleDateString('en-AU', { weekday: 'short' })}
-                </p>
-                <p className={`text-[15px] font-medium mt-0.5 ${isToday ? 'text-swin-red-light' : 'text-white/70'}`}>
-                  {day.getDate()}
-                </p>
-                {dayPending > 0 && (
-                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400/80 mt-0.5" />
-                )}
-              </div>
-            )
-          })}
-        </div>
-
         {/* Time grid */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto" ref={scrollRef}>
           <div className="grid grid-cols-[48px_repeat(7,1fr)]">
+            {/* Day headers — sticky inside scroll container so columns share the same scrollbar-affected width */}
+            <div className="sticky top-0 z-10 bg-black col-span-full grid grid-cols-[48px_repeat(7,1fr)] border-b border-white/[0.06]">
+              <div />
+              {days.map((day, i) => {
+                const isToday = isSameDay(day, today)
+                const dayPending = bookingsForDay(day).filter(b => b.status === 'pending').length
+                return (
+                  <div key={i} className="py-3 text-center border-l border-white/[0.04]">
+                    <p className="text-[10px] text-white/30 uppercase tracking-wide">
+                      {day.toLocaleDateString('en-AU', { weekday: 'short' })}
+                    </p>
+                    <p className={`text-[15px] font-medium mt-0.5 ${isToday ? 'text-swin-red-light' : 'text-white/70'}`}>
+                      {day.getDate()}
+                    </p>
+                    {dayPending > 0 && (
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400/80 mt-0.5" />
+                    )}
+                  </div>
+                )
+              })}
+            </div>
             {/* Time labels */}
             <div>
               {HOURS.map(h => (
                 <div key={h} style={{ height: hourHeight }} className="flex items-start justify-end pr-2 pt-1">
-                  <span className="text-[10px] text-white/20">{h}:00</span>
+                  <span className="text-[10px] text-white/20">{h === 24 ? '00:00' : `${h}:00`}</span>
                 </div>
               ))}
             </div>
@@ -295,7 +327,21 @@ export function AdminBookingCalendar() {
               return (
                 <div
                   key={di}
-                  className="relative border-l border-white/[0.04]"
+                  className="relative border-l border-white/[0.04] select-none cursor-crosshair"
+                  onMouseDown={e => {
+                    if ((e.target as HTMLElement).closest('[data-booking-block]') || selectMode) return
+                    e.preventDefault()
+                    const rect = e.currentTarget.getBoundingClientRect()
+                    const y = e.clientY - rect.top + (scrollRef.current?.scrollTop ?? 0)
+                    const frac = yToFrac(y)
+                    setSelDrag({ day, startFrac: frac, currentFrac: frac })
+                  }}
+                  onMouseMove={e => {
+                    if (!selDrag || !isSameDay(selDrag.day, day)) return
+                    const rect = e.currentTarget.getBoundingClientRect()
+                    const y = e.clientY - rect.top + (scrollRef.current?.scrollTop ?? 0)
+                    setSelDrag(prev => prev ? { ...prev, currentFrac: yToFrac(y) } : null)
+                  }}
                   onDragOver={e => {
                     e.preventDefault()
                     const drag = dragRef.current
@@ -362,6 +408,17 @@ export function AdminBookingCalendar() {
                     />
                   )}
 
+                  {/* New-booking drag selection highlight */}
+                  {selDrag && isSameDay(selDrag.day, day) && (
+                    <div
+                      className="absolute inset-x-0 bg-swin-red/15 border border-swin-red/30 rounded pointer-events-none"
+                      style={{
+                        top: (Math.min(selDrag.startFrac, selDrag.currentFrac) - START_HOUR) * hourHeight,
+                        height: Math.max(Math.abs(selDrag.currentFrac - selDrag.startFrac) * hourHeight, 2),
+                      }}
+                    />
+                  )}
+
                   {/* Booking blocks — stacked with per-layer opacity */}
                   {layoutBookings(dayBookings).map(({ booking: b, col, totalCols }) => {
                     const start = new Date(b.start_time)
@@ -392,11 +449,12 @@ export function AdminBookingCalendar() {
                     return (
                       <div
                         key={b.id}
-                        draggable={!selectMode}
+                        data-booking-block="1"
+                        draggable={!selectMode && b.source !== 'event'}
                         style={{ top, height, left: 2, right: 2, zIndex: col, opacity }}
                         className={[
                           'absolute rounded border px-2 py-1 overflow-hidden text-left select-none',
-                          selectMode ? 'cursor-pointer' : 'cursor-grab active:cursor-grabbing',
+                          selectMode ? 'cursor-pointer' : b.source === 'event' ? 'cursor-pointer' : 'cursor-grab active:cursor-grabbing',
                           colours.block,
                           isPending ? 'border-dashed' : '',
                           isCancelled ? 'grayscale' : '',
@@ -432,21 +490,34 @@ export function AdminBookingCalendar() {
         </div>
       </div>
 
+      {/* Backdrop */}
+      {(selected || creating) && (
+        <div
+          className="fixed inset-0 z-30"
+          onClick={() => { setSelected(null); setCreating(false) }}
+        />
+      )}
+
       {/* Detail panel */}
       {selected && !creating && (
-        <BookingDetailPanel
-          booking={selected}
-          onClose={() => setSelected(null)}
-          onAction={async () => { await loadBookings() }}
-        />
+        selected.source === 'event'
+          ? <EventDetailPanel event={selected} onClose={() => setSelected(null)} />
+          : <BookingDetailPanel
+              booking={selected}
+              onClose={() => setSelected(null)}
+              onAction={async () => { await loadBookings() }}
+              onActionComplete={() => setSelected(null)}
+            />
       )}
 
       {/* Create panel */}
       {creating && (
         <NewBookingPanel
-          defaultDate={weekStart}
-          onClose={() => setCreating(false)}
-          onCreated={async () => { await loadBookings(); setCreating(false) }}
+          defaultDate={createSlot?.day ?? weekStart}
+          defaultStartTime={createSlot ? fracToTimeStr(createSlot.startFrac) : undefined}
+          defaultEndTime={createSlot ? fracToTimeStr(createSlot.endFrac) : undefined}
+          onClose={() => { setCreating(false); setCreateSlot(null) }}
+          onCreated={async () => { await loadBookings(); setCreating(false); setCreateSlot(null) }}
         />
       )}
 
@@ -509,17 +580,73 @@ export function AdminBookingCalendar() {
   )
 }
 
-const BOOKING_TYPES = ['academic', 'research', 'maintenance', 'school', 'public_event', 'external_hire', 'vip']
+function EventDetailPanel({ event: e, onClose }: { event: Booking; onClose: () => void }) {
+  const start = new Date(e.start_time)
+  const end = new Date(e.end_time)
+  const colours = TYPE_COLOURS['public_event']
+  return (
+    <div className="fixed right-0 top-0 h-full w-[400px] bg-[#0a0a0a] border-l border-white/[0.07] flex flex-col z-40 shadow-2xl">
+      <div className="flex items-start justify-between px-6 py-5 border-b border-white/[0.06]">
+        <div className="flex-1 min-w-0 pr-4">
+          <div className="flex items-center gap-2 mb-1">
+            <span className={`w-2 h-2 rounded-sm flex-shrink-0 ${colours.dot}`} />
+            <span className="text-[11px] text-white/30">Public Event</span>
+          </div>
+          <h2 className="text-[16px] font-medium text-white leading-snug">{e.title}</h2>
+        </div>
+        <button onClick={onClose} className="p-1.5 text-white/30 hover:text-white transition-colors flex-shrink-0">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+        <div>
+          <p className="text-[11px] font-bold tracking-[0.12em] text-white/25 uppercase mb-1">Date</p>
+          <p className="text-[13px] text-white/70">
+            {start.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+          </p>
+        </div>
+        <div>
+          <p className="text-[11px] font-bold tracking-[0.12em] text-white/25 uppercase mb-1">Time</p>
+          <p className="text-[13px] text-white/70">
+            {start.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: false })}
+            {' – '}
+            {end.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: false })}
+          </p>
+        </div>
+        {e.description && (
+          <div>
+            <p className="text-[11px] font-bold tracking-[0.12em] text-white/25 uppercase mb-1">Description</p>
+            <p className="text-[13px] text-white/60 leading-relaxed whitespace-pre-wrap">{e.description}</p>
+          </div>
+        )}
+        <div className="pt-2">
+          <a
+            href="/admin/events"
+            className="text-[12px] text-swin-red-light hover:text-swin-red-lighter transition-colors"
+          >
+            Manage events →
+          </a>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const BOOKING_TYPES = ['academic', 'research', 'maintenance', 'school', 'public_event', 'external_hire', 'vip', 'svu_demo']
 const STATUSES = ['pending', 'confirmed', 'cancelled', 'completed']
 
 function BookingDetailPanel({
   booking: b,
   onClose,
   onAction,
+  onActionComplete,
 }: {
   booking: Booking
   onClose: () => void
   onAction: () => Promise<void>
+  onActionComplete: () => void
 }) {
   const [isPending, startTransition] = useTransition()
   const [actionDone, setActionDone] = useState<'approved' | 'declined' | null>(null)
@@ -563,6 +690,7 @@ function BookingDetailPanel({
       await action()
       await onAction()
       setActionDone(label)
+      setTimeout(onActionComplete, 1000)
     })
   }
 
@@ -593,6 +721,7 @@ function BookingDetailPanel({
       }
       await onAction()
       setEditing(false)
+      setTimeout(onActionComplete, 800)
     })
   }
 
@@ -697,11 +826,11 @@ function BookingDetailPanel({
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className={labelCls}>Start time</label>
-                <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} step="900" className={`${inputCls} [color-scheme:dark]`} />
+                <TimeSelect value={startTime} onChange={setStartTime} />
               </div>
               <div>
                 <label className={labelCls}>End time</label>
-                <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} step="900" className={`${inputCls} [color-scheme:dark]`} />
+                <TimeSelect value={endTime} onChange={setEndTime} />
               </div>
             </div>
             <div>
@@ -788,10 +917,14 @@ function BookingDetailPanel({
 
 function NewBookingPanel({
   defaultDate,
+  defaultStartTime,
+  defaultEndTime,
   onClose,
   onCreated,
 }: {
   defaultDate: Date
+  defaultStartTime?: string
+  defaultEndTime?: string
   onClose: () => void
   onCreated: () => Promise<void>
 }) {
@@ -799,7 +932,7 @@ function NewBookingPanel({
   const [error, setError] = useState<string | null>(null)
   const [multiDay, setMultiDay] = useState(false)
 
-  const defaultDateStr = defaultDate.toISOString().split('T')[0]
+  const defaultDateStr = formatDate(defaultDate)
   const inputCls = 'w-full rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-[13px] text-white focus:outline-none focus:ring-1 focus:ring-swin-red placeholder:text-white/20 [color-scheme:dark]'
   const labelCls = 'text-[11px] font-bold tracking-[0.12em] text-white/25 uppercase mb-1 block'
 
@@ -888,11 +1021,11 @@ function NewBookingPanel({
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className={labelCls}>Start time</label>
-            <input type="time" name="start_time" required defaultValue="09:00" step="900" className={inputCls} />
+            <TimeSelect name="start_time" defaultValue={defaultStartTime ?? '09:00'} required />
           </div>
           <div>
             <label className={labelCls}>End time</label>
-            <input type="time" name="end_time" required defaultValue="10:00" step="900" className={inputCls} />
+            <TimeSelect name="end_time" defaultValue={defaultEndTime ?? '10:00'} required />
           </div>
         </div>
         <div>

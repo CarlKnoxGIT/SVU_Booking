@@ -9,17 +9,45 @@ export async function getWeekBookings(weekStart: string) {
   const end = new Date(start)
   end.setDate(end.getDate() + 7)
 
-  const { data, error } = await supabase
-    .from('bookings')
-    .select('id, title, status, start_time, end_time, booking_type, user_id, users!bookings_user_id_fkey(full_name)')
-    .in('status', ['pending', 'confirmed'])
-    .gte('start_time', start.toISOString())
-    .lt('start_time', end.toISOString())
-    .order('start_time')
+  const startDate = start.toISOString().slice(0, 10)
+  const endDate = end.toISOString().slice(0, 10)
 
-  if (error) console.error('[getWeekBookings] error:', error)
-  console.log('[getWeekBookings] start:', start.toISOString(), 'rows:', data?.length ?? 0, data)
-  return data ?? []
+  const [bookingsRes, eventsRes] = await Promise.all([
+    supabase
+      .from('bookings')
+      .select('id, title, status, start_time, end_time, booking_type, user_id, description, attendee_count, series_id, users!bookings_user_id_fkey(full_name)')
+      .in('status', ['pending', 'confirmed'])
+      .gte('start_time', start.toISOString())
+      .lt('start_time', end.toISOString())
+      .order('start_time'),
+    supabase
+      .from('events')
+      .select('id, title, description, event_date, start_time, end_time')
+      .eq('is_published', true)
+      .gte('event_date', startDate)
+      .lt('event_date', endDate),
+  ])
+
+  if (bookingsRes.error) console.error('[getWeekBookings] error:', bookingsRes.error)
+
+  const bookings = (bookingsRes.data ?? []).map(b => ({ ...b, source: 'booking' as const }))
+
+  const events = (eventsRes.data ?? []).map(e => ({
+    id: `event_${e.id}`,
+    title: e.title,
+    status: 'confirmed' as const,
+    start_time: `${e.event_date}T${e.start_time}`,
+    end_time: `${e.event_date}T${e.end_time}`,
+    booking_type: 'public_event',
+    user_id: null as unknown as string,
+    description: e.description ?? null,
+    attendee_count: null,
+    series_id: null,
+    users: null,
+    source: 'event' as const,
+  }))
+
+  return [...bookings, ...events]
 }
 
 export async function createBookingRequest(_prevState: unknown, formData: FormData): Promise<{ error?: string; success?: boolean; bookingId?: string } | null> {

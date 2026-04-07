@@ -76,7 +76,7 @@ export function EditEventForm({ event }: { event: Event }) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="max_capacity" className="text-[12px] text-white/50 uppercase tracking-wide">Capacity</Label>
-            <Input id="max_capacity" name="max_capacity" type="number" min="1" max="60"
+            <Input id="max_capacity" name="max_capacity" type="number" min="1" max="100"
               defaultValue={event.max_capacity}
               className="border-white/10 bg-white/5 text-white focus-visible:ring-swin-red" />
           </div>
