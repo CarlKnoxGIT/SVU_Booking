@@ -1,6 +1,16 @@
+import { createClient } from '@/lib/supabase/server'
 import { BookingCalendar } from './calendar'
 
-export default function NewBookingPage() {
+export default async function NewBookingPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const { data: profile } = await supabase
+    .from('users')
+    .select('id')
+    .eq('auth_id', user!.id)
+    .single()
+
   return (
     <div className="flex flex-col h-screen">
       <div className="px-6 py-5 border-b border-white/[0.06]">
@@ -8,7 +18,7 @@ export default function NewBookingPage() {
         <p className="text-[12px] text-white/30 mt-0.5">Click any time slot to request a booking. All requests require admin approval.</p>
       </div>
       <div className="flex-1 overflow-hidden">
-        <BookingCalendar />
+        <BookingCalendar currentUserId={profile?.id ?? ''} />
       </div>
     </div>
   )
