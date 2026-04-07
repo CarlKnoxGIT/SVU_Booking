@@ -96,15 +96,123 @@
 - `useActionState` requires server action signature `(prevState, formData)` — added `_prevState` param to all actions
 - `signInWithGoogle` redirects on both success and failure (no error object return) so it satisfies `() => Promise<void>` for form action type
 
-### Next Steps (Session 5)
-- [ ] Enable Google OAuth in Supabase dashboard (Client ID + Secret)
-- [ ] Enable email magic link in Supabase dashboard (already on by default — verify SMTP config)
-- [ ] Build `/admin/bookings` — full bookings list with approve/reject actions
-- [ ] Build `/admin/users` — user list with role management
-- [ ] Build `/events` — public events listing page
-- [ ] Add conflict detection to `createBookingRequest` (check for overlapping confirmed bookings)
-- [ ] Wire up first AI agent — BookingIntakeAgent for school group / external hire flows
-- [ ] Begin SAML 2.0 SSO config (contact Swinburne IT)
+### Next Steps (Session 5) — COMPLETED
+
+---
+
+## Session 5 — 2026-04-06
+
+### Completed
+
+#### Public-facing pages
+- [x] Built `/events` — public events listing with date, tickets-left, Humanitix integration
+- [x] Built `/events/[id]/tickets` — Stripe ticket checkout (quantity selector, capacity check, redirect to Stripe)
+- [x] Built `/events/[id]/tickets/success` — post-purchase confirmation page
+- [x] Built `/school-groups` — full educational visits page (programs, how-it-works, CTA)
+- [x] Built `/enquire` — private hire enquiry form with `EnquiryForm` client component
+- [x] Built `/staff/register` — staff access request form (name, email, reason; pending review flow)
+- [x] Updated homepage — parallax hero, saturn scroll-scrub animation, 4 full photo sections (events, schools, hire, future), footer
+
+#### Auth
+- [x] Built `/auth/confirm` — client-side magic link token handler (sets session from URL fragment, creates user record, redirects)
+- [x] Built `/auth/set-password` — password setup page for invited users
+
+#### Staff portal
+- [x] Built `/staff/book/calendar.tsx` — visual calendar date picker in booking form
+- [x] Built `/staff/bookings/[id]/edit` — edit pending bookings (form + server action)
+- [x] Built `cancel-booking-button.tsx` — client component for cancelling bookings from dashboard
+
+#### Admin panel — heavily expanded
+- [x] Rebuilt `/admin/page.tsx` — single long-scroll dashboard with all sections: Bookings calendar, Overview stats, Staff Requests, Events, Enquiries, Check-in, Users, Broadcast
+- [x] Built `/admin/bookings/admin-calendar.tsx` — full interactive weekly calendar with approve/reject/edit/delete/bulk-select/create/block-dates modals
+- [x] Built `/admin/bookings/actions.ts` — approve, reject, delete, bulk approve/delete, adminCreateBooking, adminUpdateBooking, adminUpdateAllByTitle, blockDates, email notifications on approve/reject
+- [x] Built `/admin/events/page.tsx` — events list with attendance tracking, guest list download, duplicate, edit, publish status
+- [x] Built `/admin/events/new` — create event form with image upload to Supabase Storage
+- [x] Built `/admin/events/[id]/edit` — edit event form
+- [x] Built `/admin/events/duplicate-button.tsx` — one-click event duplication
+- [x] Built `/admin/enquiries/page.tsx` — expandable enquiry cards with status selector, reply-by-email link
+- [x] Built `/admin/checkin/page.tsx` + `qr-scanner.tsx` — QR code scanner for event check-in (webcam + manual code)
+- [x] Built `/admin/broadcast/broadcast-form.tsx` — email broadcast to all confirmed-booking staff in a date range
+- [x] Built `/admin/staff-requests/page.tsx` + `actions.ts` — approve (sends Supabase invite) / reject staff access requests
+- [x] Built `/admin/users/role-selector.tsx`, `delete-button.tsx`, `invite-staff.tsx` — inline role management and user deletion
+
+#### API routes
+- [x] Built `/api/checkout` — Stripe checkout session creation (validates capacity, builds line items, returns session URL)
+- [x] Built `/api/reserve` — ticket reservation before checkout
+- [x] Built `/api/qr/[code]` — QR code lookup for check-in (returns ticket + event details)
+- [x] Built `/api/cron/booking-reminders` — automated 24h reminder emails to staff with upcoming confirmed bookings
+- [x] Built `/api/admin/reports/attendance` — CSV attendance report across all events
+- [x] Built `/api/admin/events/[id]/guests` — per-event guest list CSV export
+
+#### Database migrations
+- [x] `002_bookings_datetime.sql` — datetime column adjustments
+- [x] `003_enquiries.sql` — enquiries table
+- [x] `004_events_humanitix_url.sql` — Humanitix URL field on events
+- [x] `005_qr_storage.sql` — QR code storage setup
+- [x] `006_staff_requests.sql` — staff access request table
+- [x] `007_event_image_url.sql` — image URL field on events
+- [x] `008_vip_booking_type.sql` — VIP booking type enum value
+
+### Decisions Made
+- Magic link auth uses `/auth/confirm` (client-side) to handle URL fragment tokens — server-side can't read hash params
+- Admin dashboard is a single scrollable page with anchored sections, not separate sub-pages (better for daily ops workflow)
+- Booking calendar uses a weekly view with inline modals — no navigation to separate page required
+- `blockDates` creates one `confirmed` booking per day in the range with `booking_type: 'maintenance'` — reuses existing bookings table
+- Ticket checkout uses Stripe redirect (not embedded) — simpler, PCI-compliant
+- `NEXT_PUBLIC_SUPER_ADMIN_EMAILS` env var controls who gets `super_admin` role on first sign-in
+
+### Remaining / Not Started
+- [ ] `/admin/reports` — placeholder only ("Coming soon")
+- [ ] `/admin/maintenance` — placeholder only ("Coming soon")
+- [ ] `agents/` directory — completely empty; `agent-runner.ts` framework exists but no agents implemented
+- [ ] `emails/` directory — empty; no React Email templates built yet
+- [ ] SAML 2.0 SSO — blocked on Swinburne IT
+- [ ] Conflict detection in `createBookingRequest` — not yet added
+- [ ] React Email templates — booking confirmed, booking declined, ticket purchase, event reminder
+
+---
+
+## Session 6 — 2026-04-07
+
+### Completed
+
+#### Admin panel
+- [x] Admin landing page consolidated into one giant scrollable dashboard (calendar at top, then Overview, Staff Requests, Events, Enquiries, Check-in, Users, Broadcast below)
+- [x] Sidebar nav updated to anchor links (`/admin#bookings`, `#overview`, etc.) — no separate tabs
+- [x] `/admin/dashboard/page.tsx` created as a standalone route (dead — not in nav, kept for reference)
+- [x] Admin recent bookings list: inline Approve/Reject buttons for pending bookings
+- [x] Admin booking calendar: calendar height uses `calc(100vh - 120px)` to fill viewport within scrollable page
+- [x] Event max capacity limit raised from 60 → 100 in both new and edit event forms
+
+#### Calendar improvements (both admin + staff)
+- [x] Calendar always starts on Monday regardless of current day
+- [x] Day headers moved inside the scroll container as `sticky top-0` — fixes misalignment caused by scrollbar width stealing space from columns
+- [x] Calendar time range changed from 08:00–20:00 to 06:00–24:00; last label shows `00:00` not `24:00`
+- [x] Click-and-drag on day columns to pre-select a time range before opening the new booking panel
+- [x] `data-booking-block` attribute prevents drag from triggering when clicking existing booking blocks
+
+#### Booking types & time display
+- [x] Added `SVU Demo` booking type to all dropdowns (staff calendar, admin calendar, edit booking form)
+- [x] Added `009_svu_demo_booking_type.sql` migration to update DB check constraint
+- [x] Replaced all `<input type="time">` with custom `TimeSelect` component (`src/components/ui/time-select.tsx`) — two `<select>` elements for 00–23 hours and 00/15/30/45 minutes; guaranteed 24h on all browsers/OS
+
+#### Public events on calendar
+- [x] Published events from the `events` table auto-appear on both admin and staff calendars
+- [x] Events rendered in orange (`public_event` colour), positioned from `event_date + start_time/end_time`
+- [x] Admin calendar: clicking an event opens a read-only `EventDetailPanel` with "Manage events →" link
+- [x] Staff calendar: event blocks are non-interactive (cursor default, click does nothing)
+- [x] Events are non-draggable and excluded from bulk select
+
+#### Bug fixes
+- [x] Timezone bug: `getWeekBookings` and `getAdminWeekBookings` now pass `weekStart.toISOString()` instead of bare date string — fixes bookings disappearing due to UTC midnight vs local midnight mismatch
+- [x] `src/app/staff/actions.ts` missing from prior commit — added `cancelSeries` export
+- [x] `src/app/staff/book/page.tsx` was a plain client component missing `currentUserId` prop — converted to async server component that fetches the user profile
+
+### Decisions Made
+- Single scrollable admin dashboard preferred over tabbed layout (user preference)
+- `TimeSelect` custom component is the only reliable cross-browser 24h time input on Windows/Chrome with Australian locale
+- Events use `id: 'event_${uuid}'` prefix to avoid ID collision with booking UUIDs
+- `source: 'booking' | 'event'` field added to `Booking` type to distinguish event blocks from real bookings
 
 ---
 
