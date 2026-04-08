@@ -15,16 +15,17 @@ export async function checkInTicket(qrCode: string): Promise<CheckInResult> {
 
   const { data: ticket, error } = await supabase
     .from('tickets')
-    .select('id, status, quantity, checked_in_at, user_id, event_id')
+    .select('id, status, quantity, checked_in_at, user_id, event_id, buyer_name')
     .eq('qr_code', qrCode.trim())
     .single()
 
   if (error || !ticket) return { status: 'not_found' }
 
-  // Fetch event, user, and used-ticket quantities in parallel
-  const [{ data: event }, { data: user }, { data: usedTickets }] = await Promise.all([
+  // Fetch event and used-ticket quantities in parallel
+  // Use buyer_name from ticket if set — it's the name entered at Stripe checkout,
+  // which may differ from the user's registered account name.
+  const [{ data: event }, { data: usedTickets }] = await Promise.all([
     supabase.from('events').select('title, event_date, start_time, end_time, tickets_sold').eq('id', ticket.event_id).single(),
-    supabase.from('users').select('full_name').eq('id', ticket.user_id).single(),
     supabase.from('tickets').select('quantity').eq('event_id', ticket.event_id).eq('status', 'used'),
   ])
 
@@ -32,7 +33,13 @@ export async function checkInTicket(qrCode: string): Promise<CheckInResult> {
   const eventDate = event?.event_date ?? ''
   const startTime = event?.start_time ?? ''
   const endTime = event?.end_time ?? ''
-  const name = user?.full_name ?? null
+
+  // Prefer the name recorded at purchase time; fall back to account name
+  let name = ticket.buyer_name ?? null
+  if (!name) {
+    const { data: user } = await supabase.from('users').select('full_name').eq('id', ticket.user_id).single()
+    name = user?.full_name ?? null
+  }
   const checkedInTickets = usedTickets?.reduce((sum, t) => sum + t.quantity, 0) ?? 0
   const tally: Tally = { sold: event?.tickets_sold ?? 0, checkedIn: checkedInTickets, eventTitle }
 

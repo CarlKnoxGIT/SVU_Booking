@@ -108,7 +108,7 @@ export async function POST(request: Request) {
             .select('id')
             .single()
 
-          // Create ticket record
+          // Create ticket record — store the Stripe checkout name, not the account name
           const qrCode = crypto.randomUUID()
           const { data: ticket } = await supabase.from('tickets').insert({
             event_id: eventId,
@@ -117,6 +117,7 @@ export async function POST(request: Request) {
             qr_code: qrCode,
             quantity: qty,
             status: 'active',
+            buyer_name: session.customer_details?.name ?? null,
           }).select('cancel_token').single()
 
           // Send confirmation email
