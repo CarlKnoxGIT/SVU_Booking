@@ -3,8 +3,8 @@
 import { createAdminClient } from '@/lib/supabase/server'
 
 export type CheckInResult =
-  | { status: 'success'; name: string | null; eventTitle: string; quantity: number; checkedInAt: string }
-  | { status: 'already_used'; name: string | null; eventTitle: string; quantity: number; checkedInAt: string }
+  | { status: 'success'; name: string | null; eventTitle: string; eventDate: string; startTime: string; endTime: string; quantity: number; checkedInAt: string }
+  | { status: 'already_used'; name: string | null; eventTitle: string; eventDate: string; startTime: string; endTime: string; quantity: number; checkedInAt: string }
   | { status: 'not_found' }
   | { status: 'error'; message: string }
 
@@ -21,11 +21,14 @@ export async function checkInTicket(qrCode: string): Promise<CheckInResult> {
 
   // Fetch event and user in parallel
   const [{ data: event }, { data: user }] = await Promise.all([
-    supabase.from('events').select('title').eq('id', ticket.event_id).single(),
+    supabase.from('events').select('title, event_date, start_time, end_time').eq('id', ticket.event_id).single(),
     supabase.from('users').select('full_name').eq('id', ticket.user_id).single(),
   ])
 
   const eventTitle = event?.title ?? 'Unknown event'
+  const eventDate = event?.event_date ?? ''
+  const startTime = event?.start_time ?? ''
+  const endTime = event?.end_time ?? ''
   const name = user?.full_name ?? null
 
   if (ticket.status === 'used') {
@@ -33,6 +36,9 @@ export async function checkInTicket(qrCode: string): Promise<CheckInResult> {
       status: 'already_used',
       name,
       eventTitle,
+      eventDate,
+      startTime,
+      endTime,
       quantity: ticket.quantity,
       checkedInAt: ticket.checked_in_at!,
     }
@@ -54,6 +60,9 @@ export async function checkInTicket(qrCode: string): Promise<CheckInResult> {
     status: 'success',
     name,
     eventTitle,
+    eventDate,
+    startTime,
+    endTime,
     quantity: ticket.quantity,
     checkedInAt: now,
   }

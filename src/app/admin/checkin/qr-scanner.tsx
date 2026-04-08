@@ -3,10 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { checkInTicket, type CheckInResult } from './actions'
 
-// Scan at ~5fps — sufficient for QR detection, far less CPU/battery than 60fps
 const SCAN_INTERVAL_MS = 200
-// After a successful scan, wait this long before accepting another scan
-const COOLDOWN_MS = 2500
 
 async function detectQR(
   video: HTMLVideoElement,
@@ -20,7 +17,7 @@ async function detectQR(
       if (barcodes.length > 0) return barcodes[0].rawValue as string
       return null
     } catch {
-      // BarcodeDetector failed — fall through to jsqr
+      // fall through to jsqr
     }
   }
 
@@ -55,31 +52,50 @@ function getCameraErrorMessage(err: unknown): string {
   return 'Camera unavailable.'
 }
 
+function formatSessionTime(eventDate: string, startTime: string, endTime: string): string {
+  if (!eventDate || !startTime) return ''
+  const date = new Date(eventDate + 'T12:00:00')
+  const dateStr = date.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
+  const start = startTime.slice(0, 5)
+  const end = endTime ? endTime.slice(0, 5) : ''
+  return end ? `${dateStr}, ${start} – ${end}` : `${dateStr}, ${start}`
+}
+
 export function QrScanner() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
   const rafRef = useRef<number>(0)
-  const cooldownRef = useRef(false)
+  const processingRef = useRef(false)
   const lastScanRef = useRef(0)
 
   const [scanning, setScanning] = useState(false)
   const [result, setResult] = useState<CheckInResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [cameraError, setCameraError] = useState<string | null>(null)
-  const [scanCount, setScanCount] = useState(0)
+
+  function stopScanner() {
+    cancelAnimationFrame(rafRef.current)
+    streamRef.current?.getTracks().forEach(t => t.stop())
+    streamRef.current = null
+    if (videoRef.current) videoRef.current.srcObject = null
+    setScanning(false)
+  }
 
   const handleCode = useCallback(async (code: string) => {
-    if (cooldownRef.current) return
-    cooldownRef.current = true
+    if (processingRef.current) return
+    processingRef.current = true
 
+    // Stop camera immediately so the result screen can take over
+    stopScanner()
     setLoading(true)
+    setResult(null)
+
     const res = await checkInTicket(code)
     setResult(res)
-    setScanCount(n => n + 1)
     setLoading(false)
-
-    setTimeout(() => { cooldownRef.current = false }, COOLDOWN_MS)
+    processingRef.current = false
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const tick = useCallback(() => {
@@ -91,7 +107,7 @@ export function QrScanner() {
     }
 
     const now = Date.now()
-    if (now - lastScanRef.current >= SCAN_INTERVAL_MS && !cooldownRef.current) {
+    if (now - lastScanRef.current >= SCAN_INTERVAL_MS && !processingRef.current) {
       lastScanRef.current = now
       detectQR(video, canvas).then(data => {
         if (data) handleCode(data)
@@ -104,6 +120,7 @@ export function QrScanner() {
   async function startScanner() {
     setCameraError(null)
     setResult(null)
+    processingRef.current = false
     try {
       const stream = await getStream()
       streamRef.current = stream
@@ -119,33 +136,111 @@ export function QrScanner() {
     }
   }
 
-  function stopScanner() {
-    cancelAnimationFrame(rafRef.current)
-    streamRef.current?.getTracks().forEach(t => t.stop())
-    streamRef.current = null
-    if (videoRef.current) videoRef.current.srcObject = null
-    setScanning(false)
-  }
-
-  function scanNext() {
-    cooldownRef.current = false
-    setResult(null)
-    setLoading(false)
-  }
-
   useEffect(() => () => stopScanner(), [])
 
-  const statusColour = !result ? '' :
-    result.status === 'success' ? 'border-emerald-500/40 bg-emerald-500/[0.08]' :
-    result.status === 'already_used' ? 'border-amber-500/40 bg-amber-500/[0.08]' :
-    'border-red-500/40 bg-red-500/[0.08]'
+  // ── Loading state ──────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 py-16">
+        <div className="h-12 w-12 rounded-full border-2 border-white/10 border-t-swin-red animate-spin" />
+        <p className="text-white/40 text-[14px]">Checking ticket…</p>
+      </div>
+    )
+  }
 
+  // ── Result state ───────────────────────────────────────────────
+  if (result) {
+    const isSuccess = result.status === 'success'
+    const isAlreadyUsed = result.status === 'already_used'
+    const isError = result.status === 'not_found' || result.status === 'error'
+
+    return (
+      <div className="space-y-5">
+        {/* Status banner */}
+        <div className={`rounded-2xl p-6 text-center ${
+          isSuccess ? 'bg-emerald-500/10 border border-emerald-500/30' :
+          isAlreadyUsed ? 'bg-amber-500/10 border border-amber-500/30' :
+          'bg-red-500/10 border border-red-500/30'
+        }`}>
+          <div className={`mx-auto mb-3 h-14 w-14 rounded-full flex items-center justify-center ${
+            isSuccess ? 'bg-emerald-500/20' :
+            isAlreadyUsed ? 'bg-amber-500/20' :
+            'bg-red-500/20'
+          }`}>
+            {isSuccess && (
+              <svg className="h-8 w-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            )}
+            {isAlreadyUsed && (
+              <svg className="h-8 w-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" />
+              </svg>
+            )}
+            {isError && (
+              <svg className="h-8 w-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            )}
+          </div>
+
+          <p className={`text-[22px] font-semibold ${
+            isSuccess ? 'text-emerald-400' :
+            isAlreadyUsed ? 'text-amber-400' :
+            'text-red-400'
+          }`}>
+            {isSuccess && 'Checked in'}
+            {isAlreadyUsed && 'Already checked in'}
+            {result.status === 'not_found' && 'Ticket not found'}
+            {result.status === 'error' && result.message}
+          </p>
+
+          {isAlreadyUsed && (
+            <p className="text-amber-400/60 text-[13px] mt-1">
+              Scanned at {new Date(result.checkedInAt).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: false })}
+            </p>
+          )}
+        </div>
+
+        {/* Ticket details */}
+        {(isSuccess || isAlreadyUsed) && (
+          <div className="border border-white/[0.08] rounded-2xl overflow-hidden divide-y divide-white/[0.06]">
+            <div className="px-5 py-4">
+              <p className="text-[10px] font-bold tracking-[0.16em] text-white/25 uppercase mb-1">Guest</p>
+              <p className="text-white text-[20px] font-medium">{result.name ?? 'Unknown'}</p>
+            </div>
+            <div className="px-5 py-4">
+              <p className="text-[10px] font-bold tracking-[0.16em] text-white/25 uppercase mb-1">Tickets</p>
+              <p className="text-white text-[18px] font-medium">{result.quantity} {result.quantity === 1 ? 'ticket' : 'tickets'}</p>
+            </div>
+            <div className="px-5 py-4">
+              <p className="text-[10px] font-bold tracking-[0.16em] text-white/25 uppercase mb-1">Event</p>
+              <p className="text-white text-[15px] font-medium">{result.eventTitle}</p>
+              {result.eventDate && (
+                <p className="text-white/40 text-[13px] mt-0.5">
+                  {formatSessionTime(result.eventDate, result.startTime, result.endTime)}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Scan again */}
+        <button
+          onClick={startScanner}
+          className="w-full py-4 bg-swin-red hover:bg-swin-red-hover text-white text-[15px] font-semibold rounded-xl transition-colors"
+        >
+          Scan next ticket
+        </button>
+      </div>
+    )
+  }
+
+  // ── Camera / idle state ────────────────────────────────────────
   return (
     <div className="space-y-5">
-
-      {/* Camera */}
-      <div className="border border-white/[0.07] bg-white/[0.02] rounded-xl overflow-hidden">
-        {/* Video */}
+      <div className="border border-white/[0.07] bg-white/[0.02] rounded-2xl overflow-hidden">
+        {/* Viewfinder */}
         <div className="relative w-full">
           <video
             ref={videoRef}
@@ -167,10 +262,10 @@ export function QrScanner() {
             </div>
           )}
           {!scanning && (
-            <div className="flex items-center justify-center h-48 bg-white/[0.02]">
-              <svg className="w-12 h-12 text-white/10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+            <div className="flex items-center justify-center h-52 bg-white/[0.02]">
+              <svg className="w-14 h-14 text-white/10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 17.25h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75z" />
               </svg>
             </div>
           )}
@@ -178,124 +273,30 @@ export function QrScanner() {
 
         <canvas ref={canvasRef} className="hidden" />
 
-        {/* Camera controls */}
         <div className="p-4 space-y-3">
           {cameraError && (
             <p className="text-red-400 text-[13px] leading-relaxed">{cameraError}</p>
           )}
-
           {scanning ? (
-            <div className="flex gap-2">
-              {result && (
-                <button
-                  onClick={scanNext}
-                  className="flex-1 py-3 bg-swin-red hover:bg-swin-red-hover text-white text-[13px] font-semibold rounded-lg transition-colors"
-                >
-                  Scan next ticket
-                </button>
-              )}
+            <div className="text-center">
+              <p className="text-white/30 text-[13px] mb-3">Point camera at a ticket QR code</p>
               <button
                 onClick={stopScanner}
-                className={`py-3 border border-white/15 text-white/40 hover:text-white text-[13px] rounded-lg transition-colors ${result ? 'px-4' : 'flex-1'}`}
+                className="px-6 py-2.5 border border-white/15 text-white/40 hover:text-white text-[13px] rounded-lg transition-colors"
               >
-                Stop camera
+                Cancel
               </button>
             </div>
           ) : (
             <button
               onClick={startScanner}
-              className="w-full py-3 bg-swin-red hover:bg-swin-red-hover text-white text-[13px] font-semibold rounded-lg transition-colors"
+              className="w-full py-4 bg-swin-red hover:bg-swin-red-hover text-white text-[15px] font-semibold rounded-xl transition-colors"
             >
-              {cameraError ? 'Retry camera' : scanCount > 0 ? 'Start camera again' : 'Start camera'}
+              Start scanning
             </button>
           )}
         </div>
       </div>
-
-      {/* Loading */}
-      {loading && (
-        <div className="border border-white/10 bg-white/[0.02] p-6 rounded-xl">
-          <p className="text-white/40 text-[13px] animate-pulse">Checking ticket…</p>
-        </div>
-      )}
-
-      {/* Result card */}
-      {!loading && result && (
-        <div className={`border rounded-xl overflow-hidden ${statusColour}`}>
-
-          {/* Status header */}
-          <div className="px-6 py-4 border-b border-white/[0.06] flex items-center gap-3">
-            {result.status === 'success' && (
-              <>
-                <div className="h-9 w-9 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                  <svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-emerald-400 font-semibold text-[16px]">Checked in</p>
-                  <p className="text-emerald-400/50 text-[11px]">
-                    {new Date(result.checkedInAt).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: false })}
-                  </p>
-                </div>
-              </>
-            )}
-            {result.status === 'already_used' && (
-              <>
-                <div className="h-9 w-9 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
-                  <svg className="h-5 w-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-amber-400 font-semibold text-[16px]">Already checked in</p>
-                  <p className="text-amber-400/50 text-[11px]">
-                    at {new Date(result.checkedInAt).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: false })}
-                  </p>
-                </div>
-              </>
-            )}
-            {result.status === 'not_found' && (
-              <>
-                <div className="h-9 w-9 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
-                  <svg className="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </div>
-                <p className="text-red-400 font-semibold text-[16px]">Ticket not found</p>
-              </>
-            )}
-            {result.status === 'error' && (
-              <>
-                <div className="h-9 w-9 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
-                  <svg className="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </div>
-                <p className="text-red-400 font-semibold text-[16px]">{result.message}</p>
-              </>
-            )}
-          </div>
-
-          {/* Ticket details */}
-          {(result.status === 'success' || result.status === 'already_used') && (
-            <div className="px-6 py-5 space-y-4">
-              <div>
-                <p className="text-[11px] font-bold tracking-[0.14em] text-white/25 uppercase mb-1">Guest</p>
-                <p className="text-white text-[18px] font-medium">{result.name ?? 'Unknown'}</p>
-              </div>
-              <div>
-                <p className="text-[11px] font-bold tracking-[0.14em] text-white/25 uppercase mb-1">Event</p>
-                <p className="text-white/80 text-[14px]">{result.eventTitle}</p>
-              </div>
-              <div>
-                <p className="text-[11px] font-bold tracking-[0.14em] text-white/25 uppercase mb-1">Tickets</p>
-                <p className="text-white/80 text-[14px]">{result.quantity} {result.quantity === 1 ? 'ticket' : 'tickets'}</p>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   )
 }
