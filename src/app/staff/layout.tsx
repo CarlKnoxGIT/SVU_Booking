@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { signOut } from './actions'
 import { ResizableSidebar } from '@/components/ui/resizable-sidebar'
+import { StaffBottomNav } from '@/components/ui/staff-bottom-nav'
 
 const NAV_ITEMS = [
   { href: '/staff', label: 'Calendar' },
@@ -82,13 +83,25 @@ export default async function StaffLayout({ children }: { children: React.ReactN
     </>
   )
 
+  const isAdmin = profile?.role === 'super_admin'
+
   return (
-    <ResizableSidebar
-      sidebar={sidebarContent}
-      mainClassName="flex-1 overflow-hidden"
-      storageKey="staff-sidebar-width"
-    >
-      {children}
-    </ResizableSidebar>
+    <>
+      <ResizableSidebar
+        sidebar={sidebarContent}
+        mainClassName="flex-1 overflow-hidden"
+        storageKey="staff-sidebar-width"
+      >
+        {/* Shrink available height on mobile to account for bottom nav */}
+        <div className="flex flex-col h-full">
+          <div className="flex-1 min-h-0 overflow-hidden">
+            {children}
+          </div>
+          <div className="md:hidden h-16 flex-shrink-0" />
+        </div>
+      </ResizableSidebar>
+
+      <StaffBottomNav isAdmin={isAdmin} initials={initials} />
+    </>
   )
 }
