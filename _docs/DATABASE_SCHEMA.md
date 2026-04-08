@@ -118,10 +118,11 @@ CREATE TABLE events (
   end_time        TIME NOT NULL,
   ticket_price    NUMERIC(10,2) NOT NULL DEFAULT 0,
   max_capacity    INTEGER NOT NULL,
-  tickets_sold    INTEGER DEFAULT 0,
+  tickets_sold    INTEGER DEFAULT 0,  -- maintained by DB trigger (migration 011), do not update manually
   is_published    BOOLEAN DEFAULT FALSE,
   is_free         BOOLEAN DEFAULT FALSE,
-  image_url       TEXT,
+  image_url       TEXT,               -- Supabase Storage URL (migration 007)
+  humanitix_url   TEXT,               -- Optional external ticketing link (migration 004)
   tags            TEXT[],
   created_at      TIMESTAMPTZ DEFAULT NOW(),
   updated_at      TIMESTAMPTZ DEFAULT NOW()
@@ -139,13 +140,17 @@ CREATE TABLE tickets (
   event_id      UUID NOT NULL REFERENCES events(id),
   user_id       UUID NOT NULL REFERENCES users(id),
   payment_id    UUID REFERENCES payments(id),
-  qr_code       TEXT UNIQUE NOT NULL,  -- HMAC-signed token
+  qr_code       TEXT UNIQUE NOT NULL,
   status        TEXT NOT NULL DEFAULT 'active'
                   CHECK (status IN ('active', 'used', 'cancelled', 'refunded')),
   quantity      INTEGER NOT NULL DEFAULT 1,
+  buyer_name    TEXT,            -- Name entered at checkout (preferred over users.full_name at check-in)
+  cancel_token  UUID DEFAULT gen_random_uuid() UNIQUE,  -- Token for self-service cancellation link
   checked_in_at TIMESTAMPTZ,
   created_at    TIMESTAMPTZ DEFAULT NOW()
 );
+-- tickets_sold on events is maintained by a DB trigger (migration 011), not manual updates
+-- buyer_name added in migration 012; cancel_token added in migration 010
 ```
 
 ---

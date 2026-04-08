@@ -216,14 +216,67 @@
 
 ---
 
+## Session 7 — 2026-04-08
+
+### Completed
+
+#### Mobile responsiveness (full pass)
+- [x] Staff + admin booking calendars: auto-switch to 3-day view on mobile (`window.innerWidth < 768`)
+- [x] Touch events (`onTouchStart`/`onTouchEnd`) on calendar day columns for mobile booking
+- [x] Calendar nav arrows: hidden in toolbar on mobile, replaced by fixed bottom arrow bar (`position: fixed, bottom-16`) with large tap targets (`w-8 h-8 px-8`)
+- [x] Bottom tab bar (`StaffBottomNav`) — mobile-only (`md:hidden`), fixed above device chrome, tabs: Calendar / Check-in / Admin (super_admin only, red tint), Profile avatar far-right
+- [x] Sidebar converted to hamburger drawer on mobile; desktop sidebar remains resizable via drag handle
+- [x] `pb-28 md:pb-0` on time grid to prevent content hiding behind fixed bars
+
+#### QR scanner redesign
+- [x] Camera stops immediately on scan (`stopScanner()` called inside `handleCode`)
+- [x] Result card: coloured banner (emerald/amber/red) + guest name, ticket count, event + session time, already-scanned warning
+- [x] "Scan next ticket" button restarts camera
+- [x] `TallyBar` — fixed bar (`bottom-16`, above tab nav), always visible in all states, shows: `{checkedIn} in | {sold} sold [progress bar] {pct}%`
+- [x] Tally counts ticket quantities (`.reduce` sum), not row count — fixes multi-ticket undercounting
+- [x] Tally persists across scans; re-fetches after successful check-in for accurate count
+- [x] Camera capped at `max-h-[45vh]` so result fits without scrolling
+
+#### Ticket check-in: correct buyer name
+- [x] Added `buyer_name` column to `tickets` table (`012_tickets_buyer_name.sql`)
+- [x] Free ticket (`/api/reserve`): stores `buyer_name: name` from the form
+- [x] Paid ticket (Stripe webhook): stores name from form via metadata (`session.metadata.buyer_name`), with fallbacks to `session.customer_details.name` then `payment_method.billing_details.name`
+- [x] Checkout route passes `name` and `email` from form body into Stripe session metadata and `customer_email`
+- [x] Check-in action reads `buyer_name` first; falls back to `users.full_name` only if null
+- [x] `CheckInResult` type includes `eventDate`, `startTime`, `endTime`, `quantity`, `tally`
+
+#### Ticket cancellation fix
+- [x] Cancel form was fetching `/api/tickets/cancel` without `NEXT_PUBLIC_BASE_PATH` prefix — caused a JSON parse error masquerading as "Network error"
+- [x] Fixed: `const base = process.env.NEXT_PUBLIC_BASE_PATH ?? ''` added to `cancel-form.tsx`
+
+#### Infrastructure
+- [x] Vercel, Supabase, and Resend all live and confirmed working as of this session
+- [x] Staff check-in page (`/staff/checkin`) added — reuses admin `QrScanner` component
+
+### Decisions Made
+- `buyer_name` on tickets is the authoritative display name at check-in — account `full_name` is only a fallback
+- Name flows: form input → API route → Stripe metadata → webhook → DB (not relying on Stripe's own name collection)
+- All client-side `fetch` calls must prefix with `process.env.NEXT_PUBLIC_BASE_PATH ?? ''` — enforced across all routes now
+
+### Remaining / Not Started
+- [ ] `/admin/reports` — placeholder only ("Coming soon")
+- [ ] `/admin/maintenance` — placeholder only ("Coming soon")
+- [ ] `agents/` directory — framework exists but no agents implemented
+- [ ] `emails/` directory — no React Email templates built yet
+- [ ] SAML 2.0 SSO — blocked on Swinburne IT
+- [ ] Conflict detection in `createBookingRequest`
+- [ ] Google Calendar integration
+
+---
+
 ## Blockers & Open Questions
 
 | Issue | Status | Notes |
 |-------|--------|-------|
 | Swinburne IT access for SAML config | Open | Need to contact IT to register SP and obtain IdP metadata |
-| Sending domain verification (Resend) | Open | Need DNS access for `svu.swinburne.edu.au` |
+| Sending domain verification (Resend) | Done | Resend is set up and live |
 | Google Calendar service account | Open | Need to create service account and share ops calendar |
-| Stripe account setup | Open | Need to determine if using personal account or Swinburne merchant account |
+| Stripe account setup | Open | Need to determine if using personal account or Swinburne merchant account — Vercel + Supabase already live |
 | Exact capacity of the SVU | Open | Confirm exact max attendee count for each booking type |
 | Cancellation policy details | Open | Define exact timeframes and refund rules per booking type |
 
