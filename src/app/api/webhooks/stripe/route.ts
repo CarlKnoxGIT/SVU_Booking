@@ -110,14 +110,14 @@ export async function POST(request: Request) {
 
           // Create ticket record
           const qrCode = crypto.randomUUID()
-          await supabase.from('tickets').insert({
+          const { data: ticket } = await supabase.from('tickets').insert({
             event_id: eventId,
             user_id: userId,
             payment_id: payment?.id ?? null,
             qr_code: qrCode,
             quantity: qty,
             status: 'active',
-          })
+          }).select('cancel_token').single()
 
           // Send confirmation email
           const { data: evtDetails } = await supabase
@@ -142,22 +142,13 @@ export async function POST(request: Request) {
                 endTime: evtDetails.end_time?.slice(0, 5) ?? '',
                 quantity: qty,
                 qrCode,
+                cancelToken: ticket?.cancel_token ?? undefined,
               }).catch((err) => console.error('[stripe webhook] email send failed:', err))
             }
           }
         }
 
-        // Increment tickets_sold
-        const { data: evt } = await supabase
-          .from('events')
-          .select('tickets_sold')
-          .eq('id', eventId)
-          .single()
-
-        await supabase
-          .from('events')
-          .update({ tickets_sold: (evt?.tickets_sold ?? 0) + qty })
-          .eq('id', eventId)
+        // tickets_sold is maintained by a DB trigger (migration 011) — no manual update needed
       }
 
       break

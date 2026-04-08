@@ -22,7 +22,7 @@ export function TicketCheckout({ eventId, ticketPrice, isFree, ticketsLeft }: Pr
   const [error, setError] = useState<string | null>(null)
 
   const total = ticketPrice * quantity
-  const maxQty = Math.min(ticketsLeft, 10)
+  const maxQty = Math.min(ticketsLeft, 6)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -32,7 +32,6 @@ export function TicketCheckout({ eventId, ticketPrice, isFree, ticketsLeft }: Pr
     const base = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 
     if (isFree) {
-      // Free reservation — no Stripe needed
       const res = await fetch(`${base}/api/reserve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -42,7 +41,6 @@ export function TicketCheckout({ eventId, ticketPrice, isFree, ticketsLeft }: Pr
       if (!res.ok) { setError(data.error ?? 'Something went wrong.'); setLoading(false); return }
       router.push(`/events/${eventId}/tickets/success${data.qrCode ? `?qr=${data.qrCode}` : ''}`)
     } else {
-      // Paid — redirect to Stripe
       const res = await fetch(`${base}/api/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -55,57 +53,57 @@ export function TicketCheckout({ eventId, ticketPrice, isFree, ticketsLeft }: Pr
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-6">
       {/* Price */}
-      <div className="flex items-baseline justify-between text-[13px]">
-        <span className="text-white/40">{isFree ? 'Free entry' : `$${ticketPrice.toFixed(2)} per ticket`}</span>
+      <div className="flex items-baseline justify-between text-base">
+        <span className="text-white/75">{isFree ? 'Free entry' : `$${ticketPrice.toFixed(2)} per ticket`}</span>
         {!isFree && quantity > 1 && (
-          <span className="text-white/60">Total: <span className="text-white font-medium">${total.toFixed(2)}</span></span>
+          <span className="text-white/75">Total: <span className="text-white font-semibold">${total.toFixed(2)}</span></span>
         )}
       </div>
 
       {/* Name + Email */}
-      <div className="space-y-3">
-        <div className="space-y-1.5">
-          <Label htmlFor="name" className="text-[11px] text-white/40 uppercase tracking-wide">Name</Label>
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="name" className="text-sm text-white/70 font-medium">Name</Label>
           <Input id="name" type="text" required value={name} onChange={e => setName(e.target.value)}
             placeholder="Your name"
-            className="border-white/10 bg-white/5 text-white placeholder:text-zinc-600 focus-visible:ring-swin-red rounded-none" />
+            className="border-white/20 bg-white/8 text-white text-base h-11 placeholder:text-white/30 focus-visible:ring-swin-red rounded-none" />
         </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-[11px] text-white/40 uppercase tracking-wide">Email</Label>
+        <div className="space-y-2">
+          <Label htmlFor="email" className="text-sm text-white/70 font-medium">Email</Label>
           <Input id="email" type="email" required value={email} onChange={e => setEmail(e.target.value)}
             placeholder="your@email.com"
-            className="border-white/10 bg-white/5 text-white placeholder:text-zinc-600 focus-visible:ring-swin-red rounded-none" />
+            className="border-white/20 bg-white/8 text-white text-base h-11 placeholder:text-white/30 focus-visible:ring-swin-red rounded-none" />
         </div>
       </div>
 
       {/* Quantity */}
       <div>
-        <p className="text-[11px] font-bold tracking-[0.16em] text-white/25 uppercase mb-3">Tickets</p>
-        <div className="flex items-center gap-4">
+        <p className="text-sm font-medium text-white/70 mb-3">Number of tickets</p>
+        <div className="flex items-center gap-5">
           <button type="button" onClick={() => setQuantity(q => Math.max(1, q - 1))} disabled={quantity <= 1}
-            className="w-9 h-9 flex items-center justify-center border border-white/10 text-white/60 hover:text-white hover:border-white/25 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+            className="w-11 h-11 flex items-center justify-center border border-white/20 text-white text-xl hover:border-white/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
             −
           </button>
-          <span className="text-xl font-light text-white w-6 text-center">{quantity}</span>
+          <span className="text-3xl font-light text-white w-8 text-center">{quantity}</span>
           <button type="button" onClick={() => setQuantity(q => Math.min(maxQty, q + 1))} disabled={quantity >= maxQty}
-            className="w-9 h-9 flex items-center justify-center border border-white/10 text-white/60 hover:text-white hover:border-white/25 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+            className="w-11 h-11 flex items-center justify-center border border-white/20 text-white text-xl hover:border-white/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
             +
           </button>
-          <span className="text-[12px] text-white/25 ml-1">{ticketsLeft} left</span>
+          <span className="text-sm text-white/60">{ticketsLeft} left</span>
         </div>
       </div>
 
       {error && <p className="text-sm text-red-400">{error}</p>}
 
       <Button type="submit" disabled={loading || !name || !email}
-        className="w-full bg-swin-red hover:bg-swin-red-hover text-white py-3 text-[15px] font-semibold rounded-none">
+        className="w-full bg-swin-red hover:bg-swin-red-hover text-white py-4 text-lg font-semibold rounded-none">
         {loading ? 'Reserving…' : isFree ? `Reserve ${quantity > 1 ? quantity + ' ' : ''}free ticket${quantity > 1 ? 's' : ''}` : `Pay $${total.toFixed(2)}`}
       </Button>
 
       {!isFree && (
-        <p className="text-[11px] text-white/20 text-center">Powered by Stripe. Secure payment.</p>
+        <p className="text-sm text-white/50 text-center">Powered by Stripe. Secure payment.</p>
       )}
     </form>
   )

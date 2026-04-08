@@ -25,6 +25,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Event not found' }, { status: 404 })
   }
 
+  if (quantity > 6) {
+    return NextResponse.json({ error: 'Maximum 6 tickets per order.' }, { status: 400 })
+  }
+
   const remaining = event.max_capacity - (event.tickets_sold ?? 0)
   if (quantity > remaining) {
     return NextResponse.json({ error: 'Not enough tickets available' }, { status: 409 })

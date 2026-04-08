@@ -29,13 +29,13 @@ export default async function TicketsPage({ params }: { params: Promise<{ id: st
   return (
     <main className="bg-black text-white min-h-screen">
       {/* Nav */}
-      <nav className="flex items-center justify-between px-8 py-6 border-b border-white/[0.06]">
+      <nav className="flex items-center justify-between px-8 py-6 border-b border-white/10">
         <Link href="/">
           <SwinburneLogo className="h-8 w-auto" />
         </Link>
         <Link
           href="/events"
-          className="text-[12px] text-white/40 hover:text-white/70 transition-colors"
+          className="text-sm text-white/60 hover:text-white transition-colors"
         >
           ← All events
         </Link>
@@ -57,24 +57,24 @@ export default async function TicketsPage({ params }: { params: Promise<{ id: st
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             </div>
 
-            <p className="text-[11px] font-bold tracking-[0.18em] text-swin-red-light uppercase mb-3">
+            <p className="text-sm font-bold tracking-widest text-swin-red-light uppercase mb-3">
               {date}
               {event.start_time && <> · {event.start_time.slice(0, 5)}{event.end_time && `–${event.end_time.slice(0, 5)}`}</>}
             </p>
-            <h1 className="text-3xl sm:text-4xl font-light leading-tight mb-4">{event.title}</h1>
+            <h1 className="text-4xl sm:text-5xl font-light leading-tight mb-5">{event.title}</h1>
             {event.description && (
-              <p className="text-[14px] text-white/45 leading-relaxed">{event.description}</p>
+              <p className="text-lg text-white/80 leading-relaxed">{event.description}</p>
             )}
 
-            <div className="mt-8 space-y-3 border-t border-white/[0.06] pt-8">
+            <div className="mt-8 space-y-5 border-t border-white/10 pt-8">
               {[
                 { label: 'Venue', value: 'Swinburne, Hawthorn Campus — ATC Building, Room 103' },
-                { label: 'Duration', value: event.start_time && event.end_time ? `${event.start_time.slice(0,5)} – ${event.end_time.slice(0,5)}` : 'See event details' },
-                { label: 'Capacity', value: `${ticketsLeft} of ${event.max_capacity} tickets remaining` },
+                { label: 'Time', value: event.start_time && event.end_time ? `${event.start_time.slice(0,5)} – ${event.end_time.slice(0,5)}` : 'See event details' },
+                { label: 'Tickets', value: `${ticketsLeft} of ${event.max_capacity} remaining` },
               ].map(({ label, value }) => (
-                <div key={label} className="flex gap-4 text-[13px]">
-                  <span className="w-20 flex-shrink-0 text-white/30">{label}</span>
-                  <span className="text-white/70">{value}</span>
+                <div key={label} className="flex gap-6 text-base">
+                  <span className="w-20 flex-shrink-0 text-white/50 font-medium">{label}</span>
+                  <span className="text-white/90">{value}</span>
                 </div>
               ))}
             </div>
@@ -82,17 +82,17 @@ export default async function TicketsPage({ params }: { params: Promise<{ id: st
 
           {/* Checkout panel */}
           <div className="lg:col-span-2">
-            <div className="border border-white/[0.08] bg-white/[0.02] p-7 sticky top-8">
-              <p className="text-[11px] font-bold tracking-[0.16em] text-white/25 uppercase mb-5">
+            <div className="border border-white/15 bg-white/[0.04] p-8 sticky top-8">
+              <p className="text-sm font-bold tracking-widest text-white/60 uppercase mb-6">
                 {soldOut ? 'Sold out' : 'Get tickets'}
               </p>
 
               {soldOut ? (
                 <div className="text-center py-8">
-                  <p className="text-white/40 text-[14px]">This event is sold out.</p>
+                  <p className="text-white/80 text-base">This event is sold out.</p>
                   <Link
                     href="/events"
-                    className="mt-6 inline-flex rounded-full border border-white/15 px-5 py-2 text-[13px] text-white/50 hover:text-white hover:border-white/30 transition-all"
+                    className="mt-6 inline-flex rounded-full border border-white/20 px-5 py-2 text-sm text-white/70 hover:text-white hover:border-white/40 transition-all"
                   >
                     Browse other events
                   </Link>

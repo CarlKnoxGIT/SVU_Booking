@@ -25,6 +25,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'This event requires payment.' }, { status: 400 })
   }
 
+  if (quantity > 6) {
+    return NextResponse.json({ error: 'Maximum 6 tickets per order.' }, { status: 400 })
+  }
+
   const remaining = event.max_capacity - (event.tickets_sold ?? 0)
   if (quantity > remaining) {
     return NextResponse.json({ error: 'Not enough spots available.' }, { status: 409 })
@@ -56,29 +60,34 @@ export async function POST(req: NextRequest) {
 
   // Create ticket
   const qrCode = crypto.randomUUID()
-  const { error: ticketError } = await supabase.from('tickets').insert({
-    event_id: eventId,
-    user_id: userId,
-    qr_code: qrCode,
-    quantity,
-    status: 'active',
-  })
+  const { error: ticketError } = await supabase
+    .from('tickets')
+    .insert({
+      event_id: eventId,
+      user_id: userId,
+      qr_code: qrCode,
+      quantity,
+      status: 'active',
+    })
 
   if (ticketError) {
     return NextResponse.json({ error: 'Could not reserve tickets.' }, { status: 500 })
   }
 
-  // Increment tickets_sold
-  await supabase
-    .from('events')
-    .update({ tickets_sold: (event.tickets_sold ?? 0) + quantity })
-    .eq('id', eventId)
+  // Fetch cancel_token separately (column added in migration 010 — may not exist in older DBs)
+  const { data: ticket } = await supabase
+    .from('tickets')
+    .select('cancel_token')
+    .eq('qr_code', qrCode)
+    .single()
 
-  // Send confirmation email
+  // tickets_sold is maintained by a DB trigger (migration 011) — no manual update needed
+
+  // Send confirmation email in the background — do NOT await, it would hang the response
   const eventDate = new Date(event.event_date)
     .toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 
-  await sendTicketConfirmation({
+  void sendTicketConfirmation({
     to: email,
     name,
     eventTitle: event.title,
@@ -87,6 +96,7 @@ export async function POST(req: NextRequest) {
     endTime: event.end_time?.slice(0, 5) ?? '',
     quantity,
     qrCode,
+    cancelToken: ticket?.cancel_token ?? undefined,
   }).catch((err) => console.error('[reserve] email send failed:', err))
 
   return NextResponse.json({ success: true, qrCode })

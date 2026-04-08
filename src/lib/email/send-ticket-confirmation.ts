@@ -11,6 +11,7 @@ interface TicketConfirmationParams {
   endTime: string     // e.g. "12:45"
   quantity: number
   qrCode?: string     // UUID stored on the ticket record
+  cancelToken?: string
 }
 
 export async function sendTicketConfirmation(params: TicketConfirmationParams) {
@@ -19,7 +20,9 @@ export async function sendTicketConfirmation(params: TicketConfirmationParams) {
     return
   }
 
-  const { to, name, eventTitle, eventDate, startTime, endTime, quantity, qrCode } = params
+  const { to, name, eventTitle, eventDate, startTime, endTime, quantity, qrCode, cancelToken } = params
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+  const cancelUrl = cancelToken ? `${appUrl}/tickets/cancel?token=${cancelToken}` : null
 
   // Upload QR to Supabase Storage and get a public URL
   let qrImageUrl: string | null = null
@@ -119,6 +122,14 @@ export async function sendTicketConfirmation(params: TicketConfirmationParams) {
           <p style="margin:0 0 8px;font-size:13px;color:rgba(255,255,255,0.5);line-height:1.7;">· Head to ATC Building, Room 103.</p>
           <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.5);line-height:1.7;">· Show this email at the door.</p>
         </td></tr>
+
+        <!-- Cancel link -->
+        ${cancelUrl ? `
+        <tr><td style="padding:0 0 28px;">
+          <p style="margin:0;font-size:12px;color:rgba(255,255,255,0.2);line-height:1.8;">
+            Can't make it? <a href="${cancelUrl}" style="color:rgba(255,255,255,0.35);text-decoration:underline;">Cancel your tickets</a> before the event to receive a full refund.
+          </p>
+        </td></tr>` : ''}
 
         <!-- Footer -->
         <tr><td style="border-top:1px solid rgba(255,255,255,0.06);padding-top:24px;">

@@ -42,13 +42,13 @@ export default async function EventsPage() {
             sizes="100vw"
           />
         </ParallaxHero>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/70" />
         <div className="absolute inset-0 flex flex-col items-center justify-end pb-10 text-center">
           <Link href="/" className="text-[10px] font-bold tracking-[0.2em] text-white/40 uppercase hover:text-white/70 transition-colors mb-3">
             Swinburne's Virtual Universe
           </Link>
           <h1 className="text-4xl font-light tracking-tight">Upcoming Events</h1>
-          <p className="mt-2 text-sm text-white/40">Immersive experiences on a 100m² curved LED wall.</p>
+          <p className="mt-2 text-sm text-white/60">Immersive experiences on a 100m² curved LED wall.</p>
         </div>
       </div>
 
@@ -70,26 +70,26 @@ export default async function EventsPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       {date && (
-                        <p className="mb-2 text-[11px] font-semibold tracking-wide text-swin-red-light uppercase">
+                        <p className="mb-2 text-[12px] font-semibold tracking-wide text-swin-red-light uppercase">
                           {date.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'long' })}
                           {event.start_time && <> · {event.start_time.slice(0, 5)}</>}
                         </p>
                       )}
-                      <h2 className="text-[18px] font-semibold text-white">{event.title}</h2>
+                      <h2 className="text-[20px] font-semibold text-white">{event.title}</h2>
                       {event.description && (
-                        <p className="mt-2 text-[14px] text-white/40 leading-relaxed line-clamp-2">
+                        <p className="mt-2 text-[15px] text-white/70 leading-relaxed line-clamp-2">
                           {event.description}
                         </p>
                       )}
 
-                      <div className="mt-4 flex items-center gap-4 text-[12px]">
+                      <div className="mt-4 flex items-center gap-4 text-[13px]">
                         <span className="font-semibold text-white">
                           {event.ticket_price === 0 || event.ticket_price === null
                             ? 'Free'
                             : `$${event.ticket_price}`}
                         </span>
-                        <span className="text-white/30">·</span>
-                        <span className={soldOut ? 'text-red-400' : 'text-white/40'}>
+                        <span className="text-white/40">·</span>
+                        <span className={soldOut ? 'text-red-400' : 'text-white/60'}>
                           {soldOut ? 'Sold out' : `${ticketsLeft} tickets left`}
                         </span>
                       </div>
@@ -121,8 +121,8 @@ export default async function EventsPage() {
           </div>
         ) : (
           <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] px-6 py-24 text-center">
-            <p className="text-white/25 text-sm">No upcoming events scheduled.</p>
-            <p className="mt-2 text-white/15 text-xs">Check back soon.</p>
+            <p className="text-white/50 text-sm">No upcoming events scheduled.</p>
+            <p className="mt-2 text-white/35 text-xs">Check back soon.</p>
           </div>
         )}
       </div>
