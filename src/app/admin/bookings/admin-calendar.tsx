@@ -110,17 +110,17 @@ export function AdminBookingCalendar({ refreshKey }: { refreshKey?: number }) {
   const [selDrag, setSelDrag] = useState<{ day: Date; startFrac: number; currentFrac: number } | null>(null)
 
   // Day/week view toggle
-  const [viewMode, setViewMode] = useState<'week' | 'day'>('week')
+  const [viewMode, setViewMode] = useState<'week' | '3day' | 'day'>('week')
   const [dayIndex, setDayIndex] = useState(0)
   const touchStartRef = useRef<{ day: Date; frac: number } | null>(null)
 
-  // Auto-switch to day view on narrow screens
+  // Auto-switch to 3-day view on narrow screens
   useEffect(() => {
     function checkMobile() {
       if (window.innerWidth < 768) {
-        setViewMode('day')
+        setViewMode('3day')
         const dow = new Date().getDay()
-        setDayIndex(dow === 0 ? 6 : dow - 1)
+        setDayIndex(Math.min(dow === 0 ? 6 : dow - 1, 4))
       }
     }
     checkMobile()
@@ -188,14 +188,16 @@ export function AdminBookingCalendar({ refreshKey }: { refreshKey?: number }) {
     return d
   })
 
-  const visibleDays = viewMode === 'week' ? days : [days[dayIndex]]
-  const gridColsClass = viewMode === 'week' ? 'grid-cols-[48px_repeat(7,1fr)]' : 'grid-cols-[48px_1fr]'
+  const visibleDays = viewMode === 'week' ? days : viewMode === '3day' ? days.slice(dayIndex, dayIndex + 3) : [days[dayIndex]]
+  const gridColsClass = viewMode === 'week' ? 'grid-cols-[48px_repeat(7,1fr)]' : viewMode === '3day' ? 'grid-cols-[40px_repeat(3,1fr)]' : 'grid-cols-[48px_1fr]'
 
   // Compute "is on today" for day and week modes
   const todayMon = getMondayOf(new Date())
   const isCurrentWeekActual = weekStart.getTime() === todayMon.getTime()
   const isOnToday = viewMode === 'week'
     ? isCurrentWeekActual
+    : viewMode === '3day'
+    ? isCurrentWeekActual && days.slice(dayIndex, dayIndex + 3).some(d => isSameDay(d, new Date()))
     : isSameDay(days[dayIndex], new Date())
 
   const loadBookings = useCallback(async () => {
@@ -238,11 +240,21 @@ export function AdminBookingCalendar({ refreshKey }: { refreshKey?: number }) {
   }
   function prevPeriod() {
     if (viewMode === 'week') { prevWeek(); return }
+    if (viewMode === '3day') {
+      if (dayIndex > 0) { setDayIndex(d => d - 1) }
+      else { setWeekStart(d => { const n = new Date(d); n.setDate(n.getDate() - 7); return n }); setDayIndex(4) }
+      return
+    }
     if (dayIndex > 0) { setDayIndex(d => d - 1) }
     else { setWeekStart(d => { const n = new Date(d); n.setDate(n.getDate() - 7); return n }); setDayIndex(6) }
   }
   function nextPeriod() {
     if (viewMode === 'week') { nextWeek(); return }
+    if (viewMode === '3day') {
+      if (dayIndex < 4) { setDayIndex(d => d + 1) }
+      else { setWeekStart(d => { const n = new Date(d); n.setDate(n.getDate() + 7); return n }); setDayIndex(0) }
+      return
+    }
     if (dayIndex < 6) { setDayIndex(d => d + 1) }
     else { setWeekStart(d => { const n = new Date(d); n.setDate(n.getDate() + 7); return n }); setDayIndex(0) }
   }
@@ -251,21 +263,24 @@ export function AdminBookingCalendar({ refreshKey }: { refreshKey?: number }) {
     const monday = getMondayOf(today)
     monday.setHours(0, 0, 0, 0)
     setWeekStart(monday)
-    if (viewMode === 'day') {
+    if (viewMode === 'day' || viewMode === '3day') {
       const dow = today.getDay()
-      setDayIndex(dow === 0 ? 6 : dow - 1)
+      const idx = dow === 0 ? 6 : dow - 1
+      setDayIndex(viewMode === '3day' ? Math.min(idx, 4) : idx)
     }
   }
   function handleViewToggle() {
     if (viewMode === 'week') {
-      // Switch to day: show today if in current week, else show first day
       const todayMonday = getMondayOf(new Date())
       if (weekStart.getTime() === todayMonday.getTime()) {
         const dow = new Date().getDay()
-        setDayIndex(dow === 0 ? 6 : dow - 1)
+        const idx = dow === 0 ? 6 : dow - 1
+        setDayIndex(Math.min(idx, 4))
       } else {
         setDayIndex(0)
       }
+      setViewMode('3day')
+    } else if (viewMode === '3day') {
       setViewMode('day')
     } else {
       setViewMode('week')
@@ -287,13 +302,13 @@ export function AdminBookingCalendar({ refreshKey }: { refreshKey?: number }) {
         {/* Toolbar */}
         <div className="flex items-center justify-between pl-14 pr-3 md:px-6 py-3 md:py-4 border-b border-white/[0.06] flex-wrap gap-y-1 gap-x-2 md:gap-3">
           <div className="flex items-center gap-1 md:gap-2">
-            <button onClick={prevPeriod} className="p-1.5 rounded hover:bg-white/[0.06] text-white/40 hover:text-white transition-colors">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <button onClick={prevPeriod} className="p-3 md:p-1.5 rounded hover:bg-white/[0.06] text-white/40 hover:text-white transition-colors">
+              <svg className="w-5 h-5 md:w-4 md:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
             </button>
-            <button onClick={nextPeriod} className="p-1.5 rounded hover:bg-white/[0.06] text-white/40 hover:text-white transition-colors">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <button onClick={nextPeriod} className="p-3 md:p-1.5 rounded hover:bg-white/[0.06] text-white/40 hover:text-white transition-colors">
+              <svg className="w-5 h-5 md:w-4 md:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
             </button>
@@ -304,6 +319,12 @@ export function AdminBookingCalendar({ refreshKey }: { refreshKey?: number }) {
                   <span className="hidden sm:inline">
                     {' — '}{days[6].toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}
                   </span>
+                </>
+              ) : viewMode === '3day' ? (
+                <>
+                  {days[dayIndex].toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}
+                  {' — '}
+                  {days[Math.min(dayIndex + 2, 6)].toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}
                 </>
               ) : (
                 days[dayIndex].toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' })
@@ -342,7 +363,7 @@ export function AdminBookingCalendar({ refreshKey }: { refreshKey?: number }) {
               onClick={handleViewToggle}
               className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] text-white/60 hover:text-white px-2 md:px-3 py-1.5 text-[12px] font-medium transition-colors"
             >
-              {viewMode === 'week' ? 'Day' : 'Week'}
+              {viewMode === 'week' ? '3 Day' : viewMode === '3day' ? 'Day' : 'Week'}
             </button>
             <button
               onClick={() => { setSelectMode(s => !s); setSelectedIds(new Set()); setSelected(null) }}
