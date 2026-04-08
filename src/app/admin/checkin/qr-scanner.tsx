@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { checkInTicket, type CheckInResult } from './actions'
+import { checkInTicket, type CheckInResult, type Tally } from './actions'
 
 const SCAN_INTERVAL_MS = 200
 
@@ -52,6 +52,34 @@ function getCameraErrorMessage(err: unknown): string {
   return 'Camera unavailable.'
 }
 
+function TallyCard({ tally }: { tally: Tally }) {
+  const pct = tally.sold > 0 ? Math.round((tally.checkedIn / tally.sold) * 100) : 0
+  return (
+    <div className="border border-white/[0.07] bg-white/[0.02] rounded-2xl p-5">
+      <p className="text-[10px] font-bold tracking-[0.16em] text-white/25 uppercase mb-4">Check-in tally · {tally.eventTitle}</p>
+      <div className="flex gap-6 mb-4">
+        <div>
+          <p className="text-[36px] font-semibold text-white leading-none">{tally.checkedIn}</p>
+          <p className="text-[12px] text-white/40 mt-1">checked in</p>
+        </div>
+        <div className="w-px bg-white/[0.06]" />
+        <div>
+          <p className="text-[36px] font-semibold text-white/40 leading-none">{tally.sold}</p>
+          <p className="text-[12px] text-white/25 mt-1">tickets sold</p>
+        </div>
+      </div>
+      {/* Progress bar */}
+      <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+        <div
+          className="h-full rounded-full bg-emerald-500/70 transition-all duration-500"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <p className="text-[11px] text-white/25 mt-2">{pct}% checked in</p>
+    </div>
+  )
+}
+
 function formatSessionTime(eventDate: string, startTime: string, endTime: string): string {
   if (!eventDate || !startTime) return ''
   const date = new Date(eventDate + 'T12:00:00')
@@ -73,6 +101,7 @@ export function QrScanner() {
   const [result, setResult] = useState<CheckInResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [cameraError, setCameraError] = useState<string | null>(null)
+  const [tally, setTally] = useState<Tally | null>(null)
 
   function stopScanner() {
     cancelAnimationFrame(rafRef.current)
@@ -93,6 +122,9 @@ export function QrScanner() {
 
     const res = await checkInTicket(code)
     setResult(res)
+    if ((res.status === 'success' || res.status === 'already_used') && res.tally) {
+      setTally(res.tally)
+    }
     setLoading(false)
     processingRef.current = false
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -232,6 +264,8 @@ export function QrScanner() {
         >
           Scan next ticket
         </button>
+
+        {tally && <TallyCard tally={tally} />}
       </div>
     )
   }
@@ -239,6 +273,7 @@ export function QrScanner() {
   // ── Camera / idle state ────────────────────────────────────────
   return (
     <div className="space-y-5">
+      {tally && <TallyCard tally={tally} />}
       <div className="border border-white/[0.07] bg-white/[0.02] rounded-2xl overflow-hidden">
         {/* Viewfinder */}
         <div className="relative w-full">
