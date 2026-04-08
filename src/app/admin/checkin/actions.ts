@@ -21,11 +21,11 @@ export async function checkInTicket(qrCode: string): Promise<CheckInResult> {
 
   if (error || !ticket) return { status: 'not_found' }
 
-  // Fetch event, user, and check-in count in parallel
-  const [{ data: event }, { data: user }, { count: checkedInCount }] = await Promise.all([
+  // Fetch event, user, and used-ticket quantities in parallel
+  const [{ data: event }, { data: user }, { data: usedTickets }] = await Promise.all([
     supabase.from('events').select('title, event_date, start_time, end_time, tickets_sold').eq('id', ticket.event_id).single(),
     supabase.from('users').select('full_name').eq('id', ticket.user_id).single(),
-    supabase.from('tickets').select('*', { count: 'exact', head: true }).eq('event_id', ticket.event_id).eq('status', 'used'),
+    supabase.from('tickets').select('quantity').eq('event_id', ticket.event_id).eq('status', 'used'),
   ])
 
   const eventTitle = event?.title ?? 'Unknown event'
@@ -33,7 +33,8 @@ export async function checkInTicket(qrCode: string): Promise<CheckInResult> {
   const startTime = event?.start_time ?? ''
   const endTime = event?.end_time ?? ''
   const name = user?.full_name ?? null
-  const tally: Tally = { sold: event?.tickets_sold ?? 0, checkedIn: checkedInCount ?? 0, eventTitle }
+  const checkedInTickets = usedTickets?.reduce((sum, t) => sum + t.quantity, 0) ?? 0
+  const tally: Tally = { sold: event?.tickets_sold ?? 0, checkedIn: checkedInTickets, eventTitle }
 
   if (ticket.status === 'used') {
     return {
@@ -61,10 +62,11 @@ export async function checkInTicket(qrCode: string): Promise<CheckInResult> {
 
   if (updateError) return { status: 'error', message: 'Failed to check in ticket.' }
 
-  // Re-fetch checked-in count after the update
-  const { count: updatedCheckedIn } = await supabase
-    .from('tickets').select('*', { count: 'exact', head: true })
+  // Re-sum ticket quantities after the check-in update
+  const { data: updatedUsedTickets } = await supabase
+    .from('tickets').select('quantity')
     .eq('event_id', ticket.event_id).eq('status', 'used')
+  const updatedCheckedIn = updatedUsedTickets?.reduce((sum, t) => sum + t.quantity, 0) ?? tally.checkedIn + ticket.quantity
 
   return {
     status: 'success',
@@ -75,6 +77,6 @@ export async function checkInTicket(qrCode: string): Promise<CheckInResult> {
     endTime,
     quantity: ticket.quantity,
     checkedInAt: now,
-    tally: { ...tally, checkedIn: updatedCheckedIn ?? tally.checkedIn + 1 },
+    tally: { ...tally, checkedIn: updatedCheckedIn },
   }
 }

@@ -20,7 +20,6 @@ async function detectQR(
       // fall through to jsqr
     }
   }
-
   if (!video.videoWidth || !video.videoHeight) return null
   canvas.width = video.videoWidth
   canvas.height = video.videoHeight
@@ -52,41 +51,42 @@ function getCameraErrorMessage(err: unknown): string {
   return 'Camera unavailable.'
 }
 
-function TallyCard({ tally }: { tally: Tally }) {
-  const pct = tally.sold > 0 ? Math.round((tally.checkedIn / tally.sold) * 100) : 0
-  return (
-    <div className="border border-white/[0.07] bg-white/[0.02] rounded-2xl p-5">
-      <p className="text-[10px] font-bold tracking-[0.16em] text-white/25 uppercase mb-4">Check-in tally · {tally.eventTitle}</p>
-      <div className="flex gap-6 mb-4">
-        <div>
-          <p className="text-[36px] font-semibold text-white leading-none">{tally.checkedIn}</p>
-          <p className="text-[12px] text-white/40 mt-1">checked in</p>
-        </div>
-        <div className="w-px bg-white/[0.06]" />
-        <div>
-          <p className="text-[36px] font-semibold text-white/40 leading-none">{tally.sold}</p>
-          <p className="text-[12px] text-white/25 mt-1">tickets sold</p>
-        </div>
-      </div>
-      {/* Progress bar */}
-      <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-        <div
-          className="h-full rounded-full bg-emerald-500/70 transition-all duration-500"
-          style={{ width: `${pct}%` }}
-        />
-      </div>
-      <p className="text-[11px] text-white/25 mt-2">{pct}% checked in</p>
-    </div>
-  )
-}
-
 function formatSessionTime(eventDate: string, startTime: string, endTime: string): string {
   if (!eventDate || !startTime) return ''
   const date = new Date(eventDate + 'T12:00:00')
-  const dateStr = date.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
+  const dateStr = date.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' })
   const start = startTime.slice(0, 5)
   const end = endTime ? endTime.slice(0, 5) : ''
   return end ? `${dateStr}, ${start} – ${end}` : `${dateStr}, ${start}`
+}
+
+// Fixed bar — always visible above bottom nav
+function TallyBar({ tally }: { tally: Tally }) {
+  const pct = tally.sold > 0 ? Math.round((tally.checkedIn / tally.sold) * 100) : 0
+  return (
+    <div className="fixed bottom-16 inset-x-0 z-40 bg-black/95 backdrop-blur-md border-t border-white/[0.08]" style={{ height: 56 }}>
+      <div className="flex items-center h-full px-5 gap-4">
+        <div className="flex items-baseline gap-1.5 flex-shrink-0">
+          <span className="text-[28px] font-semibold text-white leading-none">{tally.checkedIn}</span>
+          <span className="text-[11px] text-white/35">in</span>
+        </div>
+        <div className="w-px h-5 bg-white/[0.08] flex-shrink-0" />
+        <div className="flex items-baseline gap-1.5 flex-shrink-0">
+          <span className="text-[28px] font-semibold text-white/35 leading-none">{tally.sold}</span>
+          <span className="text-[11px] text-white/25">sold</span>
+        </div>
+        <div className="flex-1 flex items-center gap-2 min-w-0">
+          <div className="flex-1 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+            <div
+              className="h-full rounded-full bg-emerald-500/70 transition-all duration-500"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          <span className="text-[11px] text-white/25 flex-shrink-0 tabular-nums">{pct}%</span>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export function QrScanner() {
@@ -114,12 +114,9 @@ export function QrScanner() {
   const handleCode = useCallback(async (code: string) => {
     if (processingRef.current) return
     processingRef.current = true
-
-    // Stop camera immediately so the result screen can take over
     stopScanner()
     setLoading(true)
     setResult(null)
-
     const res = await checkInTicket(code)
     setResult(res)
     if ((res.status === 'success' || res.status === 'already_used') && res.tally) {
@@ -137,15 +134,11 @@ export function QrScanner() {
       rafRef.current = requestAnimationFrame(tick)
       return
     }
-
     const now = Date.now()
     if (now - lastScanRef.current >= SCAN_INTERVAL_MS && !processingRef.current) {
       lastScanRef.current = now
-      detectQR(video, canvas).then(data => {
-        if (data) handleCode(data)
-      })
+      detectQR(video, canvas).then(data => { if (data) handleCode(data) })
     }
-
     rafRef.current = requestAnimationFrame(tick)
   }, [handleCode])
 
@@ -170,168 +163,176 @@ export function QrScanner() {
 
   useEffect(() => () => stopScanner(), [])
 
-  // ── Loading state ──────────────────────────────────────────────
+  // Bottom padding accounts for tally bar (56px) + bottom nav (64px)
+  const bottomPad = tally ? 'pb-[120px]' : 'pb-16'
+
+  // ── Loading ────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-16">
-        <div className="h-12 w-12 rounded-full border-2 border-white/10 border-t-swin-red animate-spin" />
-        <p className="text-white/40 text-[14px]">Checking ticket…</p>
-      </div>
+      <>
+        {tally && <TallyBar tally={tally} />}
+        <div className={`flex flex-col items-center justify-center gap-4 py-16 ${bottomPad}`}>
+          <div className="h-12 w-12 rounded-full border-2 border-white/10 border-t-swin-red animate-spin" />
+          <p className="text-white/40 text-[14px]">Checking ticket…</p>
+        </div>
+      </>
     )
   }
 
-  // ── Result state ───────────────────────────────────────────────
+  // ── Result ─────────────────────────────────────────────────────
   if (result) {
     const isSuccess = result.status === 'success'
     const isAlreadyUsed = result.status === 'already_used'
     const isError = result.status === 'not_found' || result.status === 'error'
 
     return (
-      <div className="space-y-5">
-        {/* Status banner */}
-        <div className={`rounded-2xl p-6 text-center ${
-          isSuccess ? 'bg-emerald-500/10 border border-emerald-500/30' :
-          isAlreadyUsed ? 'bg-amber-500/10 border border-amber-500/30' :
-          'bg-red-500/10 border border-red-500/30'
-        }`}>
-          <div className={`mx-auto mb-3 h-14 w-14 rounded-full flex items-center justify-center ${
-            isSuccess ? 'bg-emerald-500/20' :
-            isAlreadyUsed ? 'bg-amber-500/20' :
-            'bg-red-500/20'
+      <>
+        {tally && <TallyBar tally={tally} />}
+        <div className={`space-y-4 ${bottomPad}`}>
+          {/* Status banner */}
+          <div className={`rounded-2xl p-5 flex items-center gap-4 ${
+            isSuccess ? 'bg-emerald-500/10 border border-emerald-500/30' :
+            isAlreadyUsed ? 'bg-amber-500/10 border border-amber-500/30' :
+            'bg-red-500/10 border border-red-500/30'
           }`}>
-            {isSuccess && (
-              <svg className="h-8 w-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-              </svg>
-            )}
-            {isAlreadyUsed && (
-              <svg className="h-8 w-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" />
-              </svg>
-            )}
-            {isError && (
-              <svg className="h-8 w-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            )}
-          </div>
-
-          <p className={`text-[22px] font-semibold ${
-            isSuccess ? 'text-emerald-400' :
-            isAlreadyUsed ? 'text-amber-400' :
-            'text-red-400'
-          }`}>
-            {isSuccess && 'Checked in'}
-            {isAlreadyUsed && 'Already checked in'}
-            {result.status === 'not_found' && 'Ticket not found'}
-            {result.status === 'error' && result.message}
-          </p>
-
-          {isAlreadyUsed && (
-            <p className="text-amber-400/60 text-[13px] mt-1">
-              Scanned at {new Date(result.checkedInAt).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: false })}
-            </p>
-          )}
-        </div>
-
-        {/* Ticket details */}
-        {(isSuccess || isAlreadyUsed) && (
-          <div className="border border-white/[0.08] rounded-2xl overflow-hidden divide-y divide-white/[0.06]">
-            <div className="px-5 py-4">
-              <p className="text-[10px] font-bold tracking-[0.16em] text-white/25 uppercase mb-1">Guest</p>
-              <p className="text-white text-[20px] font-medium">{result.name ?? 'Unknown'}</p>
+            <div className={`h-12 w-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+              isSuccess ? 'bg-emerald-500/20' :
+              isAlreadyUsed ? 'bg-amber-500/20' : 'bg-red-500/20'
+            }`}>
+              {isSuccess && (
+                <svg className="h-7 w-7 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+              )}
+              {isAlreadyUsed && (
+                <svg className="h-7 w-7 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" />
+                </svg>
+              )}
+              {isError && (
+                <svg className="h-7 w-7 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              )}
             </div>
-            <div className="px-5 py-4">
-              <p className="text-[10px] font-bold tracking-[0.16em] text-white/25 uppercase mb-1">Tickets</p>
-              <p className="text-white text-[18px] font-medium">{result.quantity} {result.quantity === 1 ? 'ticket' : 'tickets'}</p>
-            </div>
-            <div className="px-5 py-4">
-              <p className="text-[10px] font-bold tracking-[0.16em] text-white/25 uppercase mb-1">Event</p>
-              <p className="text-white text-[15px] font-medium">{result.eventTitle}</p>
-              {result.eventDate && (
-                <p className="text-white/40 text-[13px] mt-0.5">
-                  {formatSessionTime(result.eventDate, result.startTime, result.endTime)}
+            <div>
+              <p className={`text-[20px] font-semibold leading-tight ${
+                isSuccess ? 'text-emerald-400' : isAlreadyUsed ? 'text-amber-400' : 'text-red-400'
+              }`}>
+                {isSuccess && 'Checked in'}
+                {isAlreadyUsed && 'Already checked in'}
+                {result.status === 'not_found' && 'Ticket not found'}
+                {result.status === 'error' && result.message}
+              </p>
+              {isAlreadyUsed && (
+                <p className="text-amber-400/50 text-[12px] mt-0.5">
+                  Scanned at {new Date(result.checkedInAt).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: false })}
                 </p>
               )}
             </div>
           </div>
-        )}
 
-        {/* Scan again */}
-        <button
-          onClick={startScanner}
-          className="w-full py-4 bg-swin-red hover:bg-swin-red-hover text-white text-[15px] font-semibold rounded-xl transition-colors"
-        >
-          Scan next ticket
-        </button>
-
-        {tally && <TallyCard tally={tally} />}
-      </div>
-    )
-  }
-
-  // ── Camera / idle state ────────────────────────────────────────
-  return (
-    <div className="space-y-5">
-      {tally && <TallyCard tally={tally} />}
-      <div className="border border-white/[0.07] bg-white/[0.02] rounded-2xl overflow-hidden">
-        {/* Viewfinder */}
-        <div className="relative w-full">
-          <video
-            ref={videoRef}
-            muted
-            playsInline
-            autoPlay
-            className={`w-full block ${scanning ? '' : 'hidden'}`}
-          />
-          {scanning && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="relative w-52 h-52">
-                <div className="absolute inset-0 border-2 border-swin-red/20 rounded" />
-                <div className="absolute top-0 left-0 w-7 h-7 border-t-2 border-l-2 border-swin-red rounded-tl" />
-                <div className="absolute top-0 right-0 w-7 h-7 border-t-2 border-r-2 border-swin-red rounded-tr" />
-                <div className="absolute bottom-0 left-0 w-7 h-7 border-b-2 border-l-2 border-swin-red rounded-bl" />
-                <div className="absolute bottom-0 right-0 w-7 h-7 border-b-2 border-r-2 border-swin-red rounded-br" />
-                <div className="absolute left-0 right-0 h-0.5 bg-swin-red/60 animate-scan-line" />
+          {/* Ticket details */}
+          {(isSuccess || isAlreadyUsed) && (
+            <div className="border border-white/[0.08] rounded-2xl divide-y divide-white/[0.06]">
+              <div className="px-5 py-3.5 flex items-baseline justify-between">
+                <span className="text-[11px] font-bold tracking-[0.14em] text-white/25 uppercase">Guest</span>
+                <span className="text-white text-[16px] font-medium">{result.name ?? 'Unknown'}</span>
+              </div>
+              <div className="px-5 py-3.5 flex items-baseline justify-between">
+                <span className="text-[11px] font-bold tracking-[0.14em] text-white/25 uppercase">Tickets</span>
+                <span className="text-white text-[16px] font-medium">{result.quantity} {result.quantity === 1 ? 'ticket' : 'tickets'}</span>
+              </div>
+              <div className="px-5 py-3.5">
+                <div className="flex items-baseline justify-between">
+                  <span className="text-[11px] font-bold tracking-[0.14em] text-white/25 uppercase">Session</span>
+                  <span className="text-white text-[14px] font-medium">{result.eventTitle}</span>
+                </div>
+                {result.eventDate && (
+                  <p className="text-white/35 text-[12px] mt-0.5 text-right">
+                    {formatSessionTime(result.eventDate, result.startTime, result.endTime)}
+                  </p>
+                )}
               </div>
             </div>
           )}
-          {!scanning && (
-            <div className="flex items-center justify-center h-52 bg-white/[0.02]">
-              <svg className="w-14 h-14 text-white/10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 17.25h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75z" />
-              </svg>
-            </div>
-          )}
+
+          <button
+            onClick={startScanner}
+            className="w-full py-4 bg-swin-red hover:bg-swin-red-hover active:bg-swin-red-hover text-white text-[15px] font-semibold rounded-xl transition-colors"
+          >
+            Scan next ticket
+          </button>
         </div>
+      </>
+    )
+  }
 
-        <canvas ref={canvasRef} className="hidden" />
+  // ── Camera / idle ──────────────────────────────────────────────
+  return (
+    <>
+      {tally && <TallyBar tally={tally} />}
+      <div className={`space-y-4 ${bottomPad}`}>
+        <div className="border border-white/[0.07] bg-white/[0.02] rounded-2xl overflow-hidden">
+          {/* Viewfinder — capped height so result fits without scrolling */}
+          <div className="relative w-full" style={{ maxHeight: '45vh' }}>
+            <video
+              ref={videoRef}
+              muted
+              playsInline
+              autoPlay
+              className={`w-full block object-cover ${scanning ? '' : 'hidden'}`}
+              style={{ maxHeight: '45vh' }}
+            />
+            {scanning && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="relative w-48 h-48">
+                  <div className="absolute inset-0 border-2 border-swin-red/20 rounded" />
+                  <div className="absolute top-0 left-0 w-7 h-7 border-t-2 border-l-2 border-swin-red rounded-tl" />
+                  <div className="absolute top-0 right-0 w-7 h-7 border-t-2 border-r-2 border-swin-red rounded-tr" />
+                  <div className="absolute bottom-0 left-0 w-7 h-7 border-b-2 border-l-2 border-swin-red rounded-bl" />
+                  <div className="absolute bottom-0 right-0 w-7 h-7 border-b-2 border-r-2 border-swin-red rounded-br" />
+                  <div className="absolute left-0 right-0 h-0.5 bg-swin-red/60 animate-scan-line" />
+                </div>
+              </div>
+            )}
+            {!scanning && (
+              <div className="flex items-center justify-center h-40 bg-white/[0.02]">
+                <svg className="w-12 h-12 text-white/10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 17.25h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75z" />
+                </svg>
+              </div>
+            )}
+          </div>
 
-        <div className="p-4 space-y-3">
-          {cameraError && (
-            <p className="text-red-400 text-[13px] leading-relaxed">{cameraError}</p>
-          )}
-          {scanning ? (
-            <div className="text-center">
-              <p className="text-white/30 text-[13px] mb-3">Point camera at a ticket QR code</p>
+          <canvas ref={canvasRef} className="hidden" />
+
+          <div className="p-4">
+            {cameraError && (
+              <p className="text-red-400 text-[13px] leading-relaxed mb-3">{cameraError}</p>
+            )}
+            {scanning ? (
+              <div className="text-center space-y-3">
+                <p className="text-white/30 text-[13px]">Point camera at a ticket QR code</p>
+                <button
+                  onClick={stopScanner}
+                  className="px-6 py-2 border border-white/15 text-white/40 hover:text-white text-[13px] rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
               <button
-                onClick={stopScanner}
-                className="px-6 py-2.5 border border-white/15 text-white/40 hover:text-white text-[13px] rounded-lg transition-colors"
+                onClick={startScanner}
+                className="w-full py-4 bg-swin-red hover:bg-swin-red-hover active:bg-swin-red-hover text-white text-[15px] font-semibold rounded-xl transition-colors"
               >
-                Cancel
+                Start scanning
               </button>
-            </div>
-          ) : (
-            <button
-              onClick={startScanner}
-              className="w-full py-4 bg-swin-red hover:bg-swin-red-hover text-white text-[15px] font-semibold rounded-xl transition-colors"
-            >
-              Start scanning
-            </button>
-          )}
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
