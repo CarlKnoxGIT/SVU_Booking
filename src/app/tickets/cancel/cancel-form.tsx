@@ -10,8 +10,9 @@ export default function CancelForm({ token }: { token: string }) {
 
   async function handleCancel() {
     setState('loading')
+    const base = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
     try {
-      const res = await fetch('/api/tickets/cancel', {
+      const res = await fetch(`${base}/api/tickets/cancel`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token }),
