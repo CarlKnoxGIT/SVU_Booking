@@ -313,7 +313,7 @@ export function BookingCalendar({ currentUserId }: { currentUserId: string }) {
         </div>
 
         {/* Time grid */}
-        <div className="flex-1 overflow-y-auto" ref={scrollRef}>
+        <div className="flex-1 overflow-y-auto pb-28 md:pb-0" ref={scrollRef}>
           <div className={`grid ${gridColsClass}`}>
             {/* Day headers — sticky inside scroll container so columns share the same scrollbar-affected width */}
             <div className={`sticky top-0 z-10 bg-black col-span-full grid ${gridColsClass} border-b border-white/[0.06]`}>
@@ -459,28 +459,29 @@ export function BookingCalendar({ currentUserId }: { currentUserId: string }) {
           </div>
         </div>
 
-        {/* Mobile date navigation — sits above the bottom nav bar */}
-        <div className="md:hidden flex items-center justify-between bg-black border-t border-white/[0.06] px-2 h-12 flex-shrink-0">
-          <button onClick={prevPeriod} className="p-3 rounded-lg hover:bg-white/[0.06] text-white/50 hover:text-white transition-colors">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <span className="text-[13px] font-medium text-white/70">
-            {viewMode === 'week' ? (
-              <>{weekStart.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })} — {days[6].toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}</>
-            ) : viewMode === '3day' ? (
-              <>{days[dayIndex].toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })} — {days[Math.min(dayIndex + 2, 6)].toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}</>
-            ) : (
-              days[dayIndex].toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'short' })
-            )}
-          </span>
-          <button onClick={nextPeriod} className="p-3 rounded-lg hover:bg-white/[0.06] text-white/50 hover:text-white transition-colors">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
+      </div>
+
+      {/* Mobile date navigation — fixed above bottom nav, always visible */}
+      <div className="md:hidden fixed bottom-16 inset-x-0 z-40 flex items-center justify-between bg-black/95 backdrop-blur-md border-t border-white/[0.08]" style={{ height: 56 }}>
+        <button onClick={prevPeriod} className="flex items-center justify-center h-full px-8 text-white/50 active:text-white active:bg-white/[0.06] transition-colors">
+          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <span className="text-[13px] font-medium text-white/60 select-none">
+          {viewMode === 'week' ? (
+            <>{weekStart.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })} — {days[6].toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}</>
+          ) : viewMode === '3day' ? (
+            <>{days[dayIndex].toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })} — {days[Math.min(dayIndex + 2, 6)].toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}</>
+          ) : (
+            days[dayIndex].toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'short' })
+          )}
+        </span>
+        <button onClick={nextPeriod} className="flex items-center justify-center h-full px-8 text-white/50 active:text-white active:bg-white/[0.06] transition-colors">
+          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
       </div>
 
       {/* Backdrop */}
