@@ -254,14 +254,14 @@ export function BookingCalendar({ currentUserId }: { currentUserId: string }) {
 
         {/* Toolbar */}
         <div className="flex items-center justify-between pl-14 pr-3 md:px-6 py-3 md:py-4 border-b border-white/[0.06] flex-wrap gap-y-1 gap-x-2 md:gap-3">
-          <div className="flex items-center gap-1 md:gap-2">
-            <button onClick={prevPeriod} className="p-3 md:p-1.5 rounded hover:bg-white/[0.06] text-white/40 hover:text-white transition-colors">
-              <svg className="w-5 h-5 md:w-4 md:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <div className="hidden md:flex items-center gap-1 md:gap-2">
+            <button onClick={prevPeriod} className="p-1.5 rounded hover:bg-white/[0.06] text-white/40 hover:text-white transition-colors">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
             </button>
-            <button onClick={nextPeriod} className="p-3 md:p-1.5 rounded hover:bg-white/[0.06] text-white/40 hover:text-white transition-colors">
-              <svg className="w-5 h-5 md:w-4 md:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <button onClick={nextPeriod} className="p-1.5 rounded hover:bg-white/[0.06] text-white/40 hover:text-white transition-colors">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
             </button>
@@ -457,6 +457,29 @@ export function BookingCalendar({ currentUserId }: { currentUserId: string }) {
               )
             })}
           </div>
+        </div>
+
+        {/* Mobile date navigation — sits above the bottom nav bar */}
+        <div className="md:hidden flex items-center justify-between bg-black border-t border-white/[0.06] px-2 h-12 flex-shrink-0">
+          <button onClick={prevPeriod} className="p-3 rounded-lg hover:bg-white/[0.06] text-white/50 hover:text-white transition-colors">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <span className="text-[13px] font-medium text-white/70">
+            {viewMode === 'week' ? (
+              <>{weekStart.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })} — {days[6].toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}</>
+            ) : viewMode === '3day' ? (
+              <>{days[dayIndex].toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })} — {days[Math.min(dayIndex + 2, 6)].toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}</>
+            ) : (
+              days[dayIndex].toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'short' })
+            )}
+          </span>
+          <button onClick={nextPeriod} className="p-3 rounded-lg hover:bg-white/[0.06] text-white/50 hover:text-white transition-colors">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
         </div>
       </div>
 

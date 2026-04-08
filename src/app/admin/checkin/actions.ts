@@ -4,7 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server'
 
 export type CheckInResult =
   | { status: 'success'; name: string | null; eventTitle: string; quantity: number; checkedInAt: string }
-  | { status: 'already_used'; name: string | null; eventTitle: string; checkedInAt: string }
+  | { status: 'already_used'; name: string | null; eventTitle: string; quantity: number; checkedInAt: string }
   | { status: 'not_found' }
   | { status: 'error'; message: string }
 
@@ -33,6 +33,7 @@ export async function checkInTicket(qrCode: string): Promise<CheckInResult> {
       status: 'already_used',
       name,
       eventTitle,
+      quantity: ticket.quantity,
       checkedInAt: ticket.checked_in_at!,
     }
   }

@@ -5,9 +5,9 @@ import { checkInTicket, type CheckInResult } from './actions'
 
 // Scan at ~5fps — sufficient for QR detection, far less CPU/battery than 60fps
 const SCAN_INTERVAL_MS = 200
+// After a successful scan, wait this long before accepting another scan
+const COOLDOWN_MS = 2500
 
-// Try native BarcodeDetector first (Chrome 83+, Safari 17+, all modern Android/iOS)
-// Fall back to jsqr for older browsers
 async function detectQR(
   video: HTMLVideoElement,
   canvas: HTMLCanvasElement,
@@ -20,11 +20,10 @@ async function detectQR(
       if (barcodes.length > 0) return barcodes[0].rawValue as string
       return null
     } catch {
-      // BarcodeDetector failed (e.g. format not supported) — fall through
+      // BarcodeDetector failed — fall through to jsqr
     }
   }
 
-  // jsqr fallback
   if (!video.videoWidth || !video.videoHeight) return null
   canvas.width = video.videoWidth
   canvas.height = video.videoHeight
@@ -37,7 +36,6 @@ async function detectQR(
 }
 
 async function getStream(): Promise<MediaStream> {
-  // Prefer rear camera on mobile; fall back to any camera
   try {
     return await navigator.mediaDevices.getUserMedia({
       video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 } },
@@ -49,13 +47,12 @@ async function getStream(): Promise<MediaStream> {
 
 function getCameraErrorMessage(err: unknown): string {
   if (err instanceof DOMException) {
-    if (err.name === 'NotAllowedError') return 'Camera permission denied. Please allow camera access in your browser settings.'
+    if (err.name === 'NotAllowedError') return 'Camera permission denied. Allow camera access in your browser settings.'
     if (err.name === 'NotFoundError') return 'No camera found on this device.'
     if (err.name === 'NotReadableError') return 'Camera is in use by another app.'
-    if (err.name === 'OverconstrainedError') return 'Camera constraints could not be satisfied.'
     if (err.name === 'SecurityError') return 'Camera access requires HTTPS.'
   }
-  return 'Camera unavailable. Use manual entry below.'
+  return 'Camera unavailable.'
 }
 
 export function QrScanner() {
@@ -70,18 +67,19 @@ export function QrScanner() {
   const [result, setResult] = useState<CheckInResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [cameraError, setCameraError] = useState<string | null>(null)
+  const [scanCount, setScanCount] = useState(0)
 
   const handleCode = useCallback(async (code: string) => {
     if (cooldownRef.current) return
     cooldownRef.current = true
 
     setLoading(true)
-    setResult(null)
     const res = await checkInTicket(code)
     setResult(res)
+    setScanCount(n => n + 1)
     setLoading(false)
 
-    setTimeout(() => { cooldownRef.current = false }, 3000)
+    setTimeout(() => { cooldownRef.current = false }, COOLDOWN_MS)
   }, [])
 
   const tick = useCallback(() => {
@@ -105,16 +103,14 @@ export function QrScanner() {
 
   async function startScanner() {
     setCameraError(null)
+    setResult(null)
     try {
       const stream = await getStream()
       streamRef.current = stream
       const video = videoRef.current
       if (video) {
         video.srcObject = stream
-        // play() is needed in addition to autoPlay for programmatic starts
-        await video.play().catch(() => {
-          // Some browsers block play() — the autoPlay attribute handles it
-        })
+        await video.play().catch(() => {})
       }
       setScanning(true)
       rafRef.current = requestAnimationFrame(tick)
@@ -131,115 +127,171 @@ export function QrScanner() {
     setScanning(false)
   }
 
+  function scanNext() {
+    cooldownRef.current = false
+    setResult(null)
+    setLoading(false)
+  }
+
   useEffect(() => () => stopScanner(), [])
 
-  return (
-    <div className="space-y-6">
-      {/* Camera scanner */}
-      <div className="border border-white/[0.07] bg-white/[0.02] p-6 rounded-xl">
-        <p className="text-[11px] font-bold tracking-[0.16em] text-white/25 uppercase mb-4">Camera scan</p>
+  const statusColour = !result ? '' :
+    result.status === 'success' ? 'border-emerald-500/40 bg-emerald-500/[0.08]' :
+    result.status === 'already_used' ? 'border-amber-500/40 bg-amber-500/[0.08]' :
+    'border-red-500/40 bg-red-500/[0.08]'
 
-        {/* Video container — overlay is relative to the video itself */}
-        <div className="relative mb-4 w-full max-w-sm mx-auto">
+  return (
+    <div className="space-y-5">
+
+      {/* Camera */}
+      <div className="border border-white/[0.07] bg-white/[0.02] rounded-xl overflow-hidden">
+        {/* Video */}
+        <div className="relative w-full">
           <video
             ref={videoRef}
             muted
             playsInline
             autoPlay
-            className={`w-full rounded block ${scanning ? '' : 'hidden'}`}
+            className={`w-full block ${scanning ? '' : 'hidden'}`}
           />
           {scanning && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="relative w-48 h-48">
-                <div className="absolute inset-0 border-2 border-swin-red/30 rounded" />
-                {/* Corner markers */}
-                <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-swin-red rounded-tl" />
-                <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-swin-red rounded-tr" />
-                <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-swin-red rounded-bl" />
-                <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-swin-red rounded-br" />
-                {/* Scan line animation */}
+              <div className="relative w-52 h-52">
+                <div className="absolute inset-0 border-2 border-swin-red/20 rounded" />
+                <div className="absolute top-0 left-0 w-7 h-7 border-t-2 border-l-2 border-swin-red rounded-tl" />
+                <div className="absolute top-0 right-0 w-7 h-7 border-t-2 border-r-2 border-swin-red rounded-tr" />
+                <div className="absolute bottom-0 left-0 w-7 h-7 border-b-2 border-l-2 border-swin-red rounded-bl" />
+                <div className="absolute bottom-0 right-0 w-7 h-7 border-b-2 border-r-2 border-swin-red rounded-br" />
                 <div className="absolute left-0 right-0 h-0.5 bg-swin-red/60 animate-scan-line" />
               </div>
+            </div>
+          )}
+          {!scanning && (
+            <div className="flex items-center justify-center h-48 bg-white/[0.02]">
+              <svg className="w-12 h-12 text-white/10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+              </svg>
             </div>
           )}
         </div>
 
         <canvas ref={canvasRef} className="hidden" />
 
-        {cameraError && (
-          <p className="text-red-400 text-[13px] mb-3 leading-relaxed">{cameraError}</p>
-        )}
+        {/* Camera controls */}
+        <div className="p-4 space-y-3">
+          {cameraError && (
+            <p className="text-red-400 text-[13px] leading-relaxed">{cameraError}</p>
+          )}
 
-        {!scanning ? (
-          <button
-            onClick={startScanner}
-            className="w-full py-3 bg-swin-red hover:bg-swin-red-hover text-white text-[13px] font-semibold transition-colors rounded-lg"
-          >
-            Start camera
-          </button>
-        ) : (
-          <button
-            onClick={stopScanner}
-            className="w-full py-2.5 border border-white/15 text-white/50 hover:text-white text-[13px] transition-colors rounded-lg"
-          >
-            Stop camera
-          </button>
-        )}
+          {scanning ? (
+            <div className="flex gap-2">
+              {result && (
+                <button
+                  onClick={scanNext}
+                  className="flex-1 py-3 bg-swin-red hover:bg-swin-red-hover text-white text-[13px] font-semibold rounded-lg transition-colors"
+                >
+                  Scan next ticket
+                </button>
+              )}
+              <button
+                onClick={stopScanner}
+                className={`py-3 border border-white/15 text-white/40 hover:text-white text-[13px] rounded-lg transition-colors ${result ? 'px-4' : 'flex-1'}`}
+              >
+                Stop camera
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={startScanner}
+              className="w-full py-3 bg-swin-red hover:bg-swin-red-hover text-white text-[13px] font-semibold rounded-lg transition-colors"
+            >
+              {cameraError ? 'Retry camera' : scanCount > 0 ? 'Start camera again' : 'Start camera'}
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Result */}
-      {(result || loading) && (
-        <div className={`border p-6 rounded-xl transition-all ${
-          loading ? 'border-white/10 bg-white/[0.02]' :
-          result?.status === 'success' ? 'border-green-500/30 bg-green-500/10' :
-          result?.status === 'already_used' ? 'border-yellow-500/30 bg-yellow-500/10' :
-          'border-red-500/30 bg-red-500/10'
-        }`}>
-          {loading && <p className="text-white/50 text-[13px]">Checking…</p>}
+      {/* Loading */}
+      {loading && (
+        <div className="border border-white/10 bg-white/[0.02] p-6 rounded-xl">
+          <p className="text-white/40 text-[13px] animate-pulse">Checking ticket…</p>
+        </div>
+      )}
 
-          {!loading && result?.status === 'success' && (
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 mb-3">
-                <svg className="h-5 w-5 text-green-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                </svg>
-                <span className="text-green-400 font-semibold text-[15px]">Checked in</span>
+      {/* Result card */}
+      {!loading && result && (
+        <div className={`border rounded-xl overflow-hidden ${statusColour}`}>
+
+          {/* Status header */}
+          <div className="px-6 py-4 border-b border-white/[0.06] flex items-center gap-3">
+            {result.status === 'success' && (
+              <>
+                <div className="h-9 w-9 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                  <svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-emerald-400 font-semibold text-[16px]">Checked in</p>
+                  <p className="text-emerald-400/50 text-[11px]">
+                    {new Date(result.checkedInAt).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: false })}
+                  </p>
+                </div>
+              </>
+            )}
+            {result.status === 'already_used' && (
+              <>
+                <div className="h-9 w-9 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                  <svg className="h-5 w-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-amber-400 font-semibold text-[16px]">Already checked in</p>
+                  <p className="text-amber-400/50 text-[11px]">
+                    at {new Date(result.checkedInAt).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: false })}
+                  </p>
+                </div>
+              </>
+            )}
+            {result.status === 'not_found' && (
+              <>
+                <div className="h-9 w-9 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
+                  <svg className="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </div>
+                <p className="text-red-400 font-semibold text-[16px]">Ticket not found</p>
+              </>
+            )}
+            {result.status === 'error' && (
+              <>
+                <div className="h-9 w-9 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
+                  <svg className="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </div>
+                <p className="text-red-400 font-semibold text-[16px]">{result.message}</p>
+              </>
+            )}
+          </div>
+
+          {/* Ticket details */}
+          {(result.status === 'success' || result.status === 'already_used') && (
+            <div className="px-6 py-5 space-y-4">
+              <div>
+                <p className="text-[11px] font-bold tracking-[0.14em] text-white/25 uppercase mb-1">Guest</p>
+                <p className="text-white text-[18px] font-medium">{result.name ?? 'Unknown'}</p>
               </div>
-              <p className="text-white text-[14px]">{result.name ?? 'Guest'}</p>
-              <p className="text-white/50 text-[13px]">{result.eventTitle}</p>
-              <p className="text-white/30 text-[12px]">{result.quantity} ticket{result.quantity > 1 ? 's' : ''}</p>
-            </div>
-          )}
-
-          {!loading && result?.status === 'already_used' && (
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 mb-3">
-                <svg className="h-5 w-5 text-yellow-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" />
-                </svg>
-                <span className="text-yellow-400 font-semibold text-[15px]">Already used</span>
+              <div>
+                <p className="text-[11px] font-bold tracking-[0.14em] text-white/25 uppercase mb-1">Event</p>
+                <p className="text-white/80 text-[14px]">{result.eventTitle}</p>
               </div>
-              <p className="text-white text-[14px]">{result.name ?? 'Guest'}</p>
-              <p className="text-white/50 text-[13px]">{result.eventTitle}</p>
-              <p className="text-white/30 text-[12px]">Checked in at {new Date(result.checkedInAt).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: false })}</p>
-            </div>
-          )}
-
-          {!loading && result?.status === 'not_found' && (
-            <div className="flex items-center gap-2">
-              <svg className="h-5 w-5 text-red-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-              <span className="text-red-400 font-semibold text-[15px]">Ticket not found</span>
-            </div>
-          )}
-
-          {!loading && result?.status === 'error' && (
-            <div className="flex items-center gap-2">
-              <svg className="h-5 w-5 text-red-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-              <span className="text-red-400 font-semibold text-[15px]">{result.message}</span>
+              <div>
+                <p className="text-[11px] font-bold tracking-[0.14em] text-white/25 uppercase mb-1">Tickets</p>
+                <p className="text-white/80 text-[14px]">{result.quantity} {result.quantity === 1 ? 'ticket' : 'tickets'}</p>
+              </div>
             </div>
           )}
         </div>
