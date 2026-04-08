@@ -46,7 +46,9 @@ export default async function BookingConfirmPage({
               label="Start"
               value={new Date(booking.start_time).toLocaleString('en-AU', {
                 dateStyle: 'full',
-                timeStyle: 'short',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
               })}
             />
           )}

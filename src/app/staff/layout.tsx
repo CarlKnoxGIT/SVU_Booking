@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { signOut } from './actions'
+import { ResizableSidebar } from '@/components/ui/resizable-sidebar'
 
 const NAV_ITEMS = [
   { href: '/staff', label: 'Calendar' },
@@ -28,60 +29,66 @@ export default async function StaffLayout({ children }: { children: React.ReactN
     ? profile.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
     : '?'
 
-  return (
-    <div className="flex h-screen bg-black text-white">
-      <aside className="w-52 flex-shrink-0 flex flex-col border-r border-white/[0.06]">
-        <div className="px-5 pt-7 pb-6">
-          <span className="text-[10px] font-bold tracking-[0.15em] text-swin-red-light uppercase">SVU</span>
-          <p className="text-[10px] tracking-[0.1em] text-white/30 uppercase mt-0.5">Booking</p>
-        </div>
+  const sidebarContent = (
+    <>
+      <div className="px-5 pt-7 pb-6">
+        <span className="text-[10px] font-bold tracking-[0.15em] text-swin-red-light uppercase">SVU</span>
+        <p className="text-[10px] tracking-[0.1em] text-white/30 uppercase mt-0.5">Booking</p>
+      </div>
 
-        <nav className="flex-1 px-2">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] text-white/50 hover:text-white hover:bg-white/[0.06] transition-all duration-150"
-            >
-              {item.label}
-            </Link>
-          ))}
-          {profile?.role === 'super_admin' && (
-            <Link
-              href="/admin"
-              className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] text-swin-red-light/70 hover:text-swin-red-lighter hover:bg-white/[0.06] transition-all duration-150 mt-1"
-            >
-              Admin Panel
-            </Link>
-          )}
-        </nav>
+      <nav className="flex-1 px-2">
+        {NAV_ITEMS.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] text-white/50 hover:text-white hover:bg-white/[0.06] transition-all duration-150"
+          >
+            {item.label}
+          </Link>
+        ))}
+        {profile?.role === 'super_admin' && (
+          <Link
+            href="/admin"
+            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] text-swin-red-light/70 hover:text-swin-red-lighter hover:bg-white/[0.06] transition-all duration-150 mt-1"
+          >
+            Admin Panel
+          </Link>
+        )}
+      </nav>
 
-        <div className="p-4 border-t border-white/[0.06]">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="h-7 w-7 rounded-full bg-swin-red/30 flex items-center justify-center text-[11px] font-semibold text-swin-red-lighter flex-shrink-0">
-              {initials}
-            </div>
-            <div className="min-w-0">
-              <p className="text-[12px] font-medium text-white truncate">
-                {profile?.full_name?.split(' ')[0] ?? 'Staff'}
-              </p>
-              <p className="text-[10px] text-white/30 capitalize truncate">
-                {profile?.role?.replace('_', ' ')}
-              </p>
-            </div>
+      <div className="p-4 border-t border-white/[0.06]">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="h-7 w-7 rounded-full bg-swin-red/30 flex items-center justify-center text-[11px] font-semibold text-swin-red-lighter flex-shrink-0">
+            {initials}
           </div>
-          <form action={signOut}>
-            <button
-              type="submit"
-              className="w-full text-left text-[12px] text-white/25 hover:text-white/60 transition-colors"
-            >
-              Sign out
-            </button>
-          </form>
+          <div className="min-w-0">
+            <p className="text-[12px] font-medium text-white truncate">
+              {profile?.full_name?.split(' ')[0] ?? 'Staff'}
+            </p>
+            <p className="text-[10px] text-white/30 capitalize truncate">
+              {profile?.role?.replace('_', ' ')}
+            </p>
+          </div>
         </div>
-      </aside>
+        <form action={signOut}>
+          <button
+            type="submit"
+            className="w-full text-left text-[12px] text-white/25 hover:text-white/60 transition-colors"
+          >
+            Sign out
+          </button>
+        </form>
+      </div>
+    </>
+  )
 
-      <main className="flex-1 overflow-hidden">{children}</main>
-    </div>
+  return (
+    <ResizableSidebar
+      sidebar={sidebarContent}
+      mainClassName="flex-1 overflow-hidden"
+      storageKey="staff-sidebar-width"
+    >
+      {children}
+    </ResizableSidebar>
   )
 }

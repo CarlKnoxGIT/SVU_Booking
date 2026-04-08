@@ -33,6 +33,7 @@ export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
   const isProtected = PROTECTED_PATHS.some((p) => pathname.startsWith(p))
+    && pathname !== '/staff/register'
   const isAdminOnly = ADMIN_ONLY_PATHS.some((p) => pathname.startsWith(p))
 
   if (isProtected && !user) {

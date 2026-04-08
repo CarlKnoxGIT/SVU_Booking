@@ -23,7 +23,7 @@ export default function LoginPage() {
 
         <p className="mt-6 text-center text-xs text-white/20">
           Need access?{' '}
-          <Link href="/staff/register" className="text-white/40 hover:text-white transition-colors">
+          <Link href="/register" className="text-white/40 hover:text-white transition-colors">
             Request a staff account
           </Link>
         </p>

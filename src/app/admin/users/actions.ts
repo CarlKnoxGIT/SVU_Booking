@@ -7,7 +7,7 @@ import { resend, FROM_ADDRESS } from '@/lib/resend/client'
 export async function inviteStaff(email: string) {
   const base = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
   const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://svu3d.ai'
-  const registerUrl = `${siteUrl}${base}/staff/register`
+  const registerUrl = `${siteUrl}${base}/register`
 
   const { error } = await resend.emails.send({
     from: FROM_ADDRESS,

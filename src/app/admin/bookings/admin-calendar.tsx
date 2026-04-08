@@ -109,6 +109,25 @@ export function AdminBookingCalendar({ refreshKey }: { refreshKey?: number }) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [selDrag, setSelDrag] = useState<{ day: Date; startFrac: number; currentFrac: number } | null>(null)
 
+  // Day/week view toggle
+  const [viewMode, setViewMode] = useState<'week' | 'day'>('week')
+  const [dayIndex, setDayIndex] = useState(0)
+  const touchStartRef = useRef<{ day: Date; frac: number } | null>(null)
+
+  // Auto-switch to day view on narrow screens
+  useEffect(() => {
+    function checkMobile() {
+      if (window.innerWidth < 768) {
+        setViewMode('day')
+        const dow = new Date().getDay()
+        setDayIndex(dow === 0 ? 6 : dow - 1)
+      }
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
   function yToFrac(y: number): number {
     const raw = START_HOUR + Math.max(0, y) / hourHeight
     return Math.min(Math.max(Math.round(raw * 4) / 4, START_HOUR), END_HOUR)
@@ -169,6 +188,16 @@ export function AdminBookingCalendar({ refreshKey }: { refreshKey?: number }) {
     return d
   })
 
+  const visibleDays = viewMode === 'week' ? days : [days[dayIndex]]
+  const gridColsClass = viewMode === 'week' ? 'grid-cols-[48px_repeat(7,1fr)]' : 'grid-cols-[48px_1fr]'
+
+  // Compute "is on today" for day and week modes
+  const todayMon = getMondayOf(new Date())
+  const isCurrentWeekActual = weekStart.getTime() === todayMon.getTime()
+  const isOnToday = viewMode === 'week'
+    ? isCurrentWeekActual
+    : isSameDay(days[dayIndex], new Date())
+
   const loadBookings = useCallback(async () => {
     setLoading(true)
     const data = await getAdminWeekBookings(weekStart.toISOString())
@@ -207,57 +236,97 @@ export function AdminBookingCalendar({ refreshKey }: { refreshKey?: number }) {
   function nextWeek() {
     setWeekStart(d => { const n = new Date(d); n.setDate(n.getDate() + 7); return n })
   }
-  function goToday() { setWeekStart(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d }) }
+  function prevPeriod() {
+    if (viewMode === 'week') { prevWeek(); return }
+    if (dayIndex > 0) { setDayIndex(d => d - 1) }
+    else { setWeekStart(d => { const n = new Date(d); n.setDate(n.getDate() - 7); return n }); setDayIndex(6) }
+  }
+  function nextPeriod() {
+    if (viewMode === 'week') { nextWeek(); return }
+    if (dayIndex < 6) { setDayIndex(d => d + 1) }
+    else { setWeekStart(d => { const n = new Date(d); n.setDate(n.getDate() + 7); return n }); setDayIndex(0) }
+  }
+  function goToday() {
+    const today = new Date()
+    const monday = getMondayOf(today)
+    monday.setHours(0, 0, 0, 0)
+    setWeekStart(monday)
+    if (viewMode === 'day') {
+      const dow = today.getDay()
+      setDayIndex(dow === 0 ? 6 : dow - 1)
+    }
+  }
+  function handleViewToggle() {
+    if (viewMode === 'week') {
+      // Switch to day: show today if in current week, else show first day
+      const todayMonday = getMondayOf(new Date())
+      if (weekStart.getTime() === todayMonday.getTime()) {
+        const dow = new Date().getDay()
+        setDayIndex(dow === 0 ? 6 : dow - 1)
+      } else {
+        setDayIndex(0)
+      }
+      setViewMode('day')
+    } else {
+      setViewMode('week')
+    }
+  }
 
   function bookingsForDay(day: Date) {
     return bookings.filter(b => isSameDay(new Date(b.start_time), day))
   }
 
-  const isCurrentWeek = isSameDay(weekStart, new Date())
   const today = new Date()
   const pendingCount = bookings.filter(b => b.status === 'pending').length
 
   return (
     <div className="flex h-full">
       {/* Calendar */}
-      <div className={`flex flex-col flex-1 min-w-0 transition-all duration-300 ${selected || creating ? 'mr-[400px]' : ''}`}>
+      <div className={`flex flex-col flex-1 min-w-0 transition-all duration-300 ${selected || creating ? 'md:mr-[400px]' : ''}`}>
 
         {/* Toolbar */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06] flex-wrap gap-3">
-          <div className="flex items-center gap-2">
-            <button onClick={prevWeek} className="p-1.5 rounded hover:bg-white/[0.06] text-white/40 hover:text-white transition-colors">
+        <div className="flex items-center justify-between pl-14 pr-3 md:px-6 py-3 md:py-4 border-b border-white/[0.06] flex-wrap gap-y-1 gap-x-2 md:gap-3">
+          <div className="flex items-center gap-1 md:gap-2">
+            <button onClick={prevPeriod} className="p-1.5 rounded hover:bg-white/[0.06] text-white/40 hover:text-white transition-colors">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
             </button>
-            <button onClick={nextWeek} className="p-1.5 rounded hover:bg-white/[0.06] text-white/40 hover:text-white transition-colors">
+            <button onClick={nextPeriod} className="p-1.5 rounded hover:bg-white/[0.06] text-white/40 hover:text-white transition-colors">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
             </button>
-            <span className="text-[14px] font-medium text-white ml-2">
-              {weekStart.toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })}
-              {' — '}
-              {days[6].toLocaleDateString('en-AU', { day: 'numeric', month: 'long' })}
+            <span className="text-[13px] md:text-[14px] font-medium text-white ml-1">
+              {viewMode === 'week' ? (
+                <>
+                  {weekStart.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  <span className="hidden sm:inline">
+                    {' — '}{days[6].toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}
+                  </span>
+                </>
+              ) : (
+                days[dayIndex].toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' })
+              )}
             </span>
             {pendingCount > 0 && (
-              <span className="ml-2 inline-flex items-center rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-medium text-amber-400">
+              <span className="inline-flex items-center rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-medium text-amber-400">
                 {pendingCount} pending
               </span>
             )}
             {loading && (
-              <span className="ml-2 text-[11px] text-white/20 animate-pulse">loading…</span>
+              <span className="hidden sm:inline text-[11px] text-white/20 animate-pulse">loading…</span>
             )}
           </div>
 
-          <div className="flex items-center gap-3">
-            {!isCurrentWeek && (
+          <div className="flex items-center gap-1.5 md:gap-3">
+            {!isOnToday && (
               <button onClick={goToday} className="text-[12px] text-white/40 hover:text-white transition-colors">
                 Today
               </button>
             )}
-            {/* Legend */}
-            <div className="flex items-center gap-3 text-[11px] text-white/30 flex-wrap">
+            {/* Legend — desktop only */}
+            <div className="hidden lg:flex items-center gap-3 text-[11px] text-white/30 flex-wrap">
               {Object.entries(TYPE_COLOURS).map(([key, c]) => (
                 <span key={key} className="flex items-center gap-1.5 capitalize">
                   <span className={`w-2 h-2 rounded-sm ${c.dot}`} />
@@ -268,31 +337,38 @@ export function AdminBookingCalendar({ refreshKey }: { refreshKey?: number }) {
               <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm border border-dashed border-white/40" />Pending</span>
               <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm border border-white/40" />Confirmed</span>
             </div>
+            {/* Day / Week toggle */}
+            <button
+              onClick={handleViewToggle}
+              className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] text-white/60 hover:text-white px-2 md:px-3 py-1.5 text-[12px] font-medium transition-colors"
+            >
+              {viewMode === 'week' ? 'Day' : 'Week'}
+            </button>
             <button
               onClick={() => { setSelectMode(s => !s); setSelectedIds(new Set()); setSelected(null) }}
-              className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] font-medium transition-colors ${selectMode ? 'border-amber-500/40 bg-amber-500/10 text-amber-400' : 'border-white/10 bg-white/[0.04] hover:bg-white/[0.08] text-white/60 hover:text-white'}`}
+              className={`hidden sm:flex items-center gap-1.5 rounded-lg border px-2 md:px-3 py-1.5 text-[12px] font-medium transition-colors ${selectMode ? 'border-amber-500/40 bg-amber-500/10 text-amber-400' : 'border-white/10 bg-white/[0.04] hover:bg-white/[0.08] text-white/60 hover:text-white'}`}
             >
-              {selectMode ? `${selectedIds.size} selected` : 'Select'}
+              {selectMode ? `${selectedIds.size} sel` : 'Select'}
             </button>
             <button
               onClick={() => { setCreating(true); setSelected(null); setCreateSlot(null) }}
-              className="flex items-center gap-1.5 rounded-lg bg-swin-red hover:bg-swin-red-hover px-3 py-1.5 text-[12px] font-medium text-white transition-colors"
+              className="flex items-center gap-1.5 rounded-lg bg-swin-red hover:bg-swin-red-hover px-2 md:px-3 py-1.5 text-[12px] font-medium text-white transition-colors"
             >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
-              New booking
+              <span className="hidden sm:inline">New booking</span>
             </button>
           </div>
         </div>
 
         {/* Time grid */}
         <div className="flex-1 overflow-y-auto" ref={scrollRef}>
-          <div className="grid grid-cols-[48px_repeat(7,1fr)]">
+          <div className={`grid ${gridColsClass}`}>
             {/* Day headers — sticky inside scroll container so columns share the same scrollbar-affected width */}
-            <div className="sticky top-0 z-10 bg-black col-span-full grid grid-cols-[48px_repeat(7,1fr)] border-b border-white/[0.06]">
+            <div className={`sticky top-0 z-10 bg-black col-span-full grid ${gridColsClass} border-b border-white/[0.06]`}>
               <div />
-              {days.map((day, i) => {
+              {visibleDays.map((day, i) => {
                 const isToday = isSameDay(day, today)
                 const dayPending = bookingsForDay(day).filter(b => b.status === 'pending').length
                 return (
@@ -320,7 +396,7 @@ export function AdminBookingCalendar({ refreshKey }: { refreshKey?: number }) {
             </div>
 
             {/* Day columns */}
-            {days.map((day, di) => {
+            {visibleDays.map((day, di) => {
               const dayBookings = bookingsForDay(day)
               const preview = dropPreview?.dayIndex === di ? dropPreview : null
 
@@ -341,6 +417,26 @@ export function AdminBookingCalendar({ refreshKey }: { refreshKey?: number }) {
                     const rect = e.currentTarget.getBoundingClientRect()
                     const y = e.clientY - rect.top + (scrollRef.current?.scrollTop ?? 0)
                     setSelDrag(prev => prev ? { ...prev, currentFrac: yToFrac(y) } : null)
+                  }}
+                  onTouchStart={e => {
+                    if ((e.target as HTMLElement).closest('[data-booking-block]') || selectMode) return
+                    const touch = e.touches[0]
+                    const rect = e.currentTarget.getBoundingClientRect()
+                    const y = touch.clientY - rect.top + (scrollRef.current?.scrollTop ?? 0)
+                    touchStartRef.current = { day, frac: yToFrac(y) }
+                  }}
+                  onTouchEnd={e => {
+                    if (!touchStartRef.current || !isSameDay(touchStartRef.current.day, day)) return
+                    const touch = e.changedTouches[0]
+                    const rect = e.currentTarget.getBoundingClientRect()
+                    const y = touch.clientY - rect.top + (scrollRef.current?.scrollTop ?? 0)
+                    const endFrac = yToFrac(y)
+                    const startFrac = touchStartRef.current.frac
+                    const finalEnd = Math.min(endFrac - startFrac < 0.25 ? startFrac + 1 : Math.max(startFrac, endFrac), END_HOUR)
+                    touchStartRef.current = null
+                    setCreateSlot({ day, startFrac, endFrac: finalEnd })
+                    setCreating(true)
+                    setSelected(null)
                   }}
                   onDragOver={e => {
                     e.preventDefault()
@@ -585,7 +681,7 @@ function EventDetailPanel({ event: e, onClose }: { event: Booking; onClose: () =
   const end = new Date(e.end_time)
   const colours = TYPE_COLOURS['public_event']
   return (
-    <div className="fixed right-0 top-0 h-full w-[400px] bg-[#0a0a0a] border-l border-white/[0.07] flex flex-col z-40 shadow-2xl">
+    <div className="fixed bottom-0 left-0 right-0 max-h-[90vh] md:bottom-auto md:left-auto md:right-0 md:top-0 md:h-full md:max-h-none md:w-[400px] bg-[#0a0a0a] border-t md:border-t-0 md:border-l border-white/[0.07] flex flex-col z-40 shadow-2xl rounded-t-2xl md:rounded-t-none overflow-hidden">
       <div className="flex items-start justify-between px-6 py-5 border-b border-white/[0.06]">
         <div className="flex-1 min-w-0 pr-4">
           <div className="flex items-center gap-2 mb-1">
@@ -729,7 +825,7 @@ function BookingDetailPanel({
   const labelCls = 'text-[11px] font-bold tracking-[0.12em] text-white/25 uppercase mb-1 block'
 
   return (
-    <div className="fixed right-0 top-0 h-full w-[400px] bg-[#0a0a0a] border-l border-white/[0.07] flex flex-col z-40 shadow-2xl">
+    <div className="fixed bottom-0 left-0 right-0 max-h-[90vh] md:bottom-auto md:left-auto md:right-0 md:top-0 md:h-full md:max-h-none md:w-[400px] bg-[#0a0a0a] border-t md:border-t-0 md:border-l border-white/[0.07] flex flex-col z-40 shadow-2xl rounded-t-2xl md:rounded-t-none overflow-hidden">
       {/* Header */}
       <div className="flex items-start justify-between px-6 py-5 border-b border-white/[0.06]">
         <div className="flex-1 min-w-0 pr-4">
@@ -971,7 +1067,7 @@ function NewBookingPanel({
   }
 
   return (
-    <div className="fixed right-0 top-0 h-full w-[400px] bg-[#0a0a0a] border-l border-white/[0.07] flex flex-col z-40 shadow-2xl">
+    <div className="fixed bottom-0 left-0 right-0 max-h-[90vh] md:bottom-auto md:left-auto md:right-0 md:top-0 md:h-full md:max-h-none md:w-[400px] bg-[#0a0a0a] border-t md:border-t-0 md:border-l border-white/[0.07] flex flex-col z-40 shadow-2xl rounded-t-2xl md:rounded-t-none overflow-hidden">
       <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06]">
         <h2 className="text-[16px] font-medium text-white">New booking</h2>
         <button onClick={onClose} className="p-1.5 text-white/30 hover:text-white transition-colors">
