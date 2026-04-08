@@ -5,7 +5,7 @@ import { getStripe } from '@/lib/stripe/client'
 import { createClient } from '@/lib/supabase/server'
 
 export async function POST(req: NextRequest) {
-  const { eventId, quantity } = await req.json()
+  const { eventId, quantity, name, email } = await req.json()
 
   if (!eventId || !quantity || quantity < 1) {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
@@ -56,9 +56,12 @@ export async function POST(req: NextRequest) {
         quantity,
       },
     ],
+    customer_email: email ?? undefined,
     metadata: {
       event_id: eventId,
       quantity: String(quantity),
+      buyer_name: name ?? '',
+      buyer_email: email ?? '',
     },
     success_url: `${origin}${basePath}/events/${eventId}/tickets/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}${basePath}/events/${eventId}/tickets`,

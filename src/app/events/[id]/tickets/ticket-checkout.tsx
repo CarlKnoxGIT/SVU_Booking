@@ -44,7 +44,7 @@ export function TicketCheckout({ eventId, ticketPrice, isFree, ticketsLeft }: Pr
       const res = await fetch(`${base}/api/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ eventId, quantity }),
+        body: JSON.stringify({ eventId, quantity, name, email }),
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error ?? 'Something went wrong.'); setLoading(false); return }

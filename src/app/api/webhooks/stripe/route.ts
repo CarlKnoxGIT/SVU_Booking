@@ -66,7 +66,7 @@ export async function POST(request: Request) {
         }
 
         // Resolve or create user from Stripe customer email
-        const customerEmail = session.customer_details?.email
+        const customerEmail = session.customer_details?.email ?? session.metadata?.buyer_email ?? null
         let userId: string | null = session.metadata?.user_id ?? null
 
         if (!userId && customerEmail) {
@@ -93,8 +93,10 @@ export async function POST(request: Request) {
         }
 
         if (userId) {
-          // Resolve buyer name: prefer checkout name, fall back to billing details on payment intent
-          let buyerName = session.customer_details?.name ?? null
+          // Resolve buyer name: prefer name from our form (passed via metadata),
+          // then Stripe's customer_details, then billing details on the payment intent
+          let buyerName: string | null = session.metadata?.buyer_name || null
+          if (!buyerName) buyerName = session.customer_details?.name ?? null
           if (!buyerName && session.payment_intent) {
             try {
               const pi = await stripe.paymentIntents.retrieve(session.payment_intent as string, {
