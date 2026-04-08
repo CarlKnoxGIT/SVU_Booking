@@ -93,6 +93,19 @@ export async function POST(request: Request) {
         }
 
         if (userId) {
+          // Resolve buyer name: prefer checkout name, fall back to billing details on payment intent
+          let buyerName = session.customer_details?.name ?? null
+          if (!buyerName && session.payment_intent) {
+            try {
+              const pi = await stripe.paymentIntents.retrieve(session.payment_intent as string, {
+                expand: ['payment_method'],
+              })
+              buyerName = (pi.payment_method as Stripe.PaymentMethod)?.billing_details?.name ?? null
+            } catch (err) {
+              console.warn('[stripe webhook] could not retrieve payment intent for buyer name:', err)
+            }
+          }
+
           // Record payment
           const { data: payment } = await supabase
             .from('payments')
@@ -117,7 +130,7 @@ export async function POST(request: Request) {
             qr_code: qrCode,
             quantity: qty,
             status: 'active',
-            buyer_name: session.customer_details?.name ?? null,
+            buyer_name: buyerName,
           }).select('cancel_token').single()
 
           // Send confirmation email
@@ -128,7 +141,7 @@ export async function POST(request: Request) {
             .single()
 
           if (evtDetails) {
-            const customerName = session.customer_details?.name ?? 'Guest'
+            const customerName = buyerName ?? 'Guest'
             const customerEmail = session.customer_details?.email
             const eventDate = new Date(evtDetails.event_date).toLocaleDateString('en-AU', {
               weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
