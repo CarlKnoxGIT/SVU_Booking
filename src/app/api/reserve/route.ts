@@ -68,6 +68,7 @@ export async function POST(req: NextRequest) {
       qr_code: qrCode,
       quantity,
       status: 'active',
+      buyer_name: name,
     })
 
   if (ticketError) {
