@@ -41,9 +41,9 @@ export default function Home() {
             A 100m² curved LED wall. 360° immersive audio. Real scientific data.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
-            <Link href="/events" className="rounded-full bg-white text-black px-8 py-3 text-[15px] font-semibold hover:bg-white/90 transition-all duration-200">
-              Get tickets
-            </Link>
+            <span className="rounded-full bg-white/60 text-black/60 px-8 py-3 text-[15px] font-semibold cursor-default">
+              Coming soon
+            </span>
             <Link href="/school-groups" className="rounded-full border border-white/20 bg-white/8 backdrop-blur-sm px-8 py-3 text-[15px] font-semibold hover:bg-white/15 transition-all duration-200">
               School visits
             </Link>

@@ -84,7 +84,7 @@ export default async function TicketsPage({ params }: { params: Promise<{ id: st
           <div className="lg:col-span-2">
             <div className="border border-white/15 bg-white/[0.04] p-8 sticky top-8">
               <p className="text-sm font-bold tracking-widest text-white/60 uppercase mb-6">
-                {soldOut ? 'Sold out' : 'Get tickets'}
+                {soldOut ? 'Sold out' : 'Coming soon'}
               </p>
 
               {soldOut ? (
