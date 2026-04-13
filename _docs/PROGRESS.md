@@ -316,15 +316,92 @@
 
 ---
 
+## Session 9 — 2026-04-13
+
+### Completed
+
+#### Ticket buttons — "Coming soon" mode
+- [x] Replaced "Get tickets" links with "Coming soon" placeholder on homepage, events listing, and ticket page
+- [x] Homepage hero button changed from `<Link>` to dimmed `<span>` (no navigation)
+- [x] Events listing: events WITH an Eventbrite URL show "Get tickets" (links externally); events without show "Coming soon"
+- [x] Currently ALL buttons set to "Coming soon" — to go live, restore the `humanitix_url` conditional in `src/app/events/page.tsx` (see "How to go live" below)
+
+#### Eventbrite integration
+- [x] Created Eventbrite pages for 3 of 4 sessions
+- [x] Stored Eventbrite URLs in `humanitix_url` field on events table in Supabase (ready to use)
+- [x] Session 4 remains unpublished (private link only)
+- [x] Removed `is_published` filter from `/events/[id]/tickets/page.tsx` so unpublished events can be accessed via direct link
+- [x] Removed ticket counter ("X tickets left") from events listing — capacity managed on Eventbrite
+- [x] Added start–end time display (e.g. 12:00 – 12:45) on events listing
+
+#### Eventbrite URLs stored in DB (ready to activate)
+| Session | Time | Eventbrite URL |
+|---------|------|---------------|
+| Session 1 | 12:00–12:45 | `https://www.eventbrite.com.au/e/svu-open-day-tickets-1987296014877?aff=oddtdtcreator` |
+| Session 2 | 13:00–13:45 | `https://www.eventbrite.com.au/e/svu-open-day-tickets-1987297229510?aff=oddtdtcreator` |
+| Session 3 | 14:00–14:45 | `https://www.eventbrite.com.au/e/svu-open-day-session-3-tickets-1987299517353?aff=oddtdtcreator` |
+| Session 4 | 15:00–15:45 | Not yet created — event is unpublished |
+
+#### How to go live with ticket buttons
+In `src/app/events/page.tsx`, replace the "Coming soon" `<span>` block with:
+```jsx
+{!soldOut && (
+  event.humanitix_url ? (
+    <a href={event.humanitix_url} target="_blank" rel="noopener noreferrer"
+       className="flex-shrink-0 rounded-xl bg-swin-red px-4 py-2 text-[13px] font-semibold text-white hover:bg-swin-red-hover transition-all duration-200">
+      Get tickets
+    </a>
+  ) : (
+    <span className="flex-shrink-0 rounded-xl bg-white/20 px-4 py-2 text-[13px] font-semibold text-white/60 cursor-default">
+      Coming soon
+    </span>
+  )
+)}
+```
+
+#### Email deliverability
+- [x] Confirmed: Resend sends successfully (green status), Gmail receives fine, but Swinburne Exchange silently drops emails from `svu3d.ai`
+- [x] Added `carlknox@gmail.com` as second recipient on enquiry notification emails as workaround
+- [x] DNS: SPF and DKIM verified in GoDaddy for `svu3d.ai`; DMARC record still needs adding (GoDaddy validation issue)
+- [x] Domain DNS managed by GoDaddy (nameservers: `ns11.domaincontrol.com`, `ns12.domaincontrol.com`)
+
+#### Login page
+- [x] Removed "Continue with Google" OAuth button — staff login is email/password only (swin.edu.au staff)
+
+### Decisions Made
+- Public ticketing moved to Eventbrite instead of built-in Stripe checkout — avoids email deliverability issues with new domain
+- `humanitix_url` DB field reused for Eventbrite URLs (field name is legacy but functional)
+- Enquiry emails sent to both `cknox@swin.edu.au` and `carlknox@gmail.com` until Swinburne whitelists domain
+- Google OAuth removed from staff login — only @swin.edu.au staff should have access
+
+### Remaining / Needs Carl's action (not code)
+- [ ] Add DMARC TXT record in GoDaddy: Name `_dmarc`, Value `v=DMARC1; p=quarantine; rua=mailto:cknox@swin.edu.au` (GoDaddy rejected — may need to contact GoDaddy support)
+- [ ] Contact Swinburne IT to whitelist `svu3d.ai` / `bookings@svu3d.ai` in Exchange
+- [ ] Create Eventbrite page for Session 4 (if needed) and provide URL
+- [ ] Register with Microsoft SNDS for Hotmail/Outlook.com reputation
+
+### Remaining / Not Started
+- [ ] `/admin/reports` — placeholder only ("Coming soon")
+- [ ] `/admin/maintenance` — placeholder only ("Coming soon")
+- [ ] `agents/` directory — framework exists but no agents implemented
+- [ ] `emails/` directory — no React Email templates built yet
+- [ ] SAML 2.0 SSO — blocked on Swinburne IT
+- [ ] Conflict detection in `createBookingRequest`
+- [ ] Google Calendar integration
+- [ ] Re-enable homepage "Get tickets" hero button (currently "Coming soon" `<span>`)
+
+---
+
 ## Blockers & Open Questions
 
 | Issue | Status | Notes |
 |-------|--------|-------|
 | Swinburne IT access for SAML config | Open | Need to contact IT to register SP and obtain IdP metadata |
-| Email deliverability to swin.edu.au + Hotmail | Partially resolved | Emails deliver but go to Junk — DKIM DNS records + SNDS registration still needed from Carl |
+| Email deliverability to swin.edu.au | Workaround in place | Swinburne Exchange silently drops emails from svu3d.ai. Gmail CC added as backup. Needs: DMARC DNS record + IT whitelist |
+| DMARC DNS record | Blocked | GoDaddy rejects the TXT record — may need GoDaddy support or alternate syntax |
+| Public ticketing | Moved to Eventbrite | Eventbrite URLs stored in DB, buttons currently set to "Coming soon" — one code change to go live |
 | Google Calendar service account | Open | Need to create service account and share ops calendar |
-| Stripe account setup | Open | Need to determine if using personal account or Swinburne merchant account — Vercel + Supabase already live |
-| Exact capacity of the SVU | Open | Confirm exact max attendee count for each booking type |
+| Exact capacity of the SVU | Resolved | 80 per session confirmed |
 | Cancellation policy details | Open | Define exact timeframes and refund rules per booking type |
 
 ---
@@ -339,3 +416,4 @@
 | UI components | shadcn/ui | Chakra UI / MUI | Tailwind-native, accessible, no vendor lock-in |
 | Agent model | claude-sonnet-4-6 | claude-opus-4-6 | Better cost/performance balance for operational agents |
 | QR codes | `qrcode` package | External QR service | Server-side, no external dependency for ticket generation |
+| Public ticketing | Eventbrite (external) | Built-in Stripe checkout | New domain email deliverability issues — Eventbrite handles confirmations |
