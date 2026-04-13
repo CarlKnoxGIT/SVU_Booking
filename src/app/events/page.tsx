@@ -88,10 +88,6 @@ export default async function EventsPage() {
                             ? 'Free'
                             : `$${event.ticket_price}`}
                         </span>
-                        <span className="text-white/40">·</span>
-                        <span className={soldOut ? 'text-red-400' : 'text-white/60'}>
-                          {soldOut ? 'Sold out' : `${ticketsLeft} tickets left`}
-                        </span>
                       </div>
                     </div>
 
