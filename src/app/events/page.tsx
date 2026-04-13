@@ -72,7 +72,7 @@ export default async function EventsPage() {
                       {date && (
                         <p className="mb-2 text-[12px] font-semibold tracking-wide text-swin-red-light uppercase">
                           {date.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'long' })}
-                          {event.start_time && <> · {event.start_time.slice(0, 5)}</>}
+                          {event.start_time && <> · {event.start_time.slice(0, 5)}{event.end_time && <> – {event.end_time.slice(0, 5)}</>}</>}
                         </p>
                       )}
                       <h2 className="text-[20px] font-semibold text-white">{event.title}</h2>
