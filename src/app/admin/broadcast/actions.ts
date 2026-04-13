@@ -48,12 +48,29 @@ export async function broadcastMessage({
   const htmlMessage = message.replace(/\n/g, '<br>')
 
   await Promise.all(
-    recipients.map(r =>
-      resend.emails.send({
+    recipients.map(r => {
+      const textBody = [
+        subject,
+        '',
+        message,
+        '',
+        '---',
+        `This message was sent regarding your booking: ${r.bookingTitle} on ${r.date}.`,
+        'To stop receiving messages, reply with "Unsubscribe" in the subject line.',
+      ].join('\n')
+
+      return resend.emails.send({
         from: FROM_ADDRESS,
         to: r.email,
         replyTo: 'cknox@swin.edu.au',
         subject,
+        text: textBody,
+        tags: [{ name: 'type', value: 'broadcast' }],
+        headers: {
+          'List-Unsubscribe': '<mailto:cknox@swin.edu.au?subject=Unsubscribe>',
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          'Precedence': 'bulk',
+        },
         html: `
           <div style="font-family:sans-serif;background:#000;color:#fff;padding:32px;max-width:560px;">
             <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.16em;color:rgba(255,255,255,0.3);text-transform:uppercase;">SVU — Message from Admin</p>
@@ -64,7 +81,7 @@ export async function broadcastMessage({
             <p style="font-size:12px;color:rgba(255,255,255,0.3);">This message was sent regarding your booking: <strong style="color:rgba(255,255,255,0.5);">${r.bookingTitle}</strong> on ${r.date}.</p>
           </div>`,
       }).catch(err => console.error('[broadcast]', r.email, err))
-    )
+    })
   )
 
   return { sent: recipients.length }

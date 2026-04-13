@@ -49,11 +49,35 @@ export async function sendTicketConfirmation(params: TicketConfirmationParams) {
 
   const ticketWord = quantity === 1 ? 'ticket' : 'tickets'
 
+  const textLines = [
+    `You're in — ${eventTitle}`,
+    '',
+    `Hi ${name}, your ${ticketWord} for ${eventTitle} ${quantity === 1 ? 'is' : 'are'} confirmed.`,
+    '',
+    `Date:     ${eventDate}`,
+    `Time:     ${startTime}–${endTime}`,
+    `Location: Swinburne, Hawthorn Campus, ATC Building, Room 103`,
+    `Tickets:  ${quantity} × ${eventTitle}`,
+    ...(qrCode ? ['', `QR code: ${qrCode}`, 'Show this code at the door.'] : []),
+    '',
+    'ON THE DAY',
+    '· Arrive 10 minutes before your session.',
+    '· Head to ATC Building, Room 103.',
+    '· Show this email at the door.',
+    ...(cancelUrl ? ['', `Can't make it? Cancel your tickets: ${cancelUrl}`] : []),
+    '',
+    '---',
+    'Swinburne University of Technology · Hawthorn Campus, Melbourne',
+    'Questions? Reply to this email.',
+  ]
+
   const result = await resend.emails.send({
     from: FROM_ADDRESS,
     to,
     replyTo: 'cknox@swin.edu.au',
     subject: `You're in — ${eventTitle}`,
+    text: textLines.join('\n'),
+    tags: [{ name: 'type', value: 'ticket-confirmation' }],
     html: `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>

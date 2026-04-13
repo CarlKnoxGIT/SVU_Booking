@@ -269,12 +269,59 @@
 
 ---
 
+---
+
+## Session 8 — 2026-04-09
+
+### Completed
+
+#### Email deliverability investigation + fixes
+- [x] Diagnosed ticket emails not arriving at Hotmail and @swin.edu.au addresses
+- [x] Confirmed via Resend SMTP log: emails ARE being delivered (250 response from `ausprd01.prod.outlook.com`) — problem is spam filtering, not sending failure
+- [x] Root cause: `svu3d.ai` is a new domain with no sender reputation; Microsoft/Swinburne Exchange puts it in Junk
+- [x] Added plain-text `text:` body to all 7 email-sending files (spam filters penalise HTML-only emails)
+- [x] Added `List-Unsubscribe` + `List-Unsubscribe-Post` + `Precedence: bulk` headers to broadcast emails
+- [x] Added `tags` to all emails for Resend dashboard tracking by type
+- [x] TypeScript check: 0 errors
+
+#### Files changed
+- `src/lib/email/send-ticket-confirmation.ts`
+- `src/app/admin/bookings/actions.ts`
+- `src/app/api/cron/booking-reminders/route.ts`
+- `src/app/admin/broadcast/actions.ts`
+- `src/app/admin/staff-requests/actions.ts`
+- `src/app/enquire/actions.ts`
+- `src/app/staff/register/actions.ts`
+
+### Decisions Made
+- Plain-text email body is now mandatory alongside HTML for all sends — spam filter requirement
+- Broadcast emails get bulk mail headers; transactional emails do not
+
+### Remaining / Needs Carl's action (not code)
+- [ ] **Resend dashboard → Domains → `svu3d.ai`** — verify all three DNS records (SPF, DKIM, DMARC) are green. DKIM especially is the key fix for Hotmail long-term
+- [ ] **Add DMARC record** to DNS: `_dmarc.svu3d.ai` TXT → `v=DMARC1; p=quarantine; rua=mailto:cknox@swin.edu.au`
+- [ ] **Register with Microsoft SNDS** at sendersupport.olc.protection.outlook.com/snds/ to improve Hotmail/Outlook.com reputation
+- [ ] **Ask @swin.edu.au recipients** to check Junk folder, mark as Not Junk, add `bookings@svu3d.ai` to Safe Senders
+- [ ] **`dianayousry@hotmail.com`** — never appeared in Resend logs; unclear if she purchased with hotmail or swin address. Needs investigation
+- [ ] **Test send investigation** — last test (carlknox@gmail.com "just now") didn't appear in Resend list; needs retest after lunch to confirm email fires on purchase
+
+### Remaining / Not Started
+- [ ] `/admin/reports` — placeholder only ("Coming soon")
+- [ ] `/admin/maintenance` — placeholder only ("Coming soon")
+- [ ] `agents/` directory — framework exists but no agents implemented
+- [ ] `emails/` directory — no React Email templates built yet
+- [ ] SAML 2.0 SSO — blocked on Swinburne IT
+- [ ] Conflict detection in `createBookingRequest`
+- [ ] Google Calendar integration
+
+---
+
 ## Blockers & Open Questions
 
 | Issue | Status | Notes |
 |-------|--------|-------|
 | Swinburne IT access for SAML config | Open | Need to contact IT to register SP and obtain IdP metadata |
-| Sending domain verification (Resend) | Done | Resend is set up and live |
+| Email deliverability to swin.edu.au + Hotmail | Partially resolved | Emails deliver but go to Junk — DKIM DNS records + SNDS registration still needed from Carl |
 | Google Calendar service account | Open | Need to create service account and share ops calendar |
 | Stripe account setup | Open | Need to determine if using personal account or Swinburne merchant account — Vercel + Supabase already live |
 | Exact capacity of the SVU | Open | Confirm exact max attendee count for each booking type |

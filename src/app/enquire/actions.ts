@@ -42,11 +42,26 @@ export async function submitEnquiry(_prevState: State, formData: FormData): Prom
   }
 
   // Notify admin
+  const enquiryText = [
+    `New SVU enquiry — ${name}`,
+    '',
+    `Email:      ${email}`,
+    ...(organisation ? [`Organisation: ${organisation}`] : []),
+    `Event type: ${EVENT_TYPE_LABELS[event_type] ?? event_type}`,
+    ...(guest_count ? [`Guests:     ${guest_count}`] : []),
+    ...(preferred_date ? [`Preferred date: ${preferred_date}`] : []),
+    ...(message ? ['', 'Message:', message] : []),
+    '',
+    `Reply to this email to respond directly to ${name}.`,
+  ].join('\n')
+
   await resend.emails.send({
     from: FROM_ADDRESS,
     to: 'cknox@swin.edu.au',
     replyTo: email,
     subject: `New SVU enquiry — ${name}${organisation ? ` (${organisation})` : ''}`,
+    text: enquiryText,
+    tags: [{ name: 'type', value: 'enquiry-notification' }],
     html: `
       <div style="font-family:sans-serif;background:#000;color:#fff;padding:32px;max-width:560px;">
         <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.16em;color:rgba(255,255,255,0.3);text-transform:uppercase;">New enquiry</p>

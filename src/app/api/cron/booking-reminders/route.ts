@@ -51,11 +51,24 @@ export async function GET(request: NextRequest) {
     })
     const endStr = endAt ? ` – ${endAt.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: false })}` : ''
 
+    const reminderText = [
+      'Your booking is tomorrow.',
+      '',
+      `Booking:  ${booking.title}`,
+      `Date:     ${dateStr}`,
+      `Time:     ${timeStr}${endStr}`,
+      `Location: Swinburne, Hawthorn Campus, ATC Building, Room 103`,
+      '',
+      'If you need to cancel, please log in to your staff dashboard.',
+    ].join('\n')
+
     await resend.emails.send({
       from: FROM_ADDRESS,
       to: user.email,
       replyTo: 'cknox@swin.edu.au',
       subject: `Reminder: ${booking.title} is tomorrow`,
+      text: reminderText,
+      tags: [{ name: 'type', value: 'booking-reminder' }],
       html: `
         <div style="font-family:sans-serif;background:#000;color:#fff;padding:32px;max-width:560px;">
           <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.16em;color:rgba(255,255,255,0.3);text-transform:uppercase;">SVU Booking</p>

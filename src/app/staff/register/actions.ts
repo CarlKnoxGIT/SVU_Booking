@@ -34,10 +34,21 @@ export async function submitStaffRequest(_prev: unknown, formData: FormData) {
   if (error) return { error: 'Failed to submit request. Please try again.' }
 
   // Notify admin
+  const requestText = [
+    `Staff access request — ${full_name}`,
+    '',
+    `${full_name} (${email}) has requested staff access to the SVU Booking system.`,
+    ...(message ? ['', message] : []),
+    '',
+    `Review: ${process.env.NEXT_PUBLIC_APP_URL}/admin/staff-requests`,
+  ].join('\n')
+
   await resend.emails.send({
     from: FROM_ADDRESS,
     to: 'cknox@swin.edu.au',
     subject: `Staff access request — ${full_name}`,
+    text: requestText,
+    tags: [{ name: 'type', value: 'staff-request-notification' }],
     html: `
       <p style="font-family:sans-serif;color:#fff;background:#000;padding:32px;">
         <strong>${full_name}</strong> (${email}) has requested staff access to the SVU Booking system.<br/><br/>

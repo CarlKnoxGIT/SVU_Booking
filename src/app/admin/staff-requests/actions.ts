@@ -77,6 +77,8 @@ export async function rejectStaffRequest(requestId: string) {
     to: req.email,
     replyTo: 'cknox@swin.edu.au',
     subject: 'SVU Booking — access request update',
+    text: `Hi ${req.full_name},\n\nUnfortunately your request for staff access to the SVU Booking system was not approved at this time.\n\nIf you think this is a mistake, reply to this email.`,
+    tags: [{ name: 'type', value: 'staff-request-rejected' }],
     html: `
       <p style="font-family:sans-serif;color:#fff;background:#000;padding:32px;">
         Hi ${req.full_name},<br/><br/>

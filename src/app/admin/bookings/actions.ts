@@ -24,6 +24,17 @@ async function sendBookingEmail(id: string, approved: boolean) {
   const dateStr = start.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
   const timeStr = start.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: false })
 
+  const textBody = [
+    approved ? 'Your booking is confirmed.' : 'Your booking was declined.',
+    '',
+    `Booking:    ${booking.title}`,
+    `Date & Time: ${dateStr} · ${timeStr}`,
+    '',
+    approved
+      ? 'Your booking is confirmed. See you at the SVU.'
+      : 'Your booking request was not approved. Reply to this email if you have questions.',
+  ].join('\n')
+
   await resend.emails.send({
     from: FROM_ADDRESS,
     to: user.email,
@@ -31,6 +42,8 @@ async function sendBookingEmail(id: string, approved: boolean) {
     subject: approved
       ? `Booking confirmed — ${booking.title}`
       : `Booking declined — ${booking.title}`,
+    text: textBody,
+    tags: [{ name: 'type', value: approved ? 'booking-confirmed' : 'booking-declined' }],
     html: `
       <div style="font-family:sans-serif;background:#000;color:#fff;padding:32px;max-width:560px;">
         <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.16em;color:rgba(255,255,255,0.3);text-transform:uppercase;">
