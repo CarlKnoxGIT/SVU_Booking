@@ -13,7 +13,6 @@ export default async function TicketsPage({ params }: { params: Promise<{ id: st
     .from('events')
     .select('id, title, description, event_date, start_time, end_time, ticket_price, max_capacity, tickets_sold, is_published')
     .eq('id', id)
-    .eq('is_published', true)
     .single()
 
   if (!event) notFound()
