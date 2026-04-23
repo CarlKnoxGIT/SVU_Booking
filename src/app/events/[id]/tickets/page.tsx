@@ -11,7 +11,7 @@ export default async function TicketsPage({ params }: { params: Promise<{ id: st
 
   const { data: event } = await supabase
     .from('events')
-    .select('id, title, description, event_date, start_time, end_time, ticket_price, max_capacity, tickets_sold, is_published')
+    .select('id, title, description, event_date, start_time, end_time, ticket_price, max_capacity, tickets_sold, is_published, humanitix_url')
     .eq('id', id)
     .single()
 
@@ -83,7 +83,7 @@ export default async function TicketsPage({ params }: { params: Promise<{ id: st
           <div className="lg:col-span-2">
             <div className="border border-white/15 bg-white/[0.04] p-8 sticky top-8">
               <p className="text-sm font-bold tracking-widest text-white/60 uppercase mb-6">
-                {soldOut ? 'Sold out' : 'Coming soon'}
+                {soldOut ? 'Sold out' : event.humanitix_url ? 'Tickets' : 'Coming soon'}
               </p>
 
               {soldOut ? (
@@ -95,6 +95,20 @@ export default async function TicketsPage({ params }: { params: Promise<{ id: st
                   >
                     Browse other events
                   </Link>
+                </div>
+              ) : event.humanitix_url ? (
+                <div className="space-y-4">
+                  <p className="text-white/80 text-sm leading-relaxed">
+                    Tickets are sold via Eventbrite. You'll be redirected to complete your booking.
+                  </p>
+                  <a
+                    href={event.humanitix_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full rounded-full bg-swin-red px-5 py-3 text-center text-sm font-semibold text-white hover:bg-swin-red-hover transition-all duration-200"
+                  >
+                    Get tickets on Eventbrite →
+                  </a>
                 </div>
               ) : (
                 <TicketCheckout
