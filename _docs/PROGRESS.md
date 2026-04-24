@@ -392,6 +392,56 @@ In `src/app/events/page.tsx`, replace the "Coming soon" `<span>` block with:
 
 ---
 
+## Session 10 — 2026-04-24
+
+### Completed
+
+#### Live ticket availability from Eventbrite
+- [x] Built `src/lib/eventbrite/client.ts` — `extractEventIdFromUrl` + `getTicketAvailability` (60s `next: { revalidate }` cache, degrades to `null` on missing token / URL / API error)
+- [x] Extracts numeric event ID from the trailing segment of the Eventbrite URL (e.g. `...-1987296014877`) — no DB change required
+- [x] Sums `quantity_total − quantity_sold` across non-hidden ticket classes via `GET /v3/events/{id}/ticket_classes/`
+- [x] `/events` listing: shows "X of Y tickets left" next to price (red when ≤10 remaining); replaces the "Get tickets" button with a "Sold out" badge when availability hits 0
+- [x] `/events/[id]/tickets`: detail page "Tickets" row now reads from Eventbrite instead of `tickets_sold` (which isn't being updated since the move off built-in Stripe)
+- [x] Both pages fall back silently to DB counts when the token is missing — safe to ship before token is set
+- [x] Added `EVENTBRITE_PRIVATE_TOKEN` to `.env.example` with link to the API-keys page
+- [x] Verified live against the production API: Session 1 = 71/110 left, Session 2 = 103/110 left, Session 3 = 24/110 left
+
+#### Ticket lookup side quest
+- [x] Bec Fowler (`r_miers@hotmail.com`) found: 4 tickets, Session 1 (2 May 12:00–12:45), active, booked 12 Apr
+- [x] Akshita Raina (`akshitaraina005@gmail.com`) found: 1 ticket, Session 1, active, booked 13 Apr
+- [x] Both bookings were on the old built-in Stripe flow (stored in `tickets` table). Need re-booking on Eventbrite for the relocated session.
+
+### Decisions Made
+- Eventbrite API called **server-side only**, with a 60s Next.js `revalidate` cache, so token never reaches the browser and the API isn't hammered on every request
+- `EVENTBRITE_PRIVATE_TOKEN` is server-only (not `NEXT_PUBLIC_*`)
+- Numeric-suffix URL parser accepts any `-<10+ digits>` segment — works for both the current URL shapes (`svu-open-day-tickets-...` and `swinburnes-virtual-universe-exclusive-public-opening-show-tickets-...`)
+- No schema change — Eventbrite event ID is derived from `events.humanitix_url` at request time
+- Session 3's Eventbrite URL changed at some point (DB now holds `...1987873639568`, previously `...1987299517353`) — current code reads whatever's in the DB so it kept working
+
+### Remaining / Needs Carl's action (not code)
+- [ ] Re-book Bec Fowler (4 tix) and Akshita Raina (1 tix) on the correct Eventbrite session
+- [ ] Create Session 4 Eventbrite page if you want it on the public listing (otherwise it stays unpublished and hidden)
+- [ ] Existing items from Session 9 still open: DMARC DNS, Swinburne Exchange whitelist, Microsoft SNDS registration
+
+### Remaining / Not Started
+- [ ] `/admin/reports` — placeholder only
+- [ ] `/admin/maintenance` — placeholder only
+- [ ] `/admin/tickets` search page (would replace "ask Claude to run a script") — possible next session
+- [ ] `agents/` directory — framework exists but no agents implemented
+- [ ] `emails/` directory — no React Email templates built yet
+- [ ] SAML 2.0 SSO — blocked on Swinburne IT
+- [ ] Conflict detection in `createBookingRequest`
+- [ ] Google Calendar integration
+- [ ] Re-enable homepage "Get tickets" hero button (currently "Coming soon" `<span>`)
+
+### Files changed
+- `src/lib/eventbrite/client.ts` (new)
+- `src/app/events/page.tsx`
+- `src/app/events/[id]/tickets/page.tsx`
+- `.env.example`
+
+---
+
 ## Blockers & Open Questions
 
 | Issue | Status | Notes |

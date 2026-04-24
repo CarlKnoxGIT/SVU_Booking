@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import SwinburneLogo from '@/components/swinburne-logo'
 import { ParallaxHero } from '@/components/parallax-hero'
+import { getTicketAvailability } from '@/lib/eventbrite/client'
 
 export default async function EventsPage() {
   const supabase = await createClient()
@@ -14,6 +15,10 @@ export default async function EventsPage() {
     .gte('event_date', new Date().toISOString().split('T')[0])
     .order('event_date', { ascending: true })
     .order('start_time', { ascending: true })
+
+  const availability = await Promise.all(
+    (events ?? []).map((e) => getTicketAvailability(e.humanitix_url))
+  )
 
   return (
     <main className="bg-black text-white">
@@ -57,9 +62,10 @@ export default async function EventsPage() {
         {/* Events */}
         {events && events.length > 0 ? (
           <div className="space-y-4">
-            {events.map((event) => {
-              const ticketsLeft = (event.max_capacity ?? 0) - (event.tickets_sold ?? 0)
-              const soldOut = ticketsLeft <= 0
+            {events.map((event, i) => {
+              const live = availability[i]
+              const ticketsLeft = live ? live.ticketsLeft : (event.max_capacity ?? 0) - (event.tickets_sold ?? 0)
+              const soldOut = live ? live.soldOut : ticketsLeft <= 0
               const date = event.event_date ? new Date(event.event_date) : null
 
               return (
@@ -88,24 +94,31 @@ export default async function EventsPage() {
                             ? 'Free'
                             : `$${event.ticket_price}`}
                         </span>
+                        {live && !soldOut && (
+                          <span className={ticketsLeft <= 10 ? 'text-swin-red-light font-medium' : 'text-white/60'}>
+                            {ticketsLeft} of {live.capacity} tickets left
+                          </span>
+                        )}
                       </div>
                     </div>
 
-                    {!soldOut && (
-                      event.humanitix_url ? (
-                        <a
-                          href={event.humanitix_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-shrink-0 rounded-xl bg-swin-red px-4 py-2 text-[13px] font-semibold text-white hover:bg-swin-red-hover transition-all duration-200"
-                        >
-                          Get tickets
-                        </a>
-                      ) : (
-                        <span className="flex-shrink-0 rounded-xl bg-white/20 px-4 py-2 text-[13px] font-semibold text-white/60 cursor-default">
-                          Coming soon
-                        </span>
-                      )
+                    {soldOut ? (
+                      <span className="flex-shrink-0 rounded-xl bg-white/10 px-4 py-2 text-[13px] font-semibold text-white/50 cursor-default">
+                        Sold out
+                      </span>
+                    ) : event.humanitix_url ? (
+                      <a
+                        href={event.humanitix_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-shrink-0 rounded-xl bg-swin-red px-4 py-2 text-[13px] font-semibold text-white hover:bg-swin-red-hover transition-all duration-200"
+                      >
+                        Get tickets
+                      </a>
+                    ) : (
+                      <span className="flex-shrink-0 rounded-xl bg-white/20 px-4 py-2 text-[13px] font-semibold text-white/60 cursor-default">
+                        Coming soon
+                      </span>
                     )}
                   </div>
                 </div>

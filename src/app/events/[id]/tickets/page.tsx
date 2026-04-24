@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import SwinburneLogo from '@/components/swinburne-logo'
 import { TicketCheckout } from './ticket-checkout'
+import { getTicketAvailability } from '@/lib/eventbrite/client'
 
 export default async function TicketsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -17,8 +18,10 @@ export default async function TicketsPage({ params }: { params: Promise<{ id: st
 
   if (!event) notFound()
 
-  const ticketsLeft = event.max_capacity - (event.tickets_sold ?? 0)
-  const soldOut = ticketsLeft <= 0
+  const live = await getTicketAvailability(event.humanitix_url)
+  const ticketsLeft = live ? live.ticketsLeft : event.max_capacity - (event.tickets_sold ?? 0)
+  const capacity = live ? live.capacity : event.max_capacity
+  const soldOut = live ? live.soldOut : ticketsLeft <= 0
   const isFree = !event.ticket_price || event.ticket_price === 0
 
   const date = event.event_date
@@ -69,7 +72,7 @@ export default async function TicketsPage({ params }: { params: Promise<{ id: st
               {[
                 { label: 'Venue', value: 'Swinburne, Hawthorn Campus — ATC Building, Room 103' },
                 { label: 'Time', value: event.start_time && event.end_time ? `${event.start_time.slice(0,5)} – ${event.end_time.slice(0,5)}` : 'See event details' },
-                { label: 'Tickets', value: `${ticketsLeft} of ${event.max_capacity} remaining` },
+                { label: 'Tickets', value: `${ticketsLeft} of ${capacity} remaining` },
               ].map(({ label, value }) => (
                 <div key={label} className="flex gap-6 text-base">
                   <span className="w-20 flex-shrink-0 text-white/50 font-medium">{label}</span>
