@@ -419,7 +419,7 @@ In `src/app/events/page.tsx`, replace the "Coming soon" `<span>` block with:
 - Session 3's Eventbrite URL changed at some point (DB now holds `...1987873639568`, previously `...1987299517353`) — current code reads whatever's in the DB so it kept working
 
 ### Remaining / Needs Carl's action (not code)
-- [ ] Re-book Bec Fowler (4 tix) and Akshita Raina (1 tix) on the correct Eventbrite session
+- [x] Re-book Bec Fowler (4 tix) and Akshita Raina (1 tix) — Carl re-booked under each buyer's email and sent them notification emails (post-session)
 - [ ] Create Session 4 Eventbrite page if you want it on the public listing (otherwise it stays unpublished and hidden)
 - [ ] Existing items from Session 9 still open: DMARC DNS, Swinburne Exchange whitelist, Microsoft SNDS registration
 
