@@ -449,7 +449,7 @@ In `src/app/events/page.tsx`, replace the "Coming soon" `<span>` block with:
 | Swinburne IT access for SAML config | Open | Need to contact IT to register SP and obtain IdP metadata |
 | Email deliverability to swin.edu.au | Workaround in place | Swinburne Exchange silently drops emails from svu3d.ai. Gmail CC added as backup. Needs: DMARC DNS record + IT whitelist |
 | DMARC DNS record | Blocked | GoDaddy rejects the TXT record — may need GoDaddy support or alternate syntax |
-| Public ticketing | Moved to Eventbrite | Eventbrite URLs stored in DB, buttons currently set to "Coming soon" — one code change to go live |
+| Public ticketing | Live on Eventbrite | Buttons and `/events` remaining-ticket counts live in production (Session 10). `EVENTBRITE_PRIVATE_TOKEN` set in Vercel Production |
 | Google Calendar service account | Open | Need to create service account and share ops calendar |
 | Exact capacity of the SVU | Resolved | 80 per session confirmed |
 | Cancellation policy details | Open | Define exact timeframes and refund rules per booking type |

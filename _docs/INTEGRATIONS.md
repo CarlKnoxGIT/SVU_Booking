@@ -5,11 +5,12 @@
 | Integration | Purpose | Status |
 |-------------|---------|--------|
 | **Swinburne SSO (SAML 2.0)** | Staff and admin authentication | To configure |
-| **Stripe** | Payment processing, invoices, refunds | To configure |
+| **Eventbrite** | Public ticket sales + live remaining-ticket counts | Live (Session 10) |
+| **Stripe** | Hire invoices/refunds; internal ticket checkout (fallback, unused for Open Day) | Live |
 | **Google Calendar API** | Sync bookings to ops calendar | To configure |
 | **Microsoft Graph API** | Outlook calendar sync for staff | Optional / future |
-| **Resend** | Transactional email | To configure |
-| **QR Code generation** | E-ticket QR codes | Package install only |
+| **Resend** | Transactional email | Live |
+| **QR Code generation** | E-ticket QR codes | Live (internal checkout path) |
 
 ---
 
@@ -39,10 +40,43 @@ Allow Swinburne staff and admins to log in using their Swinburne university cred
 
 ---
 
-## 2. Stripe
+## 2. Eventbrite
 
 ### Purpose
-Process payments for public event tickets and external hire fees.
+Sell public event tickets on Eventbrite (external checkout) and display live remaining-ticket counts on our `/events` pages. Replaces the built-in Stripe checkout for public sessions (motivated by the `svu3d.ai` email deliverability issues — see Session 9 notes).
+
+### Implementation
+- Each event stores its Eventbrite URL in `events.humanitix_url` (legacy field name, repurposed)
+- `src/lib/eventbrite/client.ts` extracts the numeric event ID from the URL's trailing segment (e.g. `...tickets-1987296014877`) and calls `GET /v3/events/{id}/ticket_classes/`
+- Sums `quantity_total − quantity_sold` across non-hidden ticket classes
+- Cached for 60s via Next.js `fetch({ next: { revalidate: 60, tags } })` — token never reaches the browser
+- Returns `null` on missing token, missing/invalid URL, or API failure — `/events` and `/events/[id]/tickets` fall back silently to DB counts (stale but non-breaking)
+
+### UI behaviour
+- `/events`: shows `X of Y tickets left` next to price; switches to red when `≤10` remaining; "Get tickets" button becomes a greyed **Sold out** pill when `quantity_sold === quantity_total`
+- `/events/[id]/tickets`: "Tickets" info row shows live remaining/capacity from Eventbrite
+
+### Getting a token
+1. Sign in to Eventbrite as the account owning the events
+2. Go to https://www.eventbrite.com/platform/api-keys/
+3. Create an API Key if none exists; copy the **Private Token** (not the Public one)
+4. Set `EVENTBRITE_PRIVATE_TOKEN` in `.env.local` (dev) and in Vercel → Project → Settings → Environment Variables → Production (live)
+5. Redeploy — env vars only take effect on builds started *after* they're saved
+
+### Environment Variables
+```
+EVENTBRITE_PRIVATE_TOKEN=...   # server-only; never expose via NEXT_PUBLIC_*
+```
+
+### Known edge case
+Our code treats "sold out" purely as `quantity_total - quantity_sold === 0`. Eventbrite can independently set `on_sale_status` to `SOLD_OUT` or `UNAVAILABLE` (e.g. if a ticket class is manually closed). If that matters, tighten `src/lib/eventbrite/client.ts` to treat non-`AVAILABLE` statuses as sold out.
+
+---
+
+## 3. Stripe
+
+### Purpose
+Process invoice payments for external hires. Also wired as a fallback public-ticket checkout if `events.humanitix_url` is null — not currently used for any live event (Open Day sessions all route to Eventbrite).
 
 ### Products Used
 - **Stripe Checkout** — hosted payment page for public ticket purchases
@@ -78,7 +112,7 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
 
 ---
 
-## 3. Google Calendar API
+## 4. Google Calendar API
 
 ### Purpose
 Sync confirmed bookings to a Swinburne ops/operations calendar so facility managers see the full schedule in Google Calendar.
@@ -114,7 +148,7 @@ GOOGLE_CALENDAR_ID=svu-ops@swinburne.edu.au                # Ops calendar ID
 
 ---
 
-## 4. Microsoft Graph API (Outlook Calendar)
+## 5. Microsoft Graph API (Outlook Calendar)
 
 ### Purpose
 Optional: Send Outlook-compatible calendar invites to Swinburne staff who use Outlook rather than Google Calendar.
@@ -138,7 +172,7 @@ MICROSOFT_TENANT_ID=
 
 ---
 
-## 5. Resend (Email)
+## 6. Resend (Email)
 
 ### Purpose
 Send all transactional emails: booking confirmations, rejections, QR e-tickets, reminders, quotes, payment receipts.
@@ -188,7 +222,7 @@ RESEND_API_KEY=re_...
 
 ---
 
-## 6. QR Code Generation
+## 7. QR Code Generation
 
 ### Purpose
 Generate unique, tamper-resistant QR codes for public event e-tickets. Scanned at entry.
@@ -245,11 +279,15 @@ User Action
     │
     ├── Auth (Swinburne SSO / Supabase Auth)
     │
-    ├── Booking confirmed
+    ├── Public event ticket
+    │       ├── Eventbrite (sale + confirmation email, external)
+    │       └── Eventbrite API → /events pages (live remaining counts, cached 60s)
+    │
+    ├── Booking confirmed (hire / internal)
     │       ├── Stripe (if payment required)
     │       ├── Google Calendar (sync event)
     │       ├── Resend (confirmation email)
-    │       │       └── QR Code (if public ticket)
+    │       │       └── QR Code (if internal ticket path is used)
     │       └── Supabase (DB update)
     │
     └── Booking cancelled

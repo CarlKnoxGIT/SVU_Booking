@@ -17,13 +17,13 @@ The SVU Booking platform has three audiences:
 ### Browsing events
 1. Go to the homepage (`/`)
 2. Click **Get tickets** (hero button) or **Events** in the footer
-3. You'll see all upcoming events with date, time, price, and tickets remaining
+3. You'll see all upcoming events with date, start–end time, price, and tickets remaining. Counts are pulled live from Eventbrite every ~60s
+4. When a session's tickets are almost gone the remaining-count turns red; once sold out the button greys out and reads **Sold out**
 
 ### Getting tickets
 1. On the events page, click **Get tickets** next to the session you want
-2. If the event uses Humanitix, you'll be taken to the Humanitix page to complete your booking
-3. If the event uses our internal checkout, select your quantity and click **Pay** — you'll be redirected to Stripe's secure payment page
-4. After payment, you'll land on a confirmation page. A receipt email will follow
+2. For events with an Eventbrite link, you'll open the Eventbrite page in a new tab to complete the purchase. Eventbrite sends the confirmation email + ticket
+3. For events without an Eventbrite link (the internal-checkout path, currently unused for Open Day sessions), you'll go to our built-in Stripe page — select quantity, pay, and a confirmation email with a QR-coded e-ticket follows
 
 ### School group visits
 1. Click **School visits** on the homepage or go to `/school-groups`
@@ -43,10 +43,9 @@ The SVU Booking platform has three audiences:
 1. Go to `/login` (or click **Staff sign in** in the top-right corner of any page)
 2. Enter your `@swin.edu.au` or `@swinburne.edu.au` email address
 3. Click **Send magic link** — check your inbox and click the link
-4. Alternatively, click **Continue with Google** if your Swinburne Google account is set up
-5. You'll be redirected to the admin dashboard at `/admin`
+4. You'll be redirected to the admin dashboard at `/admin`
 
-> **Note:** Magic links expire after 1 hour. If yours has expired, just request a new one.
+> **Note:** Magic links expire after 1 hour. If yours has expired, just request a new one. Google OAuth was removed in Session 9 — staff login is email-only.
 
 ### The admin dashboard
 The sidebar has five sections:
@@ -62,7 +61,7 @@ The sidebar has five sections:
 ### Creating an event
 1. Go to **Events → Create event** (`/admin/events/new`)
 2. Fill in title, description, date, start/end time, ticket price (0 for free), and capacity
-3. Paste a **Humanitix URL** if you're using Humanitix for ticketing — leave blank to use the internal Stripe checkout
+3. Paste an **Eventbrite URL** in the "Humanitix URL" field (legacy field name, now used for Eventbrite) — public buyers will be sent there and the `/events` page will read live remaining-ticket counts via the Eventbrite API. Leave blank to fall back to the internal Stripe checkout
 4. Toggle **Publish immediately** if you want it live now, or leave it off to save as a draft
 5. Click **Create event**
 
