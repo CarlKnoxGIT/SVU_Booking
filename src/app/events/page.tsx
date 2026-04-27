@@ -71,13 +71,13 @@ export default async function EventsPage() {
         </div>
       </div>
 
-      <div className="relative mx-auto max-w-3xl px-6 pb-20">
+      {hiddenAvail !== null && hiddenLeft !== null && (
+        <p className="fixed bottom-6 right-6 z-50 text-[11px] tabular-nums text-white/[0.18] select-none pointer-events-none">
+          {hiddenLeft} / {hiddenAvail.capacity}
+        </p>
+      )}
 
-        {hiddenLeft !== null && (
-          <p className="absolute top-6 right-6 text-[11px] tabular-nums text-white/[0.12] select-none pointer-events-none">
-            S4 · {hiddenLeft}
-          </p>
-        )}
+      <div className="mx-auto max-w-3xl px-6 pb-20">
 
         {/* Events */}
         {events && events.length > 0 ? (
