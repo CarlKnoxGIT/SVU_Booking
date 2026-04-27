@@ -20,6 +20,20 @@ export default async function EventsPage() {
     (events ?? []).map((e) => getTicketAvailability(e.humanitix_url))
   )
 
+  const { data: hiddenEvent } = await supabase
+    .from('events')
+    .select('humanitix_url, max_capacity, tickets_sold')
+    .eq('is_published', false)
+    .gte('event_date', new Date().toISOString().split('T')[0])
+    .order('start_time', { ascending: true })
+    .limit(1)
+    .maybeSingle()
+
+  const hiddenAvail = hiddenEvent ? await getTicketAvailability(hiddenEvent.humanitix_url) : null
+  const hiddenLeft = hiddenAvail?.ticketsLeft ?? (
+    hiddenEvent ? Math.max(0, (hiddenEvent.max_capacity ?? 0) - (hiddenEvent.tickets_sold ?? 0)) : null
+  )
+
   return (
     <main className="bg-black text-white">
       {/* Nav */}
@@ -57,7 +71,13 @@ export default async function EventsPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-3xl px-6 pb-20">
+      <div className="relative mx-auto max-w-3xl px-6 pb-20">
+
+        {hiddenLeft !== null && (
+          <p className="absolute top-6 right-6 text-[11px] tabular-nums text-white/[0.12] select-none pointer-events-none">
+            S4 · {hiddenLeft}
+          </p>
+        )}
 
         {/* Events */}
         {events && events.length > 0 ? (

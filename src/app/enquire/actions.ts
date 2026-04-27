@@ -57,7 +57,7 @@ export async function submitEnquiry(_prevState: State, formData: FormData): Prom
 
   await resend.emails.send({
     from: FROM_ADDRESS,
-    to: ['cknox@swin.edu.au', 'carlknox@gmail.com'],
+    to: ['svu@swin.edu.au', 'carlknox@gmail.com'],
     replyTo: email,
     subject: `New SVU enquiry — ${name}${organisation ? ` (${organisation})` : ''}`,
     text: enquiryText,

@@ -82,6 +82,16 @@ export default function EnquirePage() {
                 <span className="text-white/35 text-[12px]">Free parking available on evenings and weekends</span>
               </p>
             </div>
+
+            <div className="mt-6 border border-white/[0.07] bg-white/[0.02] p-6">
+              <p className="text-[11px] font-bold tracking-[0.16em] text-white/25 uppercase mb-3">Contact</p>
+              <a
+                href="mailto:svu@swin.edu.au"
+                className="text-[14px] text-swin-red-light hover:text-white transition-colors duration-200"
+              >
+                svu@swin.edu.au
+              </a>
+            </div>
           </div>
 
           {/* Right — form */}

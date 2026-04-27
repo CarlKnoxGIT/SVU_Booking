@@ -167,7 +167,7 @@ export default function Home() {
             Expanding into generative storytelling, immersive gaming, and AI-driven science communication.
           </p>
           <a
-            href="mailto:cknox@swin.edu.au"
+            href="mailto:svu@swin.edu.au"
             className="inline-flex rounded-full border border-white/20 px-6 py-2.5 text-[13px] font-medium text-white hover:text-white hover:border-white/40 transition-all duration-200"
           >
             Get in touch →
