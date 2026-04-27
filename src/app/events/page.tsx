@@ -71,12 +71,6 @@ export default async function EventsPage() {
         </div>
       </div>
 
-      {hiddenAvail !== null && hiddenLeft !== null && (
-        <p className="fixed bottom-20 right-5 z-50 text-[11px] tabular-nums text-white/30 select-none pointer-events-none">
-          {hiddenLeft} / {hiddenAvail.capacity}
-        </p>
-      )}
-
       <div className="mx-auto max-w-3xl px-6 pb-20">
 
         {/* Events */}
@@ -150,6 +144,12 @@ export default async function EventsPage() {
             <p className="text-white/50 text-sm">No upcoming events scheduled.</p>
             <p className="mt-2 text-white/35 text-xs">Check back soon.</p>
           </div>
+        )}
+
+        {hiddenAvail !== null && hiddenLeft !== null && (
+          <p className="mt-6 text-center text-[11px] tabular-nums text-white/30 select-none pointer-events-none">
+            {hiddenLeft} / {hiddenAvail.capacity}
+          </p>
         )}
       </div>
     </main>
