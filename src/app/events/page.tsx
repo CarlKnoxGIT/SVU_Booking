@@ -147,7 +147,7 @@ export default async function EventsPage() {
         )}
 
         {hiddenAvail !== null && hiddenLeft !== null && (
-          <p className="mt-6 text-center text-[11px] tabular-nums text-white/30 select-none pointer-events-none">
+          <p className="mt-6 text-center text-[13px] tabular-nums text-white/60 select-none pointer-events-none">
             {hiddenLeft} / {hiddenAvail.capacity}
           </p>
         )}
