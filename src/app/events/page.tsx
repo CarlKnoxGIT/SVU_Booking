@@ -72,7 +72,7 @@ export default async function EventsPage() {
       </div>
 
       {hiddenAvail !== null && hiddenLeft !== null && (
-        <p className="fixed bottom-6 right-6 z-50 text-[11px] tabular-nums text-white/[0.18] select-none pointer-events-none">
+        <p className="fixed bottom-20 right-5 z-50 text-[11px] tabular-nums text-white/30 select-none pointer-events-none">
           {hiddenLeft} / {hiddenAvail.capacity}
         </p>
       )}
