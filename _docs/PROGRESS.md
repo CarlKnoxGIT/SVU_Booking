@@ -442,6 +442,79 @@ In `src/app/events/page.tsx`, replace the "Coming soon" `<span>` block with:
 
 ---
 
+## Session 11 — 2026-04-29
+
+### Completed
+
+#### Visitor counts dashboard (public landing page)
+- [x] Built "By the numbers" section between Saturn animation and Public Events
+- [x] Hero "Total Visitors" number — auto-summed at request time from non-activity categories (Students + Staff + VIP + International Students + Academics)
+- [x] 6-card breakdown grid below the hero (cards reuse admin stats grid styling)
+- [x] Animated count-up on first viewport intersection (`src/components/visitor-stats/count-up.tsx`), respects `prefers-reduced-motion`
+- [x] `revalidate = 60` on homepage; `revalidatePath('/')` on every entry submission/delete so updates appear within a minute
+
+#### Staff entry portal
+- [x] New `/staff/visitors` tab — desktop sidebar only, deliberately not in `StaffBottomNav` (already 4-slot)
+- [x] Entry form: date (default today), category dropdown, count, optional note
+- [x] Soft-confirm prompt above 1,000; hard cap at 10,000 per single entry — guards against fat-fingered zeros on public-facing numbers
+- [x] Cumulative-totals strip at top of page (sanity-check before entering)
+- [x] Recent-50 entries table; per-row delete button visible only to `super_admin`
+- [x] Admin-only "Manage categories" expander — add/rename/toggle active
+
+#### Database
+- [x] `013_visitor_counts.sql` — `visitor_categories` (lookup) + `visitor_entries` (append-only log), RLS: public read, staff insert, admin delete/update/manage
+- [x] `014_visitor_total_category.sql` — added a manual `total_visitors` category row (superseded by 015)
+- [x] `015_visitor_activity_flag.sql` — added `is_activity` column, marked Events/Astrotours as activities, removed the now-obsolete `total_visitors` row (Total is computed, not entered)
+- [x] All three migrations applied to production Supabase via SQL Editor
+
+#### Deploy
+- [x] Committed (`cb5e417`) and pushed to `origin/main` — Vercel auto-deployed
+- [x] Verified live: hero number + breakdown render correctly
+
+### Decisions Made
+- **Append-only entry log** instead of a single-counter table — typos are reversible (delete the row) and the audit trail is free
+- **Total = sum of people categories**, not a manually-entered figure — eliminates a drift class. The 5 people categories overlap (an international student is also a student) but Carl accepted the double-count: marketing-narrative value outweighs mathematical purity for a public dashboard
+- **`is_activity` flag** to exclude Events/Astrotours from the total — they represent attendance instances, not unique visitors
+- **Editable lookup table** for categories — admin can add new ones without a migration
+- **`International Students` toggled inactive**, not deleted — preserves re-enable path
+- **Mobile bottom nav left at 4-slot** — visitor-count entry is desk work, doesn't belong on the on-the-go bar
+- **Hero hidden until total > 0** — avoids a giant "0" looking broken before baselines are entered
+
+### Things flagged but deferred
+- Auto-derive Events/Astrotours from existing `tickets` table — schema has `is_derived` flag reserved for this; switch later if manual entry drifts from real sales
+- Per-card sparkline trend charts — deferred
+- Day-one baseline entries — Carl to add via `/staff/visitors` (one entry per category with note "baseline")
+
+### Files changed
+- `src/app/page.tsx` (dashboard section + data fetch + `revalidate`)
+- `src/app/staff/layout.tsx` (NAV_ITEMS extended with Visitors)
+- `src/types/index.ts` (`VisitorCategory` + `VisitorEntry` types)
+- `src/app/staff/visitors/{page,visitor-entry-form,actions,delete-entry-button,manage-categories}.tsx` (new)
+- `src/components/visitor-stats/count-up.tsx` (new)
+- `supabase/migrations/013_visitor_counts.sql` (new)
+- `supabase/migrations/014_visitor_total_category.sql` (new — superseded)
+- `supabase/migrations/015_visitor_activity_flag.sql` (new)
+
+### Side notes
+- Local `npm run build` fails on this machine — Turbopack tries to create Windows junction points on the G: drive, which the filesystem doesn't support. Vercel's Linux build is unaffected. Use `npx tsc --noEmit` + `npx eslint` for local verification.
+- Got a Supabase auto-pause email for project `utmtlfipdwtwyrcqrflq` — that's an unrelated free-tier project on Carl's account, NOT SVU Booking (which is `neibpbkholgoypswyalx`). Worth deleting the unrelated project from the Supabase dashboard before the 90-day data-loss cutoff.
+
+### Remaining / Not Started
+- [ ] `/admin/reports` — placeholder only
+- [ ] `/admin/maintenance` — placeholder only
+- [ ] `/admin/tickets` search page — possible next session
+- [ ] `agents/` directory — framework exists but no agents implemented
+- [ ] `emails/` directory — no React Email templates built yet
+- [ ] SAML 2.0 SSO — blocked on Swinburne IT
+- [ ] Conflict detection in `createBookingRequest`
+- [ ] Google Calendar integration
+- [ ] Re-enable homepage "Get tickets" hero button (currently "Coming soon" `<span>`)
+- [ ] Day-one baseline entries on `/staff/visitors` for each people category
+- [ ] DMARC DNS record + Swinburne Exchange whitelist (carried from session 9)
+- [ ] Pre-existing 25 lint errors across the codebase — not blocking deploys but worth a sweep someday
+
+---
+
 ## Blockers & Open Questions
 
 | Issue | Status | Notes |
