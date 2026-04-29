@@ -3,8 +3,45 @@ import Image from 'next/image'
 import SwinburneLogo from '@/components/swinburne-logo'
 import { ParallaxHero } from '@/components/parallax-hero'
 import { SaturnAnimationLoader as SaturnAnimation } from '@/components/saturn-animation-loader'
+import { CountUp } from '@/components/visitor-stats/count-up'
+import { createClient } from '@/lib/supabase/server'
 
-export default function Home() {
+export const revalidate = 60
+
+async function getVisitorStats() {
+  const supabase = await createClient()
+  const [{ data: cats }, { data: entries }] = await Promise.all([
+    supabase
+      .from('visitor_categories')
+      .select('id, slug, label, sort_order, is_active, is_activity')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true }),
+    supabase.from('visitor_entries').select('category_id, count'),
+  ])
+
+  const totals = new Map<string, number>()
+  for (const e of entries ?? []) {
+    totals.set(e.category_id, (totals.get(e.category_id) ?? 0) + (e.count ?? 0))
+  }
+
+  const breakdown = (cats ?? []).map((c) => ({
+    id: c.id,
+    slug: c.slug as string,
+    label: c.label,
+    is_activity: !!c.is_activity,
+    total: totals.get(c.id) ?? 0,
+  }))
+
+  const heroTotal = breakdown
+    .filter((c) => !c.is_activity)
+    .reduce((sum, c) => sum + c.total, 0)
+
+  return { heroTotal, breakdown }
+}
+
+export default async function Home() {
+  const { heroTotal, breakdown } = await getVisitorStats()
+  const showSection = breakdown.length > 0
   return (
     <main className="bg-black text-white [text-shadow:0_2px_12px_rgba(0,0,0,0.85)]">
 
@@ -64,6 +101,52 @@ export default function Home() {
           Immersive storytelling powered by real scientific data - a 100m² stereoscopic LED wall, high-performance GPU rendering, and 360° audio.
         </p>
       </SaturnAnimation>
+
+      {/* ── By the numbers - visitor counts dashboard ─────────── */}
+      {showSection && (
+        <section className="px-6 py-20 sm:py-24">
+          <div className="mx-auto max-w-6xl">
+            <p className="text-[11px] font-bold tracking-[0.18em] text-swin-red-light uppercase mb-3 text-center">
+              By the numbers
+            </p>
+            <h2 className="text-3xl sm:text-4xl font-light leading-tight text-white text-center mb-3">
+              Lives touched.<br />Universes shared.
+            </h2>
+            <p className="text-[13px] text-white/45 text-center mb-14">
+              Since opening the SVU
+            </p>
+
+            {heroTotal > 0 && (
+              <div className="text-center mb-16">
+                <p className="text-[11px] uppercase tracking-[0.2em] text-white/45 mb-3">
+                  Total Visitors
+                </p>
+                <p className="text-7xl sm:text-8xl font-light tracking-tight text-swin-red-light leading-none">
+                  <CountUp value={heroTotal} />
+                </p>
+              </div>
+            )}
+
+            {breakdown.length > 0 && (
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                {breakdown.map((s) => (
+                  <div
+                    key={s.id}
+                    className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-5"
+                  >
+                    <p className="text-xs font-medium tracking-wide text-white/55 uppercase">
+                      {s.label}
+                    </p>
+                    <p className="mt-3 text-4xl font-semibold tracking-tight text-swin-red-light">
+                      <CountUp value={s.total} />
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* ── Public Events - SVU07B, photo left ───────────────── */}
       <section className="relative min-h-[520px] flex overflow-hidden">

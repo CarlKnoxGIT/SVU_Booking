@@ -175,6 +175,29 @@ export interface Facility {
   created_at: string
 }
 
+// ─── Visitor counts ───────────────────────────────────────────────────────────
+
+export interface VisitorCategory {
+  id: string
+  slug: string
+  label: string
+  sort_order: number
+  is_active: boolean
+  is_activity: boolean
+  is_derived: boolean
+  created_at: string
+}
+
+export interface VisitorEntry {
+  id: string
+  category_id: string
+  count: number
+  entry_date: string
+  note: string | null
+  recorded_by: string | null
+  created_at: string
+}
+
 // ─── Agent types ──────────────────────────────────────────────────────────────
 
 export interface AgentResult {

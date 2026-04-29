@@ -8,6 +8,7 @@ import { StaffBottomNav } from '@/components/ui/staff-bottom-nav'
 const NAV_ITEMS = [
   { href: '/staff', label: 'Calendar' },
   { href: '/staff/checkin', label: 'Check-in' },
+  { href: '/staff/visitors', label: 'Visitors' },
   { href: '/staff/profile', label: 'Profile' },
 ]
 
