@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { sendEventNotifyWelcome } from '@/lib/email/send-event-notify-welcome'
 import { sendEventNotifyAdminNotification } from '@/lib/email/send-event-notify-admin-notification'
 
@@ -24,7 +24,7 @@ export async function submitEventNotifySignup(_prevState: State, formData: FormD
     return { error: 'Please enter a valid email address.' }
   }
 
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const source = 'events_page'
 
   const { error } = await supabase
@@ -36,7 +36,7 @@ export async function submitEventNotifySignup(_prevState: State, formData: FormD
 
   if (error) {
     console.error('Event notify signup insert error:', error)
-    return { error: `Could not save: ${error.message} (code: ${error.code ?? '?'})` }
+    return { error: 'Something went wrong. Please try again.' }
   }
 
   await Promise.all([
