@@ -584,6 +584,59 @@ In `src/app/events/page.tsx`, replace the "Coming soon" `<span>` block with:
 
 ---
 
+## Session 13 — 2026-05-01
+
+### Completed
+
+#### Admin "Mailing list" section
+- [x] New `Mailing list` section on `/admin#subscribers`, slotted between Enquiries and Check-in (both are public-form captures so they sit naturally together)
+- [x] Sidebar nav link added to `src/app/admin/layout.tsx`
+- [x] Header badge shows live active-subscriber count ("X subscribers"); excludes anyone with `unsubscribed_at` set
+- [x] Per-row layout: sky-tinted circular avatar with initials (matches the `/events` notify card accent), name, clickable `mailto:` email, signup date (en-AU formatted), and a "Remove" button
+- [x] Remove button: `src/app/admin/subscribers/{actions.ts,delete-button.tsx}` — `useTransition`-driven client component, `confirm()` prompt, calls `deleteSubscriber` server action which uses `createAdminClient()` and `revalidatePath('/admin')`
+- [x] Empty-state copy points the admin at the events-page card so they know where signups originate
+- [x] Unsubscribed-state pill renders quietly if `unsubscribed_at` is ever set (no UI to set it yet — placeholder for the future unsubscribe flow)
+- [x] Verified live on prod after Vercel deploy
+
+### Decisions Made
+- **Section in the long-scroll admin page**, not a separate `/admin/subscribers` route — matches existing pattern (Enquiries, Staff Requests, Users etc all live as sections of `/admin`)
+- **Sky tint on the avatar circle** to visually link the admin row back to the public-side notify card — small consistency cue
+- **Newest first** ordering — admins are most likely to want to see who just signed up
+- **Delete is a hard delete**, not a soft "mark unsubscribed" — for ops cleanup of test entries / typos. The `unsubscribed_at` column is reserved for the actual user-driven unsubscribe flow when that lands
+
+### Things flagged but deferred (still)
+- CSV export — not built; can be added when subscriber count justifies it
+- Broadcast composer — out of scope. Send announcements via existing tools / Resend dashboard for now
+- Search/filter on the subscriber list — fine without it at low volume
+
+### Files changed
+- `src/app/admin/layout.tsx` (added Mailing list nav item)
+- `src/app/admin/page.tsx` (added subscribers fetch + new section)
+- `src/app/admin/subscribers/actions.ts` (new)
+- `src/app/admin/subscribers/delete-button.tsx` (new)
+
+### Commits
+- `257a636` feat: mailing list section in admin — view + remove subscribers
+
+### Remaining / Not Started
+- [ ] `/admin/reports` — placeholder only
+- [ ] `/admin/maintenance` — placeholder only
+- [ ] `/admin/tickets` search page
+- [ ] CSV export + broadcast composer for the mailing list (list view shipped this session)
+- [ ] `/unsubscribe?token=…` route (column still unused)
+- [ ] `agents/` directory — no agents implemented
+- [ ] `emails/` directory — no React Email templates
+- [ ] SAML 2.0 SSO — blocked on Swinburne IT
+- [ ] Conflict detection in `createBookingRequest`
+- [ ] Google Calendar integration
+- [ ] Re-enable homepage "Get tickets" hero button (still "Coming soon" `<span>`)
+- [ ] Day-one baseline entries on `/staff/visitors`
+- [ ] DMARC DNS record + Swinburne Exchange whitelist (Carl emailed IT 2026-05-01; waiting)
+- [ ] Pre-existing 25 lint errors across the codebase
+- [ ] Root-cause RLS rejection on `event_notify_subscribers` (deferred)
+
+---
+
 ## Blockers & Open Questions
 
 | Issue | Status | Notes |
