@@ -198,6 +198,18 @@ export interface VisitorEntry {
   created_at: string
 }
 
+// ─── Event notify-me subscribers ──────────────────────────────────────────────
+
+export interface EventNotifySubscriber {
+  id: string
+  name: string
+  email: string
+  source: string
+  created_at: string
+  updated_at: string
+  unsubscribed_at: string | null
+}
+
 // ─── Agent types ──────────────────────────────────────────────────────────────
 
 export interface AgentResult {

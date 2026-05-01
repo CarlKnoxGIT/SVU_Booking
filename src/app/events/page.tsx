@@ -4,6 +4,7 @@ import Image from 'next/image'
 import SwinburneLogo from '@/components/swinburne-logo'
 import { ParallaxHero } from '@/components/parallax-hero'
 import { getTicketAvailability } from '@/lib/eventbrite/client'
+import { NotifyMeCard } from './notify-me-card'
 
 export default async function EventsPage() {
   const supabase = await createClient()
@@ -138,11 +139,15 @@ export default async function EventsPage() {
                 </div>
               )
             })}
+            <NotifyMeCard />
           </div>
         ) : (
-          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] px-6 py-24 text-center">
-            <p className="text-white/50 text-sm">No upcoming events scheduled.</p>
-            <p className="mt-2 text-white/35 text-xs">Check back soon.</p>
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] px-6 py-24 text-center">
+              <p className="text-white/50 text-sm">No upcoming events scheduled.</p>
+              <p className="mt-2 text-white/35 text-xs">Check back soon.</p>
+            </div>
+            <NotifyMeCard />
           </div>
         )}
 
