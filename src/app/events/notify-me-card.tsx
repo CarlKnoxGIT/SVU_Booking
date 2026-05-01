@@ -81,7 +81,10 @@ export function NotifyMeCard() {
           </div>
         </div>
 
-        <div className="sr-only" aria-hidden="true">
+        <div
+          aria-hidden="true"
+          style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}
+        >
           <label htmlFor="notify_website">Website (leave blank)</label>
           <input
             id="notify_website"

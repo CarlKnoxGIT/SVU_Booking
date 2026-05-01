@@ -30,13 +30,13 @@ export async function submitEventNotifySignup(_prevState: State, formData: FormD
   const { error } = await supabase
     .from('event_notify_subscribers')
     .upsert(
-      { name, email, source, unsubscribed_at: null, updated_at: new Date().toISOString() },
+      { name, email, source },
       { onConflict: 'email' }
     )
 
   if (error) {
     console.error('Event notify signup insert error:', error)
-    return { error: 'Something went wrong. Please try again.' }
+    return { error: `Could not save: ${error.message} (code: ${error.code ?? '?'})` }
   }
 
   await Promise.all([
