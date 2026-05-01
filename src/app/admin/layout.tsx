@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { href: '/admin#staff-requests',    label: 'Staff Requests' },
   { href: '/admin#events',            label: 'Events' },
   { href: '/admin#enquiries',         label: 'Enquiries' },
+  { href: '/admin#subscribers',       label: 'Mailing list' },
   { href: '/admin#checkin',           label: 'Check-in' },
   { href: '/admin#users',             label: 'Users' },
   { href: '/admin#broadcast',         label: 'Broadcast' },

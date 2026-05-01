@@ -10,6 +10,7 @@ import { DeleteUserButton } from './users/delete-button'
 import { InviteStaff } from './users/invite-staff'
 import { BroadcastForm } from './broadcast/broadcast-form'
 import { DuplicateEventButton } from './events/duplicate-button'
+import { DeleteSubscriberButton } from './subscribers/delete-button'
 
 const STATUS_STYLES: Record<string, string> = {
   new: 'bg-swin-red/10 text-swin-red-light',
@@ -34,6 +35,7 @@ export default async function AdminPage() {
     enquiriesRes,
     staffRequestsRes,
     recentBookingsRes,
+    subscribersRes,
   ] = await Promise.all([
     supabase.from('bookings').select('id', { count: 'exact', head: true }),
     supabase.from('bookings').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
@@ -43,6 +45,7 @@ export default async function AdminPage() {
     supabase.from('enquiries').select('id, name, email, organisation, event_type, guest_count, preferred_date, message, status, created_at').order('created_at', { ascending: false }),
     supabase.from('staff_requests').select('id, full_name, email, message, status, created_at').order('created_at', { ascending: false }),
     supabase.from('bookings').select('id, title, status, start_time, booking_type').order('created_at', { ascending: false }).limit(6),
+    supabase.from('event_notify_subscribers').select('id, name, email, source, created_at, unsubscribed_at').order('created_at', { ascending: false }),
   ])
 
   const users = usersRes.data ?? []
@@ -51,6 +54,8 @@ export default async function AdminPage() {
   const enquiries = enquiriesRes.data ?? []
   const staffRequests = staffRequestsRes.data ?? []
   const recentBookings = recentBookingsRes.data ?? []
+  const subscribers = subscribersRes.data ?? []
+  const activeSubscribers = subscribers.filter(s => !s.unsubscribed_at)
 
   const pendingStaffRequests = staffRequests.filter(r => r.status === 'pending')
   const reviewedStaffRequests = staffRequests.filter(r => r.status !== 'pending')
@@ -354,6 +359,48 @@ export default async function AdminPage() {
           </div>
         ) : (
           <EmptyCard>No enquiries yet.</EmptyCard>
+        )}
+      </section>
+
+      <Divider />
+
+      {/* ── Mailing list ─────────────────────────────── */}
+      <section id="subscribers">
+        <SectionHeader
+          title="Mailing list"
+          subtitle="People who signed up on the events page to be notified about future SVU events."
+          badge={activeSubscribers.length > 0 ? `${activeSubscribers.length} ${activeSubscribers.length === 1 ? 'subscriber' : 'subscribers'}` : undefined}
+        />
+
+        {subscribers.length > 0 ? (
+          <div className="rounded-2xl border border-white/[0.07] overflow-hidden">
+            {subscribers.map((s, i) => (
+              <div key={s.id} className={`flex items-center gap-4 px-6 py-4 hover:bg-white/[0.02] transition-colors ${i < subscribers.length - 1 ? 'border-b border-white/[0.07]' : ''}`}>
+                <div className="h-9 w-9 rounded-full bg-sky-400/15 flex items-center justify-center text-sm font-semibold text-sky-300 flex-shrink-0">
+                  {s.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2) || '?'}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-base font-medium text-white truncate">{s.name}</p>
+                  <p className="text-sm text-white/55 truncate">
+                    <a href={`mailto:${s.email}`} className="hover:text-white/80 transition-colors">{s.email}</a>
+                  </p>
+                </div>
+                <div className="flex items-center gap-4 flex-shrink-0">
+                  {s.unsubscribed_at && (
+                    <span className="inline-flex items-center rounded-full bg-white/[0.06] px-2.5 py-1 text-xs font-medium text-white/50">
+                      Unsubscribed
+                    </span>
+                  )}
+                  <span className="text-xs text-white/35">
+                    {new Date(s.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </span>
+                  <DeleteSubscriberButton id={s.id} email={s.email} />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <EmptyCard>No subscribers yet. Sign-ups from the &ldquo;More sessions coming soon&rdquo; card on /events will appear here.</EmptyCard>
         )}
       </section>
 
