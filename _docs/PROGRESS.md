@@ -515,6 +515,75 @@ In `src/app/events/page.tsx`, replace the "Coming soon" `<span>` block with:
 
 ---
 
+## Session 12 — 2026-05-01
+
+### Completed
+
+#### Notify-me signup on /events
+- [x] Added `event_notify_subscribers` table (migration `019_event_notify_subscribers.sql`) — id, name, email (unique), source, created_at, updated_at, unsubscribed_at (reserved for future unsubscribe flow)
+- [x] RLS: public-insert + public-update + staff-all (modeled on `enquiries`); applied to production Supabase via SQL Editor
+- [x] Server action `src/app/events/actions.ts` — validates name + email, honeypot drop, idempotent upsert by email
+- [x] Two Resend email helpers — `send-event-notify-welcome.ts` (subscriber confirmation) and `send-event-notify-admin-notification.ts` (dual-addressed to `cknox@swin.edu.au` + `carlknox@gmail.com`); both follow Session 8 conventions (text body + tags)
+- [x] Client component `src/app/events/notify-me-card.tsx` — sky-blue glow card with pulsing dot, brand-tinted gradient, two diffused glow orbs, larger heading, two-tone "More sessions / coming soon" treatment
+- [x] Card placed at the bottom of the events listing on `/events` (works for both populated + empty-state cases)
+- [x] Type `EventNotifySubscriber` added to `src/types/index.ts`
+- [x] Verified live end-to-end: row writes to DB, both emails arrive (gmail copy of admin notification confirmed; swin copy still blocked by Exchange filter — see below)
+
+#### Bug fixes during session
+- [x] `sr-only` Tailwind class wasn't being applied — honeypot label "Website (leave blank)" was rendering visibly. Replaced with explicit inline `position: absolute; left: -9999px` styles to guarantee hidden regardless of utility class compilation
+- [x] Anon `.upsert()` was rejected with `42501 / new row violates row-level security policy` despite the public-insert policy having `WITH CHECK (true)` (identical to enquiry pattern, which works). Did not solve — switched to `createAdminClient()` (service-role) instead. Server-side action with input validation + honeypot, so bypassing RLS is safe here.
+
+#### DMARC reporting investigation
+- [x] Verified DMARC aggregate report from Microsoft (29 Apr → 30 Apr window): SPF, DKIM, DMARC all pass + align for `svu3d.ai` → `@swin.edu.au`. Disposition: `none`. Confirms the deliverability problem is content/reputation filtering at Exchange, NOT auth misconfiguration.
+- [x] Carl emailed Swinburne IT to request whitelist — waiting for reply.
+
+### Decisions Made
+- **Notify-me capture-only MVP** — no admin UI, no broadcast composer, no double opt-in this round. Capture into a table; Carl reads via Supabase when it's time to announce. Single opt-in is fine under AU Spam Act when the form clearly states what they're signing up for.
+- **Sky-blue accent (Tailwind `sky-400/500`) for the notify card** — deliberately off-brand vs the swin-red event cards above it, so the CTA visually separates from the list. The rest of the site stays red.
+- **Service-role client for the action**, not anon — pragmatic given the unexplained RLS rejection. Still safe: server action, validated input, honeypot, no key exposure.
+- **Heading kept as "More sessions"** despite copy genericizing to "SVU events" — flag for next session if it bugs anyone.
+
+### Things flagged but deferred
+- **The RLS rejection on `event_notify_subscribers`** — never root-caused. Same policy structure as `enquiries` works fine there. Worth running `SELECT policyname, cmd, roles, qual, with_check FROM pg_policies WHERE tablename = 'event_notify_subscribers';` someday to compare actual stored policy text. Service-role bypass is durable enough that this is not blocking.
+- **Unsubscribe flow** — `unsubscribed_at` column is in the schema; no `/unsubscribe` route built yet. Will be needed before any actual broadcast send.
+- **Admin subscriber-list UI** — out of scope this round.
+
+### Memory updated
+- Added `swinburne_exchange_drops_svu3d.md` — durable note that "Delivered" in Resend ≠ arrived in inbox for `@swin.edu.au` recipients, so admin emails are dual-addressed to `carlknox@gmail.com` as workaround. Surfaces in MEMORY.md index.
+
+### Files changed
+- `supabase/migrations/019_event_notify_subscribers.sql` (new)
+- `src/types/index.ts` (added `EventNotifySubscriber`)
+- `src/lib/email/send-event-notify-welcome.ts` (new)
+- `src/lib/email/send-event-notify-admin-notification.ts` (new)
+- `src/app/events/actions.ts` (new)
+- `src/app/events/notify-me-card.tsx` (new)
+- `src/app/events/page.tsx` (1 import + card insertion)
+
+### Commits
+- `960cb64` feat: notify-me signup card on /events for future sessions
+- `9e68725` debug: surface supabase error on notify signup + harden honeypot hiding
+- `2e333b3` fix: notify-me signup uses admin client to bypass RLS quirk
+
+### Remaining / Not Started
+- [ ] `/admin/reports` — placeholder only
+- [ ] `/admin/maintenance` — placeholder only
+- [ ] `/admin/tickets` search page
+- [ ] `/admin/subscribers` — list/CSV/broadcast composer for the notify-me list
+- [ ] `/unsubscribe?token=…` route (column exists, route does not)
+- [ ] `agents/` directory — no agents implemented
+- [ ] `emails/` directory — no React Email templates
+- [ ] SAML 2.0 SSO — blocked on Swinburne IT
+- [ ] Conflict detection in `createBookingRequest`
+- [ ] Google Calendar integration
+- [ ] Re-enable homepage "Get tickets" hero button (still "Coming soon" `<span>`)
+- [ ] Day-one baseline entries on `/staff/visitors`
+- [ ] DMARC DNS record + Swinburne Exchange whitelist (Carl emailed IT 2026-05-01; waiting)
+- [ ] Pre-existing 25 lint errors across the codebase
+- [ ] Root-cause RLS rejection on `event_notify_subscribers` (deferred — service-role bypass works)
+
+---
+
 ## Blockers & Open Questions
 
 | Issue | Status | Notes |
