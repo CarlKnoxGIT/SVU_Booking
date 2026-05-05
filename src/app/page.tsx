@@ -24,7 +24,7 @@ async function getVisitorStats() {
     totals.set(e.category_id, (totals.get(e.category_id) ?? 0) + (e.count ?? 0))
   }
 
-  const breakdown = (cats ?? []).map((c) => ({
+  const rawBreakdown = (cats ?? []).map((c) => ({
     id: c.id,
     slug: c.slug as string,
     label: c.label,
@@ -32,9 +32,23 @@ async function getVisitorStats() {
     total: totals.get(c.id) ?? 0,
   }))
 
-  const heroTotal = breakdown
+  const heroTotal = rawBreakdown
     .filter((c) => !c.is_activity)
     .reduce((sum, c) => sum + c.total, 0)
+
+  // Display-only merges/relabels for the public tiles. The entry form on
+  // /staff/visitors keeps the underlying categories distinct.
+  const vipTotal = rawBreakdown.find((c) => c.slug === 'vip')?.total ?? 0
+  const breakdown = rawBreakdown.flatMap((c) => {
+    if (c.slug === 'vip') return []
+    if (c.slug === 'industry') {
+      return [{ ...c, label: 'Industry and VIP', total: c.total + vipTotal }]
+    }
+    if (c.slug === 'academics') {
+      return [{ ...c, label: 'Academics and staff' }]
+    }
+    return [c]
+  })
 
   return { heroTotal, breakdown }
 }
