@@ -142,11 +142,11 @@ export default async function Home() {
             )}
 
             {breakdown.length > 0 && (
-              <div className="mx-auto grid max-w-3xl grid-cols-1 gap-4 sm:grid-cols-3">
+              <div className="mx-auto grid max-w-4xl grid-cols-2 gap-4 md:grid-cols-4">
                 {breakdown.map((s) => (
                   <div
                     key={s.id}
-                    className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-5"
+                    className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-5 text-center"
                   >
                     <p className="text-xs font-medium tracking-wide text-white/55 uppercase">
                       {s.label}
