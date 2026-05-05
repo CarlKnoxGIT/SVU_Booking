@@ -637,6 +637,61 @@ In `src/app/events/page.tsx`, replace the "Coming soon" `<span>` block with:
 
 ---
 
+## Session 14 — 2026-05-06
+
+### Completed
+
+#### Visitor breakdown tiles — merges, relabels, layout
+- [x] Public landing page tiles consolidated: VIP folded into the Industry tile (now reads "Industry and VIP", totals summed), and the Academics tile relabelled to "Academics and staff" so the public copy reflects who's actually being counted there
+- [x] Merge done in the page render layer (`getVisitorStats` post-processes `rawBreakdown`) — the underlying `visitor_categories` rows stay distinct so `/staff/visitors` entry form still records VIP and Industry separately, and Academics keeps its short label there
+- [x] Hero "Total Visitors" calc unchanged — still sums all non-activity categories from `rawBreakdown` before the merge runs
+- [x] Tile grid recentred: with the merges + new Community category, switched from `grid-cols-2 md:grid-cols-3 lg:grid-cols-4` to `grid-cols-2 md:grid-cols-4` inside `mx-auto max-w-4xl` so all four tiles fit on one row at desktop widths and 2x2 on mobile (no dangling tiles)
+- [x] Tile content now centred — added `text-center` on each tile so label + count sit dead-centre
+
+#### New "Community" category
+- [x] `020_visitor_community_category.sql` — adds the `community` slug at `sort_order = 15`, slotting between Students (10) and Industry (25)
+- [x] Applied to production Supabase via SQL Editor
+- [x] Tile auto-renders via the existing `getVisitorStats` flow — no per-category UI plumbing needed
+
+### Decisions Made
+- **Display-merge VIP+Industry on the public dashboard, but keep them distinct in the DB** — public-facing copy reads cleaner as one bucket, but staff still need to record them separately for ops/reporting. The merge lives in `src/app/page.tsx`, not in a migration
+- **Academics tile keeps short label inside the entry form** — only the public tile reads "Academics and staff"; the entry form is for staff who already know the category includes both
+- **Community at sort_order 15**, not at the end — likely to be a high-count bucket alongside Students, so it sits near the top of the grid
+- **`grid-cols-2` on mobile** preferred over `grid-cols-1` stack — 4 short labels and large numbers read fine at half-screen width and the section feels less tall
+
+### Things flagged but deferred (still)
+- Re-enable homepage "Get tickets" hero button (still "Coming soon")
+- Day-one baseline entries on `/staff/visitors` for each people category
+- All other carried items unchanged
+
+### Files changed
+- `src/app/page.tsx` (display-merge logic + grid + tile centring)
+- `supabase/migrations/020_visitor_community_category.sql` (new)
+
+### Commits
+- `8785228` ui: merge VIP into Industry tile, relabel Academics on landing page
+- `086772b` ui: centre visitor breakdown tiles with narrower 3-col grid
+- `b8ef775` feat: community visitor category + 4-up centered tile layout
+
+### Remaining / Not Started
+- [ ] `/admin/reports` — placeholder only
+- [ ] `/admin/maintenance` — placeholder only
+- [ ] `/admin/tickets` search page
+- [ ] CSV export + broadcast composer for the mailing list
+- [ ] `/unsubscribe?token=…` route (column still unused)
+- [ ] `agents/` directory — no agents implemented
+- [ ] `emails/` directory — no React Email templates
+- [ ] SAML 2.0 SSO — blocked on Swinburne IT
+- [ ] Conflict detection in `createBookingRequest`
+- [ ] Google Calendar integration
+- [ ] Re-enable homepage "Get tickets" hero button
+- [ ] Day-one baseline entries on `/staff/visitors`
+- [ ] DMARC DNS record + Swinburne Exchange whitelist
+- [ ] Pre-existing 25 lint errors across the codebase
+- [ ] Root-cause RLS rejection on `event_notify_subscribers` (deferred)
+
+---
+
 ## Blockers & Open Questions
 
 | Issue | Status | Notes |
