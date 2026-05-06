@@ -37,7 +37,7 @@ export default async function TicketsPage({ params }: { params: Promise<{ id: st
         </Link>
         <Link
           href="/events"
-          className="text-sm text-white/60 hover:text-white transition-colors"
+          className="text-sm text-white hover:text-white/85 transition-colors"
         >
           ← All events
         </Link>
@@ -65,7 +65,7 @@ export default async function TicketsPage({ params }: { params: Promise<{ id: st
             </p>
             <h1 className="text-4xl sm:text-5xl font-light leading-tight mb-5">{event.title}</h1>
             {event.description && (
-              <p className="text-lg text-white/80 leading-relaxed">{event.description}</p>
+              <p className="text-lg text-white leading-relaxed">{event.description}</p>
             )}
 
             <div className="mt-8 space-y-5 border-t border-white/10 pt-8">
@@ -75,8 +75,8 @@ export default async function TicketsPage({ params }: { params: Promise<{ id: st
                 { label: 'Tickets', value: `${ticketsLeft} of ${capacity} remaining` },
               ].map(({ label, value }) => (
                 <div key={label} className="flex gap-6 text-base">
-                  <span className="w-20 flex-shrink-0 text-white/50 font-medium">{label}</span>
-                  <span className="text-white/90">{value}</span>
+                  <span className="w-20 flex-shrink-0 text-white/85 font-medium">{label}</span>
+                  <span className="text-white">{value}</span>
                 </div>
               ))}
             </div>
@@ -85,23 +85,23 @@ export default async function TicketsPage({ params }: { params: Promise<{ id: st
           {/* Checkout panel */}
           <div className="lg:col-span-2">
             <div className="border border-white/15 bg-white/[0.04] p-8 sticky top-8">
-              <p className="text-sm font-bold tracking-widest text-white/60 uppercase mb-6">
+              <p className="text-sm font-bold tracking-widest text-white uppercase mb-6">
                 {soldOut ? 'Sold out' : event.humanitix_url ? 'Tickets' : 'Coming soon'}
               </p>
 
               {soldOut ? (
                 <div className="text-center py-8">
-                  <p className="text-white/80 text-base">This event is sold out.</p>
+                  <p className="text-white text-base">This event is sold out.</p>
                   <Link
                     href="/events"
-                    className="mt-6 inline-flex rounded-full border border-white/20 px-5 py-2 text-sm text-white/70 hover:text-white hover:border-white/40 transition-all"
+                    className="mt-6 inline-flex rounded-full border border-white/20 px-5 py-2 text-sm text-white hover:bg-white/5 hover:border-white/40 transition-all"
                   >
                     Browse other events
                   </Link>
                 </div>
               ) : event.humanitix_url ? (
                 <div className="space-y-4">
-                  <p className="text-white/80 text-sm leading-relaxed">
+                  <p className="text-white text-base leading-relaxed">
                     Tickets are sold via Eventbrite. You'll be redirected to complete your booking.
                   </p>
                   <a

@@ -35,12 +35,12 @@ export default function CancelForm({ token }: { token: string }) {
     return (
       <div className="text-center">
         <p className="text-white text-lg font-light mb-2">Tickets cancelled.</p>
-        <p className="text-white/50 text-sm mb-6">
+        <p className="text-white text-base mb-6">
           {refunded
             ? 'Your refund has been processed and will appear within 5–10 business days.'
             : 'Your tickets have been cancelled.'}
         </p>
-        <Link href="/events" className="text-sm text-white/40 hover:text-white/70 underline transition-colors">
+        <Link href="/events" className="text-sm text-white/85 hover:text-white underline transition-colors">
           Browse other events
         </Link>
       </div>
@@ -66,7 +66,7 @@ export default function CancelForm({ token }: { token: string }) {
       </button>
       <Link
         href="/events"
-        className="w-full rounded-xl border border-white/10 px-4 py-3 text-sm font-medium text-white/50 hover:text-white/80 hover:border-white/20 transition-colors text-center"
+        className="w-full rounded-xl border border-white/10 px-4 py-3 text-sm font-medium text-white hover:bg-white/5 hover:border-white/20 transition-colors text-center"
       >
         Keep my tickets
       </Link>

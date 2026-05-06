@@ -56,7 +56,7 @@ export default function EnquirePage() {
 
           {/* Left — what's included */}
           <div className="lg:col-span-2">
-            <p className="text-[11px] font-bold tracking-[0.18em] text-white/25 uppercase mb-8">
+            <p className="text-[12px] font-bold tracking-[0.18em] text-white/85 uppercase mb-8">
               What's included
             </p>
             <div className="space-y-6">
@@ -68,26 +68,26 @@ export default function EnquirePage() {
                 { title: 'Custom content', desc: 'Bring your own visuals or work with our team to create something bespoke.' },
               ].map(({ title, desc }) => (
                 <div key={title} className="border-t border-white/[0.06] pt-6">
-                  <h4 className="text-[14px] font-semibold text-white mb-1">{title}</h4>
-                  <p className="text-[13px] text-white/40 leading-relaxed">{desc}</p>
+                  <h4 className="text-[15px] font-semibold text-white mb-1">{title}</h4>
+                  <p className="text-[14px] text-white leading-relaxed">{desc}</p>
                 </div>
               ))}
             </div>
 
             <div className="mt-12 border border-white/[0.07] bg-white/[0.02] p-6">
-              <p className="text-[11px] font-bold tracking-[0.16em] text-white/25 uppercase mb-3">Location</p>
-              <p className="text-[14px] text-white/70 leading-relaxed">
+              <p className="text-[12px] font-bold tracking-[0.16em] text-white/85 uppercase mb-3">Location</p>
+              <p className="text-[15px] text-white leading-relaxed">
                 Swinburne, Hawthorn Campus<br />
                 ATC Building, Room 103<br />
-                <span className="text-white/35 text-[12px]">Free parking available on evenings and weekends</span>
+                <span className="text-white/75 text-[13px]">Free parking available on evenings and weekends</span>
               </p>
             </div>
 
             <div className="mt-6 border border-white/[0.07] bg-white/[0.02] p-6">
-              <p className="text-[11px] font-bold tracking-[0.16em] text-white/25 uppercase mb-3">Contact</p>
+              <p className="text-[12px] font-bold tracking-[0.16em] text-white/85 uppercase mb-3">Contact</p>
               <a
                 href="mailto:svu@swin.edu.au"
-                className="text-[14px] text-swin-red-light hover:text-white transition-colors duration-200"
+                className="text-[15px] text-swin-red-light hover:text-white transition-colors duration-200"
               >
                 svu@swin.edu.au
               </a>
@@ -96,7 +96,7 @@ export default function EnquirePage() {
 
           {/* Right — form */}
           <div className="lg:col-span-3">
-            <p className="text-[11px] font-bold tracking-[0.18em] text-white/25 uppercase mb-8">
+            <p className="text-[12px] font-bold tracking-[0.18em] text-white/85 uppercase mb-8">
               Send an enquiry
             </p>
             <EnquiryForm />
@@ -110,13 +110,13 @@ export default function EnquirePage() {
         <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <SwinburneLogo className="h-7 w-auto opacity-60" />
-            <p className="text-[12px] text-white/20">Hawthorn Campus, Melbourne</p>
+            <p className="text-[13px] text-white/75">Hawthorn Campus, Melbourne</p>
           </div>
-          <div className="flex gap-6 text-[12px] text-white/25">
-            <Link href="/events" className="hover:text-white/60 transition-colors">Events</Link>
-            <Link href="/school-groups" className="hover:text-white/60 transition-colors">Schools</Link>
-            <Link href="/enquire" className="hover:text-white/60 transition-colors">Hire</Link>
-            <Link href="/login" className="hover:text-white/60 transition-colors">Staff</Link>
+          <div className="flex gap-6 text-[13px] text-white/75">
+            <Link href="/events" className="hover:text-white transition-colors">Events</Link>
+            <Link href="/school-groups" className="hover:text-white transition-colors">Schools</Link>
+            <Link href="/enquire" className="hover:text-white transition-colors">Hire</Link>
+            <Link href="/login" className="hover:text-white transition-colors">Staff</Link>
           </div>
         </div>
       </footer>

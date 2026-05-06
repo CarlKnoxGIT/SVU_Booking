@@ -126,13 +126,13 @@ export default async function Home() {
             <h2 className="text-3xl sm:text-4xl font-light leading-tight text-white text-center mb-3">
               Lives touched.<br />Universes shared.
             </h2>
-            <p className="text-[13px] text-white/45 text-center mb-14">
+            <p className="text-[15px] text-white text-center mb-14">
               Since opening the SVU
             </p>
 
             {heroTotal > 0 && (
               <div className="text-center mb-16">
-                <p className="text-[11px] uppercase tracking-[0.2em] text-white/45 mb-3">
+                <p className="text-[13px] uppercase tracking-[0.2em] text-white mb-3">
                   Total Visitors
                 </p>
                 <p className="text-7xl sm:text-8xl font-light tracking-tight text-swin-red-light leading-none">
@@ -148,7 +148,7 @@ export default async function Home() {
                     key={s.id}
                     className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-5 text-center"
                   >
-                    <p className="text-xs font-medium tracking-wide text-white/55 uppercase">
+                    <p className="text-sm font-medium tracking-wide text-white uppercase">
                       {s.label}
                     </p>
                     <p className="mt-3 text-4xl font-semibold tracking-tight text-swin-red-light">

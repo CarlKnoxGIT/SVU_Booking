@@ -19,7 +19,7 @@ export function EnquiryForm() {
       <div className="border border-white/[0.07] bg-white/[0.02] p-10 text-center">
         <div className="mb-4 text-4xl">✓</div>
         <h2 className="text-xl font-light text-white mb-2">Enquiry received</h2>
-        <p className="text-[13px] text-white/40 leading-relaxed">
+        <p className="text-[15px] text-white leading-relaxed">
           Thanks for reaching out. A member of our team will be in touch within 2 business days.
         </p>
       </div>
@@ -30,7 +30,7 @@ export function EnquiryForm() {
     <form action={formAction} className="space-y-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div className="space-y-2">
-          <Label htmlFor="name" className="text-[12px] text-white/50 uppercase tracking-wide">
+          <Label htmlFor="name" className="text-[13px] text-white/85 uppercase tracking-wide">
             Name
           </Label>
           <Input
@@ -43,7 +43,7 @@ export function EnquiryForm() {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="email" className="text-[12px] text-white/50 uppercase tracking-wide">
+          <Label htmlFor="email" className="text-[13px] text-white/85 uppercase tracking-wide">
             Email
           </Label>
           <Input
@@ -58,7 +58,7 @@ export function EnquiryForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="organisation" className="text-[12px] text-white/50 uppercase tracking-wide">
+        <Label htmlFor="organisation" className="text-[13px] text-white/85 uppercase tracking-wide">
           Organisation
         </Label>
         <Input
@@ -72,7 +72,7 @@ export function EnquiryForm() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div className="space-y-2">
-          <Label htmlFor="event_type" className="text-[12px] text-white/50 uppercase tracking-wide">
+          <Label htmlFor="event_type" className="text-[13px] text-white/85 uppercase tracking-wide">
             Event type
           </Label>
           <select
@@ -91,7 +91,7 @@ export function EnquiryForm() {
           </select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="guest_count" className="text-[12px] text-white/50 uppercase tracking-wide">
+          <Label htmlFor="guest_count" className="text-[13px] text-white/85 uppercase tracking-wide">
             Estimated guests
           </Label>
           <Input
@@ -107,7 +107,7 @@ export function EnquiryForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="preferred_date" className="text-[12px] text-white/50 uppercase tracking-wide">
+        <Label htmlFor="preferred_date" className="text-[13px] text-white/85 uppercase tracking-wide">
           Preferred date(s)
         </Label>
         <Input
@@ -120,7 +120,7 @@ export function EnquiryForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="message" className="text-[12px] text-white/50 uppercase tracking-wide">
+        <Label htmlFor="message" className="text-[13px] text-white/85 uppercase tracking-wide">
           Message
         </Label>
         <textarea

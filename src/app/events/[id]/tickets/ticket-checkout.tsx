@@ -56,22 +56,22 @@ export function TicketCheckout({ eventId, ticketPrice, isFree, ticketsLeft }: Pr
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Price */}
       <div className="flex items-baseline justify-between text-base">
-        <span className="text-white/75">{isFree ? 'Free entry' : `$${ticketPrice.toFixed(2)} per ticket`}</span>
+        <span className="text-white">{isFree ? 'Free entry' : `$${ticketPrice.toFixed(2)} per ticket`}</span>
         {!isFree && quantity > 1 && (
-          <span className="text-white/75">Total: <span className="text-white font-semibold">${total.toFixed(2)}</span></span>
+          <span className="text-white">Total: <span className="text-white font-semibold">${total.toFixed(2)}</span></span>
         )}
       </div>
 
       {/* Name + Email */}
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="name" className="text-sm text-white/70 font-medium">Name</Label>
+          <Label htmlFor="name" className="text-sm text-white font-medium">Name</Label>
           <Input id="name" type="text" required value={name} onChange={e => setName(e.target.value)}
             placeholder="Your name"
             className="border-white/20 bg-white/8 text-white text-base h-11 placeholder:text-white/30 focus-visible:ring-swin-red rounded-none" />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="email" className="text-sm text-white/70 font-medium">Email</Label>
+          <Label htmlFor="email" className="text-sm text-white font-medium">Email</Label>
           <Input id="email" type="email" required value={email} onChange={e => setEmail(e.target.value)}
             placeholder="your@email.com"
             className="border-white/20 bg-white/8 text-white text-base h-11 placeholder:text-white/30 focus-visible:ring-swin-red rounded-none" />
@@ -80,7 +80,7 @@ export function TicketCheckout({ eventId, ticketPrice, isFree, ticketsLeft }: Pr
 
       {/* Quantity */}
       <div>
-        <p className="text-sm font-medium text-white/70 mb-3">Number of tickets</p>
+        <p className="text-sm font-medium text-white mb-3">Number of tickets</p>
         <div className="flex items-center gap-5">
           <button type="button" onClick={() => setQuantity(q => Math.max(1, q - 1))} disabled={quantity <= 1}
             className="w-11 h-11 flex items-center justify-center border border-white/20 text-white text-xl hover:border-white/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
@@ -91,7 +91,7 @@ export function TicketCheckout({ eventId, ticketPrice, isFree, ticketsLeft }: Pr
             className="w-11 h-11 flex items-center justify-center border border-white/20 text-white text-xl hover:border-white/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
             +
           </button>
-          <span className="text-sm text-white/60">{ticketsLeft} left</span>
+          <span className="text-sm text-white">{ticketsLeft} left</span>
         </div>
       </div>
 
@@ -103,7 +103,7 @@ export function TicketCheckout({ eventId, ticketPrice, isFree, ticketsLeft }: Pr
       </Button>
 
       {!isFree && (
-        <p className="text-sm text-white/50 text-center">Powered by Stripe. Secure payment.</p>
+        <p className="text-sm text-white/85 text-center">Powered by Stripe. Secure payment.</p>
       )}
     </form>
   )

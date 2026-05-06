@@ -64,11 +64,11 @@ export default async function EventsPage() {
         </ParallaxHero>
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/70" />
         <div className="absolute inset-0 flex flex-col items-center justify-end pb-10 text-center">
-          <Link href="/" className="text-[10px] font-bold tracking-[0.2em] text-white/40 uppercase hover:text-white/70 transition-colors mb-3">
+          <Link href="/" className="text-[11px] font-bold tracking-[0.2em] text-white/80 uppercase hover:text-white transition-colors mb-3">
             Swinburne's Virtual Universe
           </Link>
           <h1 className="text-4xl font-light tracking-tight">Upcoming Events</h1>
-          <p className="mt-2 text-sm text-white/60">Immersive experiences on a 100m² curved LED wall.</p>
+          <p className="mt-2 text-base text-white">Immersive experiences on a 100m² curved LED wall.</p>
         </div>
       </div>
 
@@ -98,19 +98,19 @@ export default async function EventsPage() {
                       )}
                       <h2 className="text-[20px] font-semibold text-white">{event.title}</h2>
                       {event.description && (
-                        <p className="mt-2 text-[15px] text-white/70 leading-relaxed line-clamp-2">
+                        <p className="mt-2 text-[16px] text-white leading-relaxed line-clamp-2">
                           {event.description}
                         </p>
                       )}
 
-                      <div className="mt-4 flex items-center gap-4 text-[13px]">
+                      <div className="mt-4 flex items-center gap-4 text-[14px]">
                         <span className="font-semibold text-white">
                           {event.ticket_price === 0 || event.ticket_price === null
                             ? 'Free'
                             : `$${event.ticket_price}`}
                         </span>
                         {live && !soldOut && (
-                          <span className={ticketsLeft <= 10 ? 'text-swin-red-light font-medium' : 'text-white/60'}>
+                          <span className={ticketsLeft <= 10 ? 'text-swin-red-light font-medium' : 'text-white'}>
                             {ticketsLeft} of {live.capacity} tickets left
                           </span>
                         )}
@@ -144,8 +144,8 @@ export default async function EventsPage() {
         ) : (
           <div className="space-y-4">
             <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] px-6 py-24 text-center">
-              <p className="text-white/50 text-sm">No upcoming events scheduled.</p>
-              <p className="mt-2 text-white/35 text-xs">Check back soon.</p>
+              <p className="text-white text-base">No upcoming events scheduled.</p>
+              <p className="mt-2 text-white/75 text-sm">Check back soon.</p>
             </div>
             <NotifyMeCard />
           </div>

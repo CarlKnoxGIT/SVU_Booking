@@ -45,7 +45,7 @@ export default function SchoolGroupsPage() {
           <h1 className="text-4xl sm:text-6xl font-light leading-[1.06] tracking-[-1px] mb-5">
             Bring the cosmos<br />into the classroom
           </h1>
-          <p className="text-white/50 text-base leading-relaxed max-w-md">
+          <p className="text-white text-lg leading-relaxed max-w-md">
             Curriculum-aligned immersive sessions inside a 100m² curved LED wall.
             Built for primary through to VCE.
           </p>
@@ -65,14 +65,14 @@ export default function SchoolGroupsPage() {
           ].map(({ value, label }) => (
             <div key={label}>
               <p className="text-2xl font-light text-white mb-1">{value}</p>
-              <p className="text-[12px] text-white/35 uppercase tracking-wide">{label}</p>
+              <p className="text-[13px] text-white/85 uppercase tracking-wide">{label}</p>
             </div>
           ))}
         </div>
 
         {/* Programs */}
         <div className="mb-20">
-          <p className="text-[11px] font-bold tracking-[0.18em] text-white/25 uppercase mb-10">
+          <p className="text-[12px] font-bold tracking-[0.18em] text-white/85 uppercase mb-10">
             Programs
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -104,7 +104,7 @@ export default function SchoolGroupsPage() {
                   {program.level} · {program.years}
                 </p>
                 <h3 className="text-lg font-light text-white mb-3">{program.title}</h3>
-                <p className="text-[13px] text-white/40 leading-relaxed">{program.desc}</p>
+                <p className="text-[14px] text-white leading-relaxed">{program.desc}</p>
               </div>
             ))}
           </div>
@@ -112,7 +112,7 @@ export default function SchoolGroupsPage() {
 
         {/* How it works */}
         <div className="mb-20">
-          <p className="text-[11px] font-bold tracking-[0.18em] text-white/25 uppercase mb-10">
+          <p className="text-[12px] font-bold tracking-[0.18em] text-white/85 uppercase mb-10">
             How it works
           </p>
           <div className="space-y-8">
@@ -122,10 +122,10 @@ export default function SchoolGroupsPage() {
               { step: '03', title: 'Visit the SVU', desc: 'Arrive at Swinburne\'s Hawthorn Campus. Your facilitator will run the full session — no preparation required.' },
             ].map(({ step, title, desc }) => (
               <div key={step} className="flex gap-8 items-start border-t border-white/[0.06] pt-8">
-                <p className="text-[11px] font-bold text-white/20 w-8 flex-shrink-0 mt-0.5">{step}</p>
+                <p className="text-[12px] font-bold text-white/70 w-8 flex-shrink-0 mt-0.5">{step}</p>
                 <div>
-                  <h4 className="text-[15px] font-semibold text-white mb-1">{title}</h4>
-                  <p className="text-[13px] text-white/40 leading-relaxed">{desc}</p>
+                  <h4 className="text-[16px] font-semibold text-white mb-1">{title}</h4>
+                  <p className="text-[14px] text-white leading-relaxed">{desc}</p>
                 </div>
               </div>
             ))}
@@ -136,7 +136,7 @@ export default function SchoolGroupsPage() {
         <div className="border border-white/[0.07] bg-white/[0.02] p-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div>
             <h2 className="text-2xl font-light text-white mb-2">Ready to book?</h2>
-            <p className="text-[13px] text-white/40">Group sizes from 20 to 60 students. Weekdays during school terms.</p>
+            <p className="text-[14px] text-white/85">Group sizes from 20 to 60 students. Weekdays during school terms.</p>
           </div>
           <Link
             href="/enquire?type=school"
@@ -152,13 +152,13 @@ export default function SchoolGroupsPage() {
         <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <SwinburneLogo className="h-7 w-auto opacity-60" />
-            <p className="text-[12px] text-white/20">Hawthorn Campus, Melbourne</p>
+            <p className="text-[13px] text-white/75">Hawthorn Campus, Melbourne</p>
           </div>
-          <div className="flex gap-6 text-[12px] text-white/25">
-            <Link href="/events" className="hover:text-white/60 transition-colors">Events</Link>
-            <Link href="/school-groups" className="hover:text-white/60 transition-colors">Schools</Link>
-            <Link href="/enquire" className="hover:text-white/60 transition-colors">Hire</Link>
-            <Link href="/login" className="hover:text-white/60 transition-colors">Staff</Link>
+          <div className="flex gap-6 text-[13px] text-white/75">
+            <Link href="/events" className="hover:text-white transition-colors">Events</Link>
+            <Link href="/school-groups" className="hover:text-white transition-colors">Schools</Link>
+            <Link href="/enquire" className="hover:text-white transition-colors">Hire</Link>
+            <Link href="/login" className="hover:text-white transition-colors">Staff</Link>
           </div>
         </div>
       </footer>

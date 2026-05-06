@@ -50,33 +50,33 @@ export default async function TicketSuccessPage({
           </div>
 
           <h1 className="text-3xl font-light mb-3">You&apos;re in.</h1>
-          <p className="text-white/40 text-[15px] leading-relaxed mb-2">
+          <p className="text-white text-[16px] leading-relaxed mb-2">
             Your tickets for{' '}
-            <span className="text-white/70">{event?.title ?? 'this event'}</span>{' '}
+            <span className="text-white font-semibold">{event?.title ?? 'this event'}</span>{' '}
             have been confirmed.
           </p>
           {date && event?.start_time && (
-            <p className="text-white/30 text-[13px] mb-10">
+            <p className="text-white/85 text-[14px] mb-10">
               {date} · {event.start_time.slice(0, 5)}
             </p>
           )}
 
           {qrDataUrl && (
             <div className="border border-white/[0.07] bg-white/[0.02] p-6 mb-6 flex flex-col items-center gap-3">
-              <p className="text-[11px] text-white/30 uppercase tracking-wide font-bold self-start">Your entry ticket</p>
+              <p className="text-[12px] text-white/85 uppercase tracking-wide font-bold self-start">Your entry ticket</p>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={qrDataUrl} alt="Entry QR code" className="w-40 h-40" />
-              <p className="text-[11px] text-white/25">Show this at the door</p>
+              <p className="text-[13px] text-white">Show this at the door</p>
             </div>
           )}
 
           <div className="border border-white/[0.07] bg-white/[0.02] p-6 mb-8 text-left space-y-3">
-            <p className="text-[12px] text-white/30 uppercase tracking-wide font-bold mb-4">What happens next</p>
+            <p className="text-[13px] text-white/85 uppercase tracking-wide font-bold mb-4">What happens next</p>
             {[
               'A confirmation email has been sent with your QR code.',
               'Arrive at Swinburne Hawthorn Campus, ATC Building Room 103, 10 minutes before the session.',
             ].map((step, i) => (
-              <div key={i} className="flex gap-3 text-[13px] text-white/50">
+              <div key={i} className="flex gap-3 text-[14px] text-white">
                 <span className="text-swin-red-light flex-shrink-0">·</span>
                 <span>{step}</span>
               </div>
@@ -86,7 +86,7 @@ export default async function TicketSuccessPage({
           <div className="flex gap-3 justify-center">
             <Link
               href="/events"
-              className="rounded-full border border-white/15 px-6 py-2.5 text-[13px] text-white/50 hover:text-white hover:border-white/30 transition-all"
+              className="rounded-full border border-white/20 px-6 py-2.5 text-[14px] text-white hover:bg-white/5 hover:border-white/40 transition-all"
             >
               Browse more events
             </Link>

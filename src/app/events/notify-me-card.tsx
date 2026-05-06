@@ -21,7 +21,7 @@ export function NotifyMeCard() {
         <div className="relative">
           <div className="mb-3 text-4xl text-sky-300">✦</div>
           <h2 className="text-[22px] font-semibold text-white mb-1">You&rsquo;re on the list</h2>
-          <p className="text-[13px] text-white/60 leading-relaxed">
+          <p className="text-[14px] text-white leading-relaxed">
             We&rsquo;ll email you when new SVU events are announced.
           </p>
         </div>
@@ -46,14 +46,14 @@ export function NotifyMeCard() {
         <h2 className="text-[26px] font-semibold text-white leading-tight tracking-tight">
           More sessions <span className="text-sky-300">coming soon</span>
         </h2>
-        <p className="mt-3 text-[15px] text-white/75 leading-relaxed max-w-prose">
+        <p className="mt-3 text-[16px] text-white leading-relaxed max-w-prose">
           Be the first to know. Drop your name and email and we&rsquo;ll let you know the moment SVU events go live — one email, no spam, ever.
         </p>
 
       <form action={formAction} className="mt-6 space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="notify_name" className="text-[12px] text-white/50 uppercase tracking-wide">
+            <Label htmlFor="notify_name" className="text-[13px] text-white/85 uppercase tracking-wide">
               Name
             </Label>
             <Input
@@ -67,7 +67,7 @@ export function NotifyMeCard() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="notify_email" className="text-[12px] text-white/50 uppercase tracking-wide">
+            <Label htmlFor="notify_email" className="text-[13px] text-white/85 uppercase tracking-wide">
               Email
             </Label>
             <Input

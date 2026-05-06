@@ -62,39 +62,39 @@ export default async function CancelTicketPage({ searchParams }: Props) {
 
       <div className="flex flex-1 items-center justify-center px-6 py-16">
         <div className="w-full max-w-md">
-          <p className="text-[11px] font-bold tracking-[0.18em] text-white/30 uppercase mb-6">
+          <p className="text-[12px] font-bold tracking-[0.18em] text-white/85 uppercase mb-6">
             Swinburne's Virtual Universe
           </p>
 
           <h1 className="text-3xl font-light mb-2">Cancel tickets</h1>
-          <p className="text-white/50 text-sm mb-8">
+          <p className="text-white text-base mb-8">
             You're about to cancel {ticket.quantity} {ticketWord} for the following event.
           </p>
 
           {/* Event summary */}
           <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 mb-8">
-            <p className="text-[11px] font-semibold tracking-wide text-white/30 uppercase mb-1">Event</p>
+            <p className="text-[12px] font-semibold tracking-wide text-white/85 uppercase mb-1">Event</p>
             <p className="text-white font-semibold text-lg mb-4">{event?.title ?? '—'}</p>
 
             {formattedDate && (
               <div className="mb-3">
-                <p className="text-[11px] font-semibold tracking-wide text-white/30 uppercase mb-0.5">Date</p>
-                <p className="text-white/70 text-sm">{formattedDate}</p>
+                <p className="text-[12px] font-semibold tracking-wide text-white/85 uppercase mb-0.5">Date</p>
+                <p className="text-white text-base">{formattedDate}</p>
               </div>
             )}
 
             {event?.start_time && (
               <div className="mb-3">
-                <p className="text-[11px] font-semibold tracking-wide text-white/30 uppercase mb-0.5">Time</p>
-                <p className="text-white/70 text-sm">
+                <p className="text-[12px] font-semibold tracking-wide text-white/85 uppercase mb-0.5">Time</p>
+                <p className="text-white text-base">
                   {event.start_time.slice(0, 5)}{event.end_time ? `–${event.end_time.slice(0, 5)}` : ''}
                 </p>
               </div>
             )}
 
             <div>
-              <p className="text-[11px] font-semibold tracking-wide text-white/30 uppercase mb-0.5">Tickets</p>
-              <p className="text-white/70 text-sm">{ticket.quantity} × {event?.title ?? 'ticket'}</p>
+              <p className="text-[12px] font-semibold tracking-wide text-white/85 uppercase mb-0.5">Tickets</p>
+              <p className="text-white text-base">{ticket.quantity} × {event?.title ?? 'ticket'}</p>
             </div>
           </div>
 
@@ -105,7 +105,7 @@ export default async function CancelTicketPage({ searchParams }: Props) {
           ) : (
             <>
               {isPaid && (
-                <p className="text-white/50 text-sm mb-6">
+                <p className="text-white text-base mb-6">
                   A full refund will be issued to your original payment method. Allow 5–10 business days.
                 </p>
               )}
@@ -128,11 +128,11 @@ function ErrorPage({ message }: { message: string }) {
       </nav>
       <div className="flex flex-1 items-center justify-center px-6">
         <div className="text-center max-w-sm">
-          <p className="text-[11px] font-bold tracking-[0.18em] text-white/30 uppercase mb-6">
+          <p className="text-[12px] font-bold tracking-[0.18em] text-white/85 uppercase mb-6">
             Swinburne's Virtual Universe
           </p>
-          <p className="text-white/60 text-sm">{message}</p>
-          <Link href="/events" className="mt-6 inline-block text-sm text-white/40 hover:text-white/70 underline transition-colors">
+          <p className="text-white text-base">{message}</p>
+          <Link href="/events" className="mt-6 inline-block text-sm text-white/85 hover:text-white underline transition-colors">
             Browse events
           </Link>
         </div>
