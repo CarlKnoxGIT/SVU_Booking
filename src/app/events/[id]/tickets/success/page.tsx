@@ -36,7 +36,7 @@ export default async function TicketSuccessPage({
     <main className="bg-black text-white min-h-screen flex flex-col">
       <nav className="flex items-center justify-between px-8 py-6 border-b border-white/[0.06]">
         <Link href="/">
-          <SwinburneLogo className="h-8 w-auto" />
+          <SwinburneLogo className="h-[89px] w-auto" />
         </Link>
       </nav>
 

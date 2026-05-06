@@ -33,7 +33,7 @@ export default async function TicketsPage({ params }: { params: Promise<{ id: st
       {/* Nav */}
       <nav className="flex items-center justify-between px-8 py-6 border-b border-white/10">
         <Link href="/">
-          <SwinburneLogo className="h-8 w-auto" />
+          <SwinburneLogo className="h-[89px] w-auto" />
         </Link>
         <Link
           href="/events"

@@ -56,7 +56,7 @@ export default async function CancelTicketPage({ searchParams }: Props) {
     <main className="min-h-screen bg-black text-white flex flex-col">
       <nav className="flex items-center justify-between px-8 py-6">
         <Link href="/">
-          <SwinburneLogo className="h-8 w-auto" />
+          <SwinburneLogo className="h-[89px] w-auto" />
         </Link>
       </nav>
 
@@ -123,7 +123,7 @@ function ErrorPage({ message }: { message: string }) {
     <main className="min-h-screen bg-black text-white flex flex-col">
       <nav className="flex items-center px-8 py-6">
         <Link href="/">
-          <SwinburneLogo className="h-8 w-auto" />
+          <SwinburneLogo className="h-[89px] w-auto" />
         </Link>
       </nav>
       <div className="flex flex-1 items-center justify-center px-6">

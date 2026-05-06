@@ -61,7 +61,9 @@ export default async function Home() {
 
       {/* ── Nav ──────────────────────────────────────────────── */}
       <nav className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-8 py-6">
-        <SwinburneLogo className="h-8 w-auto" />
+        <a href="https://www.swinburne.edu.au/" target="_blank" rel="noopener noreferrer" aria-label="Swinburne University of Technology homepage">
+          <SwinburneLogo className="h-[89px] w-auto" />
+        </a>
         <Link
           href="/login"
           className="rounded-full border border-white/15 bg-white/5 backdrop-blur-sm px-4 py-1.5 text-[12px] font-medium text-white hover:text-white hover:bg-white/10 transition-all duration-200"

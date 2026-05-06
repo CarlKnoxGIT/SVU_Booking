@@ -16,7 +16,7 @@ export default function EnquirePage() {
       {/* Nav */}
       <nav className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-8 py-6">
         <Link href="/">
-          <SwinburneLogo className="h-8 w-auto" />
+          <SwinburneLogo className="h-[89px] w-auto" />
         </Link>
         <Link
           href="/login"
