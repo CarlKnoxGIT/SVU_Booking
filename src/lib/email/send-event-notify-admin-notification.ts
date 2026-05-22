@@ -28,7 +28,7 @@ export async function sendEventNotifyAdminNotification(params: EventNotifyAdminP
 
   await resend.emails.send({
     from: FROM_ADDRESS,
-    to: ['cknox@swin.edu.au', 'carlknox@gmail.com'],
+    to: ['cknox@swin.edu.au', 'svu@swin.edu.au'],
     replyTo: email,
     subject: `New notify-me signup: ${name}`,
     text,

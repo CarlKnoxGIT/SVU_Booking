@@ -2,10 +2,11 @@ import Link from 'next/link'
 import Image from 'next/image'
 import SwinburneLogo from '@/components/swinburne-logo'
 import { ParallaxHero } from '@/components/parallax-hero'
+import { SchoolInterestForm } from './school-interest-form'
 
 export const metadata = {
   title: 'School Visits — Swinburne Virtual Universe',
-  description: 'Bring your class inside a 100m² curved LED wall. Curriculum-aligned immersive experiences for primary and secondary students.',
+  description: 'Bring your class inside a 100m² curved LED wall. Curriculum-aligned immersive experiences for primary and secondary students — coming soon.',
 }
 
 export default function SchoolGroupsPage() {
@@ -40,14 +41,13 @@ export default function SchoolGroupsPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/30 to-black/90" />
         <div className="relative z-10 px-8 sm:px-16 pb-16 max-w-2xl">
           <p className="text-[11px] font-bold tracking-[0.18em] text-swin-red-light uppercase mb-4">
-            Educational visits
+            Educational visits · Coming soon
           </p>
           <h1 className="text-4xl sm:text-6xl font-light leading-[1.06] tracking-[-1px] mb-5">
             Bring the cosmos<br />into the classroom
           </h1>
           <p className="text-white text-lg leading-relaxed max-w-md">
-            Curriculum-aligned immersive sessions inside a 100m² curved LED wall.
-            Built for primary through to VCE.
+            We're building curriculum-aligned sessions inside the SVU. Register your interest and we'll let you know when school visits open.
           </p>
         </div>
       </section>
@@ -73,7 +73,7 @@ export default function SchoolGroupsPage() {
         {/* Programs */}
         <div className="mb-20">
           <p className="text-[12px] font-bold tracking-[0.18em] text-white/85 uppercase mb-10">
-            Programs
+            Programs in development
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
@@ -110,16 +110,16 @@ export default function SchoolGroupsPage() {
           </div>
         </div>
 
-        {/* How it works */}
+        {/* What happens next */}
         <div className="mb-20">
           <p className="text-[12px] font-bold tracking-[0.18em] text-white/85 uppercase mb-10">
-            How it works
+            What happens next
           </p>
           <div className="space-y-8">
             {[
-              { step: '01', title: 'Submit an enquiry', desc: 'Tell us your year level, preferred dates, and group size. We\'ll confirm availability within 2 business days.' },
-              { step: '02', title: 'Receive a quote', desc: 'Pricing is per student. We\'ll send a formal quote and booking confirmation once dates are locked in.' },
-              { step: '03', title: 'Visit the SVU', desc: 'Arrive at Swinburne\'s Hawthorn Campus. Your facilitator will run the full session — no preparation required.' },
+              { step: '01', title: 'Register your interest', desc: 'Tell us about your school, year levels, and how many students. No commitment required — just let us know you\'re interested.' },
+              { step: '02', title: 'We\'ll be in touch', desc: 'Once sessions are ready, we\'ll reach out to registered schools first with availability and pricing information.' },
+              { step: '03', title: 'Visit the SVU', desc: 'Arrive at Swinburne\'s Hawthorn Campus. Your facilitator will run the full immersive session — no preparation required.' },
             ].map(({ step, title, desc }) => (
               <div key={step} className="flex gap-8 items-start border-t border-white/[0.06] pt-8">
                 <p className="text-[12px] font-bold text-white/70 w-8 flex-shrink-0 mt-0.5">{step}</p>
@@ -132,19 +132,15 @@ export default function SchoolGroupsPage() {
           </div>
         </div>
 
-        {/* CTA */}
-        <div className="border border-white/[0.07] bg-white/[0.02] p-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div>
-            <h2 className="text-2xl font-light text-white mb-2">Ready to book?</h2>
-            <p className="text-[14px] text-white/85">Group sizes from 20 to 60 students. Weekdays during school terms.</p>
+        {/* Interest form */}
+        <div className="border border-white/[0.07] bg-white/[0.02] p-10">
+          <div className="mb-8">
+            <h2 className="text-2xl font-light text-white mb-2">Register your interest</h2>
+            <p className="text-[14px] text-white/85">No commitment — we'll contact you when school sessions open.</p>
           </div>
-          <Link
-            href="/enquire?type=school"
-            className="flex-shrink-0 rounded-full bg-white text-black px-8 py-3 text-[14px] font-semibold hover:bg-white/90 transition-all duration-200"
-          >
-            Enquire now
-          </Link>
+          <SchoolInterestForm />
         </div>
+
       </section>
 
       {/* Footer */}
