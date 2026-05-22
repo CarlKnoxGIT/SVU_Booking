@@ -40,7 +40,7 @@ export async function submitSchoolInterest(_prevState: State, formData: FormData
 
   await resend.emails.send({
     from: FROM_ADDRESS,
-    to: ['svu@swin.edu.au'],
+    to: ['svu@swin.edu.au', 'cknox@swin.edu.au'],
     replyTo: email,
     subject: `School interest — ${name} (${school})`,
     text: [

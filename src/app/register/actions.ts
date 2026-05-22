@@ -36,7 +36,7 @@ export async function submitStaffRequest(_prev: unknown, formData: FormData) {
   // Notify admin
   await resend.emails.send({
     from: FROM_ADDRESS,
-    to: 'cknox@swin.edu.au',
+    to: ['cknox@swin.edu.au', 'svu@swin.edu.au'],
     subject: `Staff access request — ${full_name}`,
     html: `
       <p style="font-family:sans-serif;color:#fff;background:#000;padding:32px;">
