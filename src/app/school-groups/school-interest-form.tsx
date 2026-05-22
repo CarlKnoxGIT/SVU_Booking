@@ -66,7 +66,7 @@ export function SchoolInterestForm() {
           name="school"
           type="text"
           required
-          placeholder="e.g. Camberwell Grammar School"
+          placeholder="e.g. Riverside Primary School"
           className="border-white/10 bg-white/5 text-white placeholder:text-zinc-600 focus-visible:ring-swin-red rounded-none"
         />
       </div>
