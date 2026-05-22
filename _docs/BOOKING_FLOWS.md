@@ -31,35 +31,41 @@ Six distinct booking flows serve the different user communities. Each flow is pa
 
 ---
 
-## Flow 2: School Group / Education Outreach Request
+## Flow 2: School Group / Education Outreach — Interest Registration
 
-**User**: School / Education Contact
-**Auth**: Email-verified account
+> **Status: Interest-registration mode (2026-05-22).** School content and sessions are not yet built. The `/school-groups` page collects interest; actual booking flow is on hold until content is ready.
 
-### Steps
-1. Teacher registers/logs in
+**User**: School teacher / education coordinator (no login required)
+**Auth**: None — public form
+
+### Current Flow (Interest Registration)
+1. Teacher visits `/school-groups`
+2. Fills in **interest form** (inline on the page, no redirect):
+   - Name + email
+   - School name
+   - Year level(s) — Primary (3–6) / Lower Secondary (7–9) / Senior/VCE (10–12) / Mixed
+   - Approximate student count
+   - Optional notes
+3. Submission writes to `enquiries` table with `event_type: 'school'`, `status: 'new'`
+4. Admin notification sent to `svu@swin.edu.au` + `cknox@swin.edu.au`
+5. Admin follows up manually when sessions are available
+
+### Intended Future Flow (once content is ready)
+1. Teacher registers/logs in (email-verified account)
 2. Fills in structured **request form**:
    - School name, suburb, contact details
    - Group size, year level(s), subject/curriculum link
    - Preferred date range (not a specific slot)
    - Accessibility requirements
-   - Any specific content/experience requested
-3. **Intake Agent** receives the form submission:
-   - Validates completeness
-   - Flags missing or ambiguous information
-   - Extracts preferred date range and constraints
-4. **Scheduling Agent** checks availability within requested range, proposes 2–3 options
-5. Super Admin receives notification with AI-prepared summary and proposed slots
-6. Admin confirms or modifies slot selection
-7. **Communications Agent** emails teacher with:
-   - Proposed slot(s)
-   - Instructions to confirm or request alternative
-8. Teacher confirms → booking status → `confirmed`
-9. Confirmation email + calendar invite sent to teacher
+3. **Intake Agent** validates and extracts preferred dates
+4. **Scheduling Agent** checks availability, proposes 2–3 options
+5. Admin confirms slot; **Communications Agent** emails teacher
+6. Teacher confirms → booking status → `confirmed`
+7. Confirmation email + calendar invite sent
 
 ### Edge Cases
-- No availability in requested range → AI proposes alternatives and explains options to teacher
-- Missing info on form → Intake Agent sends follow-up email requesting clarification
+- No availability in requested range → AI proposes alternatives
+- Missing info → Intake Agent sends follow-up email
 
 ---
 

@@ -692,6 +692,63 @@ In `src/app/events/page.tsx`, replace the "Coming soon" `<span>` block with:
 
 ---
 
+## Session 15 — 2026-05-22
+
+### Completed
+
+#### School groups page — reworked as interest registration
+- [x] `/school-groups` completely reframed: "coming soon / register interest" tone instead of "ready to book"
+- [x] CTA button (`/enquire?type=school`) replaced with inline `SchoolInterestForm` component
+- [x] "How it works" steps updated to "What happens next" — no booking/date language
+- [x] Programs section relabelled "Programs in development"
+- [x] `src/app/school-groups/school-interest-form.tsx` — new client component (name, email, school name, year level dropdown, student count, optional notes)
+- [x] `src/app/school-groups/actions.ts` — new `submitSchoolInterest` server action; writes to existing `enquiries` table with `event_type: 'school'`
+- [x] School name placeholder changed to "Riverside Primary School" (fictional, neutral — not grammar-school specific)
+
+#### Email notifications — recipients updated
+- [x] `carlknox@gmail.com` removed from all notification triggers
+- [x] `cknox@swin.edu.au` added to all triggers that previously lacked it
+- [x] All five email-sending paths now deliver to both `svu@swin.edu.au` + `cknox@swin.edu.au`:
+  - School interest registrations
+  - Hire enquiries
+  - Event notify-me admin notifications (was `cknox` + `carlknox@gmail.com`)
+  - Staff access requests (was `cknox` only)
+  - User registration requests (was `cknox` only)
+
+### Files changed
+- `src/app/school-groups/page.tsx`
+- `src/app/school-groups/school-interest-form.tsx` (new)
+- `src/app/school-groups/actions.ts` (new)
+- `src/app/enquire/actions.ts`
+- `src/app/register/actions.ts`
+- `src/app/staff/register/actions.ts`
+- `src/lib/email/send-event-notify-admin-notification.ts`
+
+### Commits
+- `483ebae` Rework school-groups page as interest registration form; update email recipients
+- `9ea8268` Add cknox@swin.edu.au to all email notification triggers
+- `8561071` Use neutral fictional school name in placeholder text
+
+### Remaining / Not Started
+- [ ] `/admin/reports` — placeholder only
+- [ ] `/admin/maintenance` — placeholder only
+- [ ] `/admin/tickets` search page
+- [ ] CSV export + broadcast composer for the mailing list
+- [ ] `/unsubscribe?token=…` route (column still unused)
+- [ ] `agents/` directory — no agents implemented
+- [ ] `emails/` directory — no React Email templates
+- [ ] SAML 2.0 SSO — blocked on Swinburne IT
+- [ ] Conflict detection in `createBookingRequest`
+- [ ] Google Calendar integration
+- [ ] Re-enable homepage "Get tickets" hero button (still "Coming soon" `<span>`)
+- [ ] Day-one baseline entries on `/staff/visitors`
+- [ ] DMARC DNS record + Swinburne Exchange whitelist
+- [ ] Pre-existing lint errors across the codebase
+- [ ] Root-cause RLS rejection on `event_notify_subscribers` (deferred)
+- [ ] School content / sessions not yet built — page intentionally in "register interest" mode until content is ready
+
+---
+
 ## Blockers & Open Questions
 
 | Issue | Status | Notes |

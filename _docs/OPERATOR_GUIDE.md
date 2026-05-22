@@ -20,7 +20,7 @@ Bookmark all three.
 2. Enter your `@swin.edu.au` email + password.
 3. If you've never logged in before, ask the existing super_admin to invite you via `/bookings/admin/users` → **Invite staff**. You'll get an email with a magic link to set your password.
 
-If you don't see the email, **check your Junk folder** — Swinburne Exchange routes emails from `bookings@svu3d.ai` to spam. Mark it "Not Junk" and add `bookings@svu3d.ai` to your Safe Senders.
+If you don't see the email, **check your Junk folder** — Swinburne Exchange routes emails from `bookings@svu3d.ai` to spam. Mark it "Not Junk" and add `bookings@svu3d.ai` to your Safe Senders. (This is a known unresolved issue — IT whitelist pending.)
 
 ---
 
@@ -31,7 +31,7 @@ Five-minute round each morning:
 | Step | Where | What you're looking for |
 |------|-------|-------------------------|
 | 1. New booking requests | `/bookings/admin` → Bookings calendar | Pending bookings (yellow). Click → Approve / Reject / Edit |
-| 2. New enquiries | `/bookings/admin` → Enquiries section | Cards marked "new". Reply via the email link, then change status to "in_progress" or "closed" |
+| 2. New enquiries | `/bookings/admin` → Enquiries section | Cards marked "new". Includes hire enquiries **and** school interest registrations (type = "School group"). Reply via the email link, then change status to "in_progress" or "closed" |
 | 3. Staff access requests | `/bookings/admin` → Staff Requests section | Approve genuine Swinburne staff; reject spam |
 | 4. Visitor counts (post-event) | `/bookings/staff/visitors` | Add yesterday's tally per category |
 

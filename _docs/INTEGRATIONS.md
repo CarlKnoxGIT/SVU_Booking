@@ -175,14 +175,29 @@ MICROSOFT_TENANT_ID=
 ## 6. Resend (Email)
 
 ### Purpose
-Send all transactional emails: booking confirmations, rejections, QR e-tickets, reminders, quotes, payment receipts.
+Send all transactional emails: booking confirmations, rejections, QR e-tickets, reminders, quotes, payment receipts, admin notifications.
 
 ### SDK
 ```bash
 npm install resend @react-email/components
 ```
 
-### Email Templates (React Email)
+### Admin Notification Recipients
+All admin notification emails go to **both** `svu@swin.edu.au` and `cknox@swin.edu.au`.
+
+| Trigger | File | Recipients |
+|---------|------|-----------|
+| School interest registration | `src/app/school-groups/actions.ts` | `svu@`, `cknox@` |
+| Hire enquiry | `src/app/enquire/actions.ts` | `svu@`, `cknox@` |
+| Event notify-me signup | `src/lib/email/send-event-notify-admin-notification.ts` | `cknox@`, `svu@` |
+| Staff access request | `src/app/staff/register/actions.ts` | `cknox@`, `svu@` |
+| User registration request | `src/app/register/actions.ts` | `cknox@`, `svu@` |
+
+> Note: `@swin.edu.au` addresses may be silently dropped by Swinburne Exchange (unresolved — see PROGRESS.md Session 8/9). Both addresses receive every notification as a workaround.
+
+### Email Templates
+React Email templates are **not yet built** — all emails use inline HTML + plain-text strings. Template files listed below are aspirational:
+
 | Template File | Use |
 |--------------|-----|
 | `emails/booking-confirmed.tsx` | All booking type confirmations |
@@ -191,29 +206,24 @@ npm install resend @react-email/components
 | `emails/quote-proposal.tsx` | External hire quote |
 | `emails/payment-reminder.tsx` | Unpaid hire invoice reminder |
 | `emails/event-reminder.tsx` | 24h and 1h pre-event reminder |
-| `emails/maintenance-conflict.tsx` | Notice to affected booking holders |
-| `emails/clarification-request.tsx` | Intake Agent follow-up for incomplete forms |
 
-### Sending Pattern
+### Sending Pattern (current — inline HTML)
 ```typescript
-import { Resend } from 'resend'
-const resend = new Resend(process.env.RESEND_API_KEY)
+import { resend, FROM_ADDRESS } from '@/lib/resend/client'
 
 await resend.emails.send({
-  from: 'SVU Bookings <bookings@svu.swinburne.edu.au>',
-  to: recipientEmail,
-  subject: 'Your SVU Booking Confirmation',
-  react: BookingConfirmedEmail({ booking }),
-  attachments: qrCodeBuffer ? [{
-    filename: 'ticket.png',
-    content: qrCodeBuffer
-  }] : []
+  from: FROM_ADDRESS,               // 'SVU Bookings <bookings@svu3d.ai>'
+  to: ['svu@swin.edu.au', 'cknox@swin.edu.au'],
+  replyTo: userEmail,
+  subject: 'Subject here',
+  text: plainTextBody,              // required — spam filters penalise HTML-only
+  html: htmlBody,
+  tags: [{ name: 'type', value: 'tag-for-resend-dashboard' }],
 })
 ```
 
-### Domain Setup
-- Verify sending domain `svu.swinburne.edu.au` with Resend (DNS TXT records)
-- Coordinate with Swinburne IT for DNS access
+### Domain
+Sending domain is `svu3d.ai` (not `swinburne.edu.au`). SPF + DKIM are verified in GoDaddy. DMARC record is pending (GoDaddy syntax issue — see PROGRESS.md).
 
 ### Environment Variables
 ```

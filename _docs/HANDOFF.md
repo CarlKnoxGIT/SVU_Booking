@@ -1,7 +1,7 @@
 # SVU Booking — Handoff Guide
 
 > Read this first if you're taking over the SVU Booking site from Carl Knox.
-> Last updated: 2026-04-29 (Session 11)
+> Last updated: 2026-05-22 (Session 15)
 
 ---
 
@@ -50,7 +50,7 @@ These trip up newcomers within the first hour. Read them before doing anything e
 
 2. **Public ticketing is on Eventbrite, not the built-in Stripe checkout.** When users click "Get tickets" on the events page, they're sent to Eventbrite. The internal Stripe checkout still exists in the codebase but is dormant. This was a Session 9 decision driven by email deliverability problems on the new `svu3d.ai` domain.
 
-3. **Email to `@swin.edu.au` addresses gets silently dropped by Swinburne Exchange.** This is unresolved. As a workaround, enquiry notifications are CC'd to `carlknox@gmail.com`. If you take over, you'll likely want to chase Swinburne IT to whitelist `bookings@svu3d.ai`, or work with them on a DMARC record (GoDaddy has been rejecting the syntax). See [PROGRESS.md](PROGRESS.md) Session 8/9 for full context.
+3. **Email to `@swin.edu.au` addresses gets silently dropped by Swinburne Exchange.** This is unresolved. All admin notification emails are sent to both `svu@swin.edu.au` and `cknox@swin.edu.au`. Chase Swinburne IT to whitelist `bookings@svu3d.ai`, or work on DMARC (GoDaddy has been rejecting the syntax). See [PROGRESS.md](PROGRESS.md) Session 8/9 for full context.
 
 4. **Supabase migrations are run manually in the dashboard SQL Editor.** No CLI workflow. Every `.sql` file in `supabase/migrations/` was copied and pasted into Supabase → SQL Editor → Run. If you add a new migration, that's how you apply it.
 
@@ -88,7 +88,7 @@ Before he hands off, get him to transfer ownership or add you as admin/owner on 
 - Public homepage with hero, parallax sections, visitor-count dashboard
 - Public events listing with live remaining-ticket counts (pulled from Eventbrite API)
 - Eventbrite checkout flow for tickets
-- School groups and Private Hire pages with enquiry forms
+- School groups interest-registration form (mailing list style — sessions not yet built) and Private Hire enquiry form
 - Staff portal: booking calendar, booking creation/editing, QR check-in scanner, visitor count entry
 - Admin portal: bookings management, events management, enquiries, check-in tally, user/role management, broadcast emails, staff access requests
 - Supabase SSR auth with email/password
@@ -111,6 +111,7 @@ Before he hands off, get him to transfer ownership or add you as admin/owner on 
 - Swinburne Exchange whitelist for `bookings@svu3d.ai`
 - Re-enable homepage hero "Get tickets" button (currently a dimmed `<span>`)
 - Day-one baseline visitor count entries
+- Build school session content so `/school-groups` can be upgraded from interest-registration to actual booking
 
 See [PROGRESS.md](PROGRESS.md) for the full session log.
 

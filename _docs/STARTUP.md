@@ -15,23 +15,38 @@
 
 | Field | Value |
 |-------|-------|
-| **Phase** | Phase 2 in progress — App foundation built, DB live |
-| **Last Session** | Session 3 — 2026-04-03 |
-| **Last Completed Task** | Supabase DB live, `.env.local` configured, homepage running at localhost:3000 |
-| **Current Blockers** | Awaiting Swinburne IT contact for SAML SSO setup; Stripe account TBD |
+| **Phase** | Live in production — active development continuing |
+| **Last Session** | Session 15 — 2026-05-22 |
+| **Last Completed Task** | School groups page reworked as interest-registration form; all email notifications consolidated to `svu@swin.edu.au` + `cknox@swin.edu.au` |
+| **Live site** | https://www.svu3d.ai/bookings/ |
+| **Current Blockers** | SAML SSO blocked on Swinburne IT; Swinburne Exchange silently drops emails from `svu3d.ai`; DMARC DNS record pending |
 
 ---
 
-## Next Steps (Start Here)
+## What's Built (quick reference)
 
-1. **Set up Supabase Auth providers** — enable Google OAuth + email magic link in Supabase dashboard
-2. **Build login page** (`/login`) — unified entry point for all user types
-3. **Build admin dashboard skeleton** (`/admin`) — bookings overview, approvals queue
-4. **Build staff booking flow** (`/staff/book`) — slot browser + booking form
-5. **Install shadcn/ui** — component library for consistent UI
-6. **Begin SAML 2.0 SSO config** — contact Swinburne IT for IdP metadata
+- Public homepage: parallax hero, visitor-count dashboard, events sections
+- `/events` — public events listing with live Eventbrite ticket counts; notify-me signup
+- `/school-groups` — interest-registration form (sessions not yet built; collecting leads)
+- `/enquire` — private hire enquiry form
+- `/staff` — booking calendar, booking creation/editing, QR check-in, visitor counts
+- `/admin` — full management panel: bookings, events, enquiries, check-in, users, broadcast, mailing list
+- Supabase Auth (email/password), Resend email, Eventbrite API, Stripe (wired, not active for public tickets)
 
-See [PROGRESS.md](PROGRESS.md) for the full session log and open questions.
+## What's NOT Built
+
+- AI agents (framework exists; no agents implemented)
+- React Email templates (inline HTML used instead)
+- Conflict detection on booking requests
+- Google Calendar integration
+- SAML 2.0 SSO (blocked on Swinburne IT)
+- School session content (page is in interest-collection mode)
+
+---
+
+## Next Steps
+
+See [PROGRESS.md](PROGRESS.md) → Session 15 "Remaining / Not Started" for the current backlog.
 
 ---
 

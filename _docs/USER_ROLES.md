@@ -45,8 +45,12 @@
 
 ### 3. School / Education Contact
 **Who**: Teachers, school administrators, education program coordinators
-**Auth**: Email-verified account (self-registered with school email)
-**Permissions**:
+**Auth**: None currently — public interest form (no login required). Future: email-verified account.
+**Current permissions** (interest-registration mode):
+- Submit interest registration form on `/school-groups` (name, email, school, year levels, student count)
+- Stored in `enquiries` table; admin follows up manually
+
+**Future permissions** (once school sessions are built):
 - Submit group booking request forms
 - Provide group details (size, year level, subject area, accessibility needs)
 - Receive status updates on their request
