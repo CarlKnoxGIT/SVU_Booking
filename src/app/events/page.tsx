@@ -3,8 +3,11 @@ import Link from 'next/link'
 import Image from 'next/image'
 import SwinburneLogo from '@/components/swinburne-logo'
 import { ParallaxHero } from '@/components/parallax-hero'
-import { getTicketAvailability } from '@/lib/eventbrite/client'
+import { getTicketAvailability, getSessionCount } from '@/lib/eventbrite/client'
 import { NotifyMeCard } from './notify-me-card'
+
+const NUMBER_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
+const countWord = (n: number) => NUMBER_WORDS[n] ?? String(n)
 
 export default async function EventsPage() {
   const supabase = await createClient()
@@ -19,6 +22,10 @@ export default async function EventsPage() {
 
   const availability = await Promise.all(
     (events ?? []).map((e) => getTicketAvailability(e.humanitix_url))
+  )
+
+  const sessionCounts = await Promise.all(
+    (events ?? []).map((e) => getSessionCount(e.humanitix_url))
   )
 
   const { data: hiddenEvent } = await supabase
@@ -82,6 +89,7 @@ export default async function EventsPage() {
               const hasCount = live?.ticketsLeft != null && live?.capacity != null
               const ticketsLeft = hasCount ? live!.ticketsLeft! : (event.max_capacity ?? 0) - (event.tickets_sold ?? 0)
               const soldOut = live ? live.soldOut : ticketsLeft <= 0
+              const sessions = sessionCounts[i]
               const date = event.event_date ? new Date(event.event_date) : null
 
               return (
@@ -94,7 +102,9 @@ export default async function EventsPage() {
                       {date && (
                         <p className="mb-2 text-[12px] font-semibold tracking-wide text-swin-red-light uppercase">
                           {date.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'long' })}
-                          {event.start_time && <> · {event.start_time.slice(0, 5)}{event.end_time && <> – {event.end_time.slice(0, 5)}</>}</>}
+                          {sessions && sessions > 1
+                            ? <> · {countWord(sessions)} shows available</>
+                            : event.start_time && <> · {event.start_time.slice(0, 5)}{event.end_time && <> – {event.end_time.slice(0, 5)}</>}</>}
                         </p>
                       )}
                       <h2 className="text-[20px] font-semibold text-white">{event.title}</h2>

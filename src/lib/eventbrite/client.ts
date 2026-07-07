@@ -100,3 +100,29 @@ export async function getTicketAvailability(
   // Prefer exact counts (single events); fall back to live status (recurring events).
   return (await getCountsFromApi(eventId)) ?? (await getStatusFromDestination(eventId))
 }
+
+// Number of showtimes for a recurring (series) event. Returns null for single
+// events (the series endpoint 404s) so callers show the normal single time.
+export async function getSessionCount(
+  eventUrl: string | null | undefined
+): Promise<number | null> {
+  const token = process.env.EVENTBRITE_PRIVATE_TOKEN
+  if (!token) return null
+
+  const eventId = extractEventIdFromUrl(eventUrl)
+  if (!eventId) return null
+
+  try {
+    const res = await fetch(`${EVENTBRITE_API}/series/${eventId}/events/`, {
+      headers: { Authorization: `Bearer ${token}` },
+      next: { revalidate: REVALIDATE_SECONDS, tags: [`eventbrite:${eventId}`] },
+    })
+    if (!res.ok) return null
+
+    const body = (await res.json()) as { events?: unknown[] }
+    const count = body.events?.length ?? 0
+    return count > 0 ? count : null
+  } catch {
+    return null
+  }
+}
