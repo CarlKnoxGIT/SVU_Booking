@@ -47,14 +47,24 @@ Sell public event tickets on Eventbrite (external checkout) and display live rem
 
 ### Implementation
 - Each event stores its Eventbrite URL in `events.humanitix_url` (legacy field name, repurposed)
-- `src/lib/eventbrite/client.ts` extracts the numeric event ID from the URL's trailing segment (e.g. `...tickets-1987296014877`) and calls `GET /v3/events/{id}/ticket_classes/`
-- Sums `quantity_total − quantity_sold` across non-hidden ticket classes
-- Cached for 60s via Next.js `fetch({ next: { revalidate: 60, tags } })` — token never reaches the browser
-- Returns `null` on missing token, missing/invalid URL, or API failure — `/events` and `/events/[id]/tickets` fall back silently to DB counts (stale but non-breaking)
+- `src/lib/eventbrite/client.ts` extracts the numeric event ID from the URL's trailing segment (e.g. `...tickets-1987296014877`)
+- `getTicketAvailability(url)` tries two sources in order:
+  1. **`getCountsFromApi`** — authenticated `GET /v3/events/{id}/ticket_classes/`. Sums `quantity_total − quantity_sold` across ticket classes that have a cap set. Returns exact `{ ticketsLeft, capacity, soldOut }`. Used by **single** events.
+  2. **`getStatusFromDestination`** — public `GET https://www.eventbrite.com/api/v3/destination/events/?event_ids={id}&expand=ticket_availability` (no auth token needed). Returns `{ soldOut, minPrice }` (no exact count) from `is_sold_out` / `has_available_tickets` / `minimum_ticket_price`. Used by **recurring** events, whose authenticated ticket quantities come back `null`.
+- `getSessionCount(url)` — `GET /v3/series/{id}/events/`; returns the number of showtimes (404s for single events → `null`).
+- `TicketAvailability.ticketsLeft` / `capacity` are **optional** (undefined for recurring events); `minPrice` added for "From $X" display.
+- Cached for 60s via Next.js `fetch({ next: { revalidate: 60, tags } })` — private token never reaches the browser.
+- Returns `null` on missing token, missing/invalid URL, or API failure — `/events` and `/events/[id]/tickets` fall back silently to DB counts (stale but non-breaking).
+
+### Recurring (series) events — important limitation
+- Eventbrite's **authenticated API returns `null`** for `quantity_total`, `quantity_sold`, and event `capacity` on recurring events (at the series parent, every occurrence, and every ticket class). Confirmed the same token returns full counts for single events — it's a **format limitation, not a token/scope issue**.
+- Therefore an exact "N of 80 left" counter is **impossible** for recurring events via any API. To get the live counter (like the Open Day sessions), the event must be **single (non-recurring)**.
+- For recurring events we instead show live sold-out status + "From $X" + "N shows available", and link to the **series parent** URL (`...tickets-{parentId}`) so visitors get the built-in timeslot picker. Note the destination endpoint returns `is_sold_out: null` on the *parent* (sold-out is tracked per occurrence), which our code correctly treats as "not sold out".
+- Live example: "Worlds of the Solar System" (series parent `1993301117300`, occurrences `...142375` @12:00 and `...143378` @13:15).
 
 ### UI behaviour
-- `/events`: shows `X of Y tickets left` next to price; switches to red when `≤10` remaining; "Get tickets" button becomes a greyed **Sold out** pill when `quantity_sold === quantity_total`
-- `/events/[id]/tickets`: "Tickets" info row shows live remaining/capacity from Eventbrite
+- `/events`: shows `X of Y tickets left` (single events only) next to price; switches to red when `≤10` remaining; "Get tickets" becomes a greyed **Sold out** pill when sold out. For recurring events: shows **"N shows available"** in place of a single time and **"From $X"** for the price.
+- `/events/[id]/tickets`: "Tickets" info row shows live remaining/capacity from Eventbrite (single events)
 
 ### Getting a token
 1. Sign in to Eventbrite as the account owning the events

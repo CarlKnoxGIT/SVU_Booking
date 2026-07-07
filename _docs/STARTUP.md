@@ -16,8 +16,8 @@
 | Field | Value |
 |-------|-------|
 | **Phase** | Live in production — active development continuing |
-| **Last Session** | Session 15 — 2026-05-22 |
-| **Last Completed Task** | School groups page reworked as interest-registration form; all email notifications consolidated to `svu@swin.edu.au` + `cknox@swin.edu.au` |
+| **Last Session** | Session 17 — 2026-07-07 |
+| **Last Completed Task** | Added "Worlds of the Solar System" public event; added recurring (series) Eventbrite support — live sold-out status via the public destination endpoint + "N shows available" (exact remaining counts aren't available for recurring events; see INTEGRATIONS.md) |
 | **Live site** | https://www.svu3d.ai/bookings/ |
 | **Current Blockers** | SAML SSO blocked on Swinburne IT; Swinburne Exchange silently drops emails from `svu3d.ai`; DMARC DNS record pending |
 

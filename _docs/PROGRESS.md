@@ -749,6 +749,68 @@ In `src/app/events/page.tsx`, replace the "Coming soon" `<span>` block with:
 
 ---
 
+## Session 16 — 2026-06-02
+
+### Completed — dev environment / GitHub auth
+
+- [x] Replaced expiring "SVU_Booking" classic PAT (full `repo` scope) with SSH key auth
+- [x] Generated Ed25519 SSH key at `~/.ssh/id_ed25519` (no passphrase) and added public key to GitHub
+- [x] Created `~/.ssh/config` with macOS Keychain integration (`UseKeychain yes`, `AddKeysToAgent yes`)
+- [x] Flipped repo remote from HTTPS → SSH: `git@github.com:CarlKnoxGIT/SVU_Booking.git`
+- [x] Set git identity to GitHub noreply (`29390153+CarlKnoxGIT@users.noreply.github.com`) both repo-level and `--global` — previously was `placeholder@email.com`, causing unverified commit authorship
+
+### Files / system state changed
+- `~/.ssh/id_ed25519` and `.pub` (new)
+- `~/.ssh/config` (new)
+- `~/.ssh/known_hosts` (github.com pinned)
+- `~/.gitconfig` (global user.name + user.email set)
+- Repo `.git/config` — remote URL + user.email
+
+### Commits
+- None (dev environment changes, no repo files modified)
+
+### Remaining / Not Started
+- [ ] Revoke old classic PAT `SVU_Booking` at https://github.com/settings/tokens (will expire on its own in 6 days otherwise)
+- [ ] Add & verify `cknox@swin.edu.au` on GitHub account at https://github.com/settings/emails (only matters if switching away from noreply later)
+- [ ] Enable *"Block command line pushes that expose my email"* at https://github.com/settings/emails (belt-and-braces against accidental email leaks from other repos)
+- [ ] All Session 15 backlog items still open (see above)
+
+---
+
+## Session 17 — 2026-07-07
+
+### Completed — new event + recurring-event availability support
+
+- [x] Added public event **"Worlds of the Solar System — A Live Immersive Space Show"** (Sat 18 Jul 2026, published) to the `events` table via the Supabase REST API (service-role key)
+- [x] Event links to the Eventbrite **series parent** URL (`...tickets-1993301117300`) so visitors land on the two-timeslot picker (12:00 pm / 1:15 pm) rather than a single occurrence
+- [x] Fixed a false **"Sold out"** bug: recurring (series) Eventbrite events return `null` ticket quantities from the authenticated API, which the old summing logic counted as zero → sold out
+- [x] Reworked `src/lib/eventbrite/client.ts`: exact counts via the authenticated API for **single** events (unchanged), with a fallback to the **public destination endpoint** (`https://www.eventbrite.com/api/v3/destination/events/?event_ids={id}&expand=ticket_availability`) for **recurring** events — returns live `is_sold_out` / `has_available_tickets` + `minimum_ticket_price`
+- [x] `/events` card now shows **"From $X"** when a min price is available, and hides the "N of M left" line when no exact count exists
+- [x] Added `getSessionCount()` (queries `/v3/series/{id}/events/`) — card shows **"Two shows available"** for multi-session events; single events fall back to their normal time. Auto-updates if showtimes are added/removed
+
+### Key findings (Eventbrite recurring events)
+- Exact per-slot remaining counts are **not available via any Eventbrite API** for recurring/series events (`quantity_total`, `quantity_sold`, and event `capacity` all return `null` at series parent, each occurrence, and every ticket class). Confirmed the same token returns full counts for **single** events (e.g. Open Day) — so it's a format limitation, not a token/scope issue.
+- To get the live "N of 80 left" counter (like Open Day), an event must be **single (non-recurring)**. The Solar System show is intentionally recurring, so it shows "From $15 / Two shows available / Get tickets" instead.
+- The public `destination` endpoint needs **no auth token** and reports sold-out status even for series occurrences (but `is_sold_out`/`has_available_tickets` are `null` on the series *parent* — sold-out is tracked per timeslot).
+
+### Files changed
+- `src/lib/eventbrite/client.ts` — split availability into `getCountsFromApi` + `getStatusFromDestination`; added `getSessionCount`; `TicketAvailability.ticketsLeft`/`capacity` now optional, added `minPrice`
+- `src/app/events/page.tsx` — session-count fetch + "N shows available" / "From $X" rendering; guard the hidden-counter on `capacity != null`
+- `src/app/events/[id]/tickets/page.tsx` — null-safe fallbacks for optional `ticketsLeft`/`capacity`
+
+### Commits (pushed to `main`, auto-deployed via Vercel)
+- `246978e` events: read live availability for recurring Eventbrite events
+- `cecd911` events: show "N shows available" for multi-session events
+
+### Dev environment note
+- This working copy lives on an external volume (`/Volumes/Nova SVU/...`) that flips the executable bit on every file → `git status` shows the whole tree as modified. Set `git config core.fileMode false` (repo-local) to silence it. `node`/`npm` were not on `PATH` in the automation shell, so no local `tsc`/build was run this session — Vercel's build is the verification gate.
+
+### Remaining / Not Started
+- [ ] Consider adding `on_sale_status` handling (see INTEGRATIONS.md Eventbrite edge case) — still not implemented
+- [ ] All Session 15/16 backlog items still open
+
+---
+
 ## Blockers & Open Questions
 
 | Issue | Status | Notes |
