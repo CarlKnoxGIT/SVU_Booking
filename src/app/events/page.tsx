@@ -79,7 +79,8 @@ export default async function EventsPage() {
           <div className="space-y-4">
             {events.map((event, i) => {
               const live = availability[i]
-              const ticketsLeft = live ? live.ticketsLeft : (event.max_capacity ?? 0) - (event.tickets_sold ?? 0)
+              const hasCount = live?.ticketsLeft != null && live?.capacity != null
+              const ticketsLeft = hasCount ? live!.ticketsLeft! : (event.max_capacity ?? 0) - (event.tickets_sold ?? 0)
               const soldOut = live ? live.soldOut : ticketsLeft <= 0
               const date = event.event_date ? new Date(event.event_date) : null
 
@@ -107,11 +108,13 @@ export default async function EventsPage() {
                         <span className="font-semibold text-white">
                           {event.ticket_price === 0 || event.ticket_price === null
                             ? 'Free'
-                            : `$${event.ticket_price}`}
+                            : live?.minPrice
+                              ? `From $${live.minPrice}`
+                              : `$${event.ticket_price}`}
                         </span>
-                        {live && !soldOut && (
+                        {hasCount && !soldOut && (
                           <span className={ticketsLeft <= 10 ? 'text-swin-red-light font-medium' : 'text-white'}>
-                            {ticketsLeft} of {live.capacity} tickets left
+                            {ticketsLeft} of {live!.capacity} tickets left
                           </span>
                         )}
                       </div>
@@ -151,7 +154,7 @@ export default async function EventsPage() {
           </div>
         )}
 
-        {hiddenAvail !== null && hiddenLeft !== null && (
+        {hiddenAvail?.capacity != null && hiddenLeft !== null && (
           <p className="mt-6 text-center text-[13px] tabular-nums text-white/60 select-none pointer-events-none">
             {hiddenLeft} / {hiddenAvail.capacity}
           </p>

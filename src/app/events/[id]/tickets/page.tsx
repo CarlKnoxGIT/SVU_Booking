@@ -19,8 +19,8 @@ export default async function TicketsPage({ params }: { params: Promise<{ id: st
   if (!event) notFound()
 
   const live = await getTicketAvailability(event.humanitix_url)
-  const ticketsLeft = live ? live.ticketsLeft : event.max_capacity - (event.tickets_sold ?? 0)
-  const capacity = live ? live.capacity : event.max_capacity
+  const ticketsLeft = live?.ticketsLeft ?? event.max_capacity - (event.tickets_sold ?? 0)
+  const capacity = live?.capacity ?? event.max_capacity
   const soldOut = live ? live.soldOut : ticketsLeft <= 0
   const isFree = !event.ticket_price || event.ticket_price === 0
 
