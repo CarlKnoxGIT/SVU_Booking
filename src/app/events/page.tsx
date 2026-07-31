@@ -81,6 +81,33 @@ export default async function EventsPage() {
 
       <div className="mx-auto max-w-3xl px-6 pb-20">
 
+        {/* National Science Week — external event, tickets via Humanitix */}
+        <a
+          href="https://events.humanitix.com/seeds-of-science-festival"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group mb-4 block rounded-2xl border border-white/[0.07] bg-white/[0.02] p-6 hover:border-white/[0.14] hover:bg-white/[0.04] transition-all duration-200"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <p className="mb-2 text-[12px] font-semibold tracking-wide text-swin-red-light uppercase">
+                Fri 21 August · 16:00 – 19:00 · National Science Week
+              </p>
+              <h2 className="text-[20px] font-semibold text-white">Seeds of Science Festival</h2>
+              <p className="mt-2 text-[16px] text-white leading-relaxed line-clamp-2">
+                Celebrate National Science Week with an afternoon of discovery — researcher talks, the
+                Festival Hub, and immersive Virtual Tours of the Universe with Professor Matthew Bailes.
+              </p>
+              <div className="mt-4 flex items-center gap-4 text-[14px]">
+                <span className="font-semibold text-white">Free</span>
+              </div>
+            </div>
+            <span className="flex-shrink-0 rounded-xl bg-swin-red px-4 py-2 text-[13px] font-semibold text-white group-hover:bg-swin-red-hover transition-all duration-200">
+              Get tickets
+            </span>
+          </div>
+        </a>
+
         {/* Events */}
         {events && events.length > 0 ? (
           <div className="space-y-4">
