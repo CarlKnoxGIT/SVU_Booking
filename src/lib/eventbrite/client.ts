@@ -34,9 +34,13 @@ export function extractEventIdFromUrl(url: string | null | undefined): string | 
   return match ? match[1] : null
 }
 
-// Exact counts via the authenticated API — works for single events, whose ticket
-// classes carry real quantity_total values. Returns null when no class has a cap
-// set (recurring/series or genuinely uncapped events), so the caller can fall back.
+// Exact counts via the authenticated API — works for single (non-recurring)
+// events. Handles both ways capacity can be configured on Eventbrite:
+//   1. Per ticket type — each class carries its own quantity_total.
+//   2. At the event level — ticket types are uncapped and the cap lives on the
+//      event's `capacity` field (e.g. "80 pax per session").
+// Returns null only when no capacity is set anywhere, so the caller can fall
+// back to live sold-out status.
 async function getCountsFromApi(eventId: string): Promise<TicketAvailability | null> {
   const token = process.env.EVENTBRITE_PRIVATE_TOKEN
   if (!token) return null
@@ -50,18 +54,45 @@ async function getCountsFromApi(eventId: string): Promise<TicketAvailability | n
 
     const body = (await res.json()) as { ticket_classes?: TicketClass[] }
     const classes = (body.ticket_classes ?? []).filter((tc) => !tc.hidden)
-    const capped = classes.filter((tc) => tc.quantity_total != null)
-    if (capped.length === 0) return null
 
-    let capacity = 0
-    let sold = 0
-    for (const tc of capped) {
-      capacity += tc.quantity_total ?? 0
-      sold += tc.quantity_sold ?? 0
+    // Tickets sold across every visible ticket type — available regardless of
+    // how capacity is configured.
+    const sold = classes.reduce((total, tc) => total + (tc.quantity_sold ?? 0), 0)
+
+    // Case 1: capacity is set per ticket type.
+    const capped = classes.filter((tc) => tc.quantity_total != null)
+    if (capped.length > 0) {
+      const capacity = capped.reduce((total, tc) => total + (tc.quantity_total ?? 0), 0)
+      const ticketsLeft = Math.max(0, capacity - sold)
+      return { soldOut: ticketsLeft === 0, ticketsLeft, capacity }
     }
 
-    const ticketsLeft = Math.max(0, capacity - sold)
-    return { soldOut: ticketsLeft === 0, ticketsLeft, capacity }
+    // Case 2: capacity is set at the event level. Fall back to the event's own
+    // `capacity` field and subtract the tickets already sold.
+    const capacity = await getEventCapacity(eventId, token)
+    if (capacity != null) {
+      const ticketsLeft = Math.max(0, capacity - sold)
+      return { soldOut: ticketsLeft === 0, ticketsLeft, capacity }
+    }
+
+    return null
+  } catch {
+    return null
+  }
+}
+
+// Event-level capacity via the authenticated API. Used when ticket types carry
+// no per-type cap. Returns null when the event has no capacity set.
+async function getEventCapacity(eventId: string, token: string): Promise<number | null> {
+  try {
+    const res = await fetch(`${EVENTBRITE_API}/events/${eventId}/`, {
+      headers: { Authorization: `Bearer ${token}` },
+      next: { revalidate: REVALIDATE_SECONDS, tags: [`eventbrite:${eventId}`] },
+    })
+    if (!res.ok) return null
+
+    const body = (await res.json()) as { capacity?: number | null }
+    return body.capacity ?? null
   } catch {
     return null
   }
