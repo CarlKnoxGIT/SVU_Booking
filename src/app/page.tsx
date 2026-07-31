@@ -87,6 +87,13 @@ export default async function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/80" />
 
         <div className="relative z-10 text-center px-6 max-w-3xl mx-auto">
+          <Link
+            href="/events"
+            className="inline-flex items-center gap-2 mb-6 rounded-full bg-swin-red px-6 py-2.5 text-sm font-bold uppercase tracking-[0.2em] text-white hover:bg-swin-red-hover transition-all duration-200"
+          >
+            New shows announced
+            <span aria-hidden="true">→</span>
+          </Link>
           <h1 className="text-5xl sm:text-[72px] font-light tracking-[-1.5px] leading-[1.04] mb-5">
             Step inside<br />the universe
           </h1>
