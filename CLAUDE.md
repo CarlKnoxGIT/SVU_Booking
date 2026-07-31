@@ -11,6 +11,7 @@ This is **SVU_Booking** — a booking, ticketing, and visitor-tracking platform 
 - Database: Supabase project `neibpbkholgoypswyalx` (prod only — no staging DB)
 - Migrations run manually via Supabase SQL Editor
 - Public ticketing via Eventbrite (not built-in Stripe)
+- **Eventbrite live counts require the API token to belong to the *owning* organizer account** (`svu@swin.edu.au`, org `121524099408`). A non-owner `EVENTBRITE_PRIVATE_TOKEN` (in Vercel) returns null ticket quantities, so no count shows. The count reads the event-level `capacity` field (ticket-tier sums can exceed it) — see `src/lib/eventbrite/client.ts`
 - All admin email notifications → `svu@swin.edu.au` + `cknox@swin.edu.au`
 - School sessions not yet built — `/school-groups` is in interest-registration mode
 

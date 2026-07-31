@@ -811,6 +811,26 @@ In `src/app/events/page.tsx`, replace the "Coming soon" `<span>` block with:
 
 ---
 
+## Session 18 — 2026-07-31
+
+### Completed
+- [x] Published two "Worlds of the Solar System — A Live Immersive Space Show" events (Sat 22 Aug 2026, 12:00 & 13:30) via `/admin/events/new`, each with its Eventbrite URL in the `humanitix_url` field, published live.
+- [x] Diagnosed why `/events` showed no ticket count: the `EVENTBRITE_PRIVATE_TOKEN` in Vercel belonged to a **non-owner** Eventbrite account (org `218636267164`), so the API returned null ticket quantities. Created a new API key under the **owning** account (`svu@swin.edu.au`, org `121524099408`), updated the Vercel env var, and redeployed.
+- [x] `src/lib/eventbrite/client.ts`: `getCountsFromApi` now (a) prefers the event-level `capacity` field over summing per-ticket `quantity_total` (the three tiers summed to 200 for an 80-seat event → showed 200), and (b) derives `minPrice` from ticket-tier costs so `/events` shows "From $X" again (this was lost once counts started returning and we stopped falling through to the destination endpoint). Added `getEventCapacity` helper.
+- [x] Visitor counter: opened entry **deletion to all staff** (was super_admin only). Edited `staff/visitors/page.tsx` (removed `isAdmin` gate on the Recent-entries Delete column), `staff/visitors/actions.ts` (`deleteVisitorEntry` now allows `staff`), and added migration `022_visitor_staff_delete.sql` (new RLS policy `entries_staff_delete`). Category management stays admin-only.
+
+### Decisions / Notes
+- The visitor counter lives under `/staff/visitors`, **not** the `/admin` panel — a recurring point of confusion.
+- Live Eventbrite ticket counts are only possible with an owner-account token (now documented in `CLAUDE.md` key facts).
+- Migration 022 applied manually via the Supabase SQL Editor (prod).
+- Eventbrite event capacity (80/session) is set in Eventbrite; the site mirrors it live — change it there, not in code.
+
+### Remaining / Not Started
+- [ ] `on_sale_status` handling still not implemented.
+- [ ] All prior backlog items still open.
+
+---
+
 ## Blockers & Open Questions
 
 | Issue | Status | Notes |

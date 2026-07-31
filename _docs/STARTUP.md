@@ -16,8 +16,8 @@
 | Field | Value |
 |-------|-------|
 | **Phase** | Live in production — active development continuing |
-| **Last Session** | Session 17 — 2026-07-07 |
-| **Last Completed Task** | Added "Worlds of the Solar System" public event; added recurring (series) Eventbrite support — live sold-out status via the public destination endpoint + "N shows available" (exact remaining counts aren't available for recurring events; see INTEGRATIONS.md) |
+| **Last Session** | Session 18 — 2026-07-31 |
+| **Last Completed Task** | Published two "Worlds of the Solar System" (22 Aug) events linking to Eventbrite with live "X of 80 tickets left"; fixed the Eventbrite client to read event-level capacity + min price; swapped `EVENTBRITE_PRIVATE_TOKEN` to the owning organizer account; opened visitor-entry deletion to all staff (migration 022) |
 | **Live site** | https://www.svu3d.ai/bookings/ |
 | **Current Blockers** | SAML SSO blocked on Swinburne IT; Swinburne Exchange silently drops emails from `svu3d.ai`; DMARC DNS record pending |
 
