@@ -71,23 +71,25 @@ async function getCountsFromApi(eventId: string): Promise<TicketAvailability | n
       .filter((n) => Number.isFinite(n))
     const minPrice = prices.length > 0 ? Math.min(...prices) : undefined
 
-    // Case 1: capacity is set per ticket type.
+    // Determine the true capacity. Eventbrite's event-level `capacity` is the
+    // hard cap on total attendees and takes precedence: individual ticket-type
+    // allocations can sum to MORE than it (they share one event capacity), so
+    // summing them would overstate availability — e.g. three tiers allocated
+    // for an 80-seat event can report far more between them. Only fall back to
+    // summing per-ticket quantities when no event-level capacity is set.
+    const eventCapacity = await getEventCapacity(eventId, token)
     const capped = classes.filter((tc) => tc.quantity_total != null)
-    if (capped.length > 0) {
-      const capacity = capped.reduce((total, tc) => total + (tc.quantity_total ?? 0), 0)
-      const ticketsLeft = Math.max(0, capacity - sold)
-      return { soldOut: ticketsLeft === 0, ticketsLeft, capacity, minPrice }
-    }
+    const capacity =
+      eventCapacity != null
+        ? eventCapacity
+        : capped.length > 0
+          ? capped.reduce((total, tc) => total + (tc.quantity_total ?? 0), 0)
+          : null
 
-    // Case 2: capacity is set at the event level. Fall back to the event's own
-    // `capacity` field and subtract the tickets already sold.
-    const capacity = await getEventCapacity(eventId, token)
-    if (capacity != null) {
-      const ticketsLeft = Math.max(0, capacity - sold)
-      return { soldOut: ticketsLeft === 0, ticketsLeft, capacity, minPrice }
-    }
+    if (capacity == null) return null
 
-    return null
+    const ticketsLeft = Math.max(0, capacity - sold)
+    return { soldOut: ticketsLeft === 0, ticketsLeft, capacity, minPrice }
   } catch {
     return null
   }
