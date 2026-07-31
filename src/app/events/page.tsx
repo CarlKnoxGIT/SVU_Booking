@@ -146,7 +146,7 @@ export default async function EventsPage() {
                           {event.ticket_price === 0 || event.ticket_price === null
                             ? 'Free'
                             : live?.minPrice
-                              ? `From $${live.minPrice}`
+                              ? `Children's tickets only $${live.minPrice}`
                               : `$${event.ticket_price}`}
                         </span>
                         {hasCount && !soldOut && (
