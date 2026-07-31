@@ -10,6 +10,8 @@ type TicketClass = {
   quantity_sold: number | null
   on_sale_status?: string
   hidden?: boolean
+  free?: boolean
+  cost?: { major_value?: string } | null
 }
 
 type DestinationAvailability = {
@@ -59,12 +61,22 @@ async function getCountsFromApi(eventId: string): Promise<TicketAvailability | n
     // how capacity is configured.
     const sold = classes.reduce((total, tc) => total + (tc.quantity_sold ?? 0), 0)
 
+    // Lowest paid ticket price across the visible ticket types, so the site can
+    // show "From $X". This used to come from the public destination endpoint,
+    // but once we return counts here we no longer fall through to it — so derive
+    // it from the ticket classes we already fetched.
+    const prices = classes
+      .filter((tc) => !tc.free && tc.cost?.major_value != null)
+      .map((tc) => Number(tc.cost!.major_value))
+      .filter((n) => Number.isFinite(n))
+    const minPrice = prices.length > 0 ? Math.min(...prices) : undefined
+
     // Case 1: capacity is set per ticket type.
     const capped = classes.filter((tc) => tc.quantity_total != null)
     if (capped.length > 0) {
       const capacity = capped.reduce((total, tc) => total + (tc.quantity_total ?? 0), 0)
       const ticketsLeft = Math.max(0, capacity - sold)
-      return { soldOut: ticketsLeft === 0, ticketsLeft, capacity }
+      return { soldOut: ticketsLeft === 0, ticketsLeft, capacity, minPrice }
     }
 
     // Case 2: capacity is set at the event level. Fall back to the event's own
@@ -72,7 +84,7 @@ async function getCountsFromApi(eventId: string): Promise<TicketAvailability | n
     const capacity = await getEventCapacity(eventId, token)
     if (capacity != null) {
       const ticketsLeft = Math.max(0, capacity - sold)
-      return { soldOut: ticketsLeft === 0, ticketsLeft, capacity }
+      return { soldOut: ticketsLeft === 0, ticketsLeft, capacity, minPrice }
     }
 
     return null
