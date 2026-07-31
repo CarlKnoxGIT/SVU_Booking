@@ -62,7 +62,7 @@ export async function createVisitorEntry(
 
 export async function deleteVisitorEntry(id: string): Promise<State> {
   const { supabase, profile } = await getCurrentUser()
-  if (!profile || profile.role !== 'super_admin') return { error: 'Admin only.' }
+  if (!profile || !['staff', 'super_admin'].includes(profile.role)) return { error: 'Not authorised.' }
 
   const { error } = await supabase.from('visitor_entries').delete().eq('id', id)
   if (error) {

@@ -123,7 +123,7 @@ export default async function VisitorsPage() {
                     <th className="px-3 py-2 text-right font-medium">Count</th>
                     <th className="px-3 py-2 text-left font-medium">Note</th>
                     <th className="px-3 py-2 text-left font-medium">By</th>
-                    {isAdmin && <th className="px-3 py-2 text-right font-medium" />}
+                    <th className="px-3 py-2 text-right font-medium" />
                   </tr>
                 </thead>
                 <tbody>
@@ -136,14 +136,12 @@ export default async function VisitorsPage() {
                       <td className="px-3 py-2 text-white/40">
                         {(e.recorded_by && recorderNames[e.recorded_by]) || '—'}
                       </td>
-                      {isAdmin && (
-                        <td className="px-3 py-2 text-right">
-                          <DeleteEntryButton
-                            id={e.id}
-                            summary={`${e.count} ${labelById[e.category_id] ?? ''} on ${e.entry_date}`}
-                          />
-                        </td>
-                      )}
+                      <td className="px-3 py-2 text-right">
+                        <DeleteEntryButton
+                          id={e.id}
+                          summary={`${e.count} ${labelById[e.category_id] ?? ''} on ${e.entry_date}`}
+                        />
+                      </td>
                     </tr>
                   ))}
                 </tbody>
