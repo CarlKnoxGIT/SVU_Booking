@@ -102,8 +102,10 @@ export default async function EventsPage() {
                 <span className="font-semibold text-white">Free</span>
               </div>
             </div>
-            <span className="flex-shrink-0 rounded-xl bg-swin-red px-4 py-2 text-[13px] font-semibold text-white group-hover:bg-swin-red-hover transition-all duration-200">
-              Get tickets
+            <span className="glow-pill flex-shrink-0 inline-flex rounded-xl">
+              <span className="rounded-xl bg-swin-red px-4 py-2 text-[13px] font-semibold text-white transition-colors duration-200 group-hover:bg-swin-red-hover">
+                Get tickets
+              </span>
             </span>
           </div>
         </a>
@@ -166,9 +168,11 @@ export default async function EventsPage() {
                         href={event.humanitix_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-shrink-0 rounded-xl bg-swin-red px-4 py-2 text-[13px] font-semibold text-white hover:bg-swin-red-hover transition-all duration-200"
+                        className="glow-pill flex-shrink-0 inline-flex rounded-xl"
                       >
-                        Get tickets
+                        <span className="rounded-xl bg-swin-red px-4 py-2 text-[13px] font-semibold text-white hover:bg-swin-red-hover transition-colors duration-200">
+                          Get tickets
+                        </span>
                       </a>
                     ) : (
                       <span className="flex-shrink-0 rounded-xl bg-white/20 px-4 py-2 text-[13px] font-semibold text-white/60 cursor-default">

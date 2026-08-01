@@ -189,7 +189,6 @@ input[type="time"]::-webkit-datetime-edit-ampm-field {
 .glow-pill {
   position: relative;
   isolation: isolate;
-  border-radius: 9999px;
 }
 
 /* Both layers are the same rotating conic gradient; ::before is the crisp
