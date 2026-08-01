@@ -174,3 +174,43 @@ input[type="time"]::-webkit-datetime-edit-ampm-field {
   h5 { font-size: 1.125rem; font-weight: 600; letter-spacing: -0.2px; }
   h6 { font-size: 1rem;     font-weight: 600; }
 }
+
+/* ── Animated glowing gradient border (the "New shows announced" pill) ───────── */
+@property --pill-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes pill-spin {
+  to { --pill-angle: 360deg; }
+}
+
+.glow-pill {
+  position: relative;
+  isolation: isolate;
+  border-radius: 9999px;
+}
+
+/* Both layers are the same rotating conic gradient; ::before is the crisp
+   border ring, ::after is a blurred halo. The solid inner pill sits on top and
+   masks the centre, leaving only the ring + glow visible around the edges. */
+.glow-pill::before,
+.glow-pill::after {
+  content: "";
+  position: absolute;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--pill-angle),
+    #DC2D27, #ff7a3d, #ffd24d, #fff1a8, #ffd24d, #ff7a3d, #DC2D27
+  );
+  animation: pill-spin 4s linear infinite;
+}
+
+.glow-pill::before { inset: -2px; z-index: -1; }
+.glow-pill::after  { inset: -4px; z-index: -2; filter: blur(14px); opacity: 0.75; }
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-pill::before,
+  .glow-pill::after { animation: none; }
+}

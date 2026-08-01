@@ -92,10 +92,13 @@ export default async function Home() {
           </h1>
           <Link
             href="/events"
-            className="inline-flex items-center gap-2 mb-6 rounded-full bg-swin-red px-6 py-2.5 text-sm font-bold uppercase tracking-[0.2em] text-white hover:bg-swin-red-hover transition-all duration-200"
+            aria-label="New shows announced — see events"
+            className="glow-pill group mb-6 inline-flex rounded-full"
           >
-            New shows announced
-            <span aria-hidden="true">→</span>
+            <span className="inline-flex items-center gap-2 rounded-full bg-swin-red px-6 py-2.5 text-sm font-bold uppercase tracking-[0.2em] text-white transition-colors duration-200 group-hover:bg-swin-red-hover">
+              New shows announced
+              <span aria-hidden="true">→</span>
+            </span>
           </Link>
           <p className="text-base sm:text-lg text-white mb-10 leading-relaxed max-w-xl mx-auto">
             A 100m² curved LED wall. 360° immersive audio. Real scientific data.
