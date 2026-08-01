@@ -102,7 +102,10 @@ export default async function EventsPage() {
                 <span className="font-semibold text-white">Free</span>
               </div>
             </div>
-            <span className="glow-pill flex-shrink-0 inline-flex rounded-xl">
+            <span
+              className="glow-pill flex-shrink-0 inline-flex rounded-xl"
+              style={{ '--glow-delay': '-0.6s', '--glow-strength': '0.375' } as React.CSSProperties}
+            >
               <span className="rounded-xl bg-swin-red px-4 py-2 text-[13px] font-semibold text-white transition-colors duration-200 group-hover:bg-swin-red-hover">
                 Get tickets
               </span>
@@ -169,6 +172,7 @@ export default async function EventsPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="glow-pill flex-shrink-0 inline-flex rounded-xl"
+                        style={{ '--glow-delay': `${-1.3 * (i + 1)}s`, '--glow-strength': '0.375' } as React.CSSProperties}
                       >
                         <span className="rounded-xl bg-swin-red px-4 py-2 text-[13px] font-semibold text-white hover:bg-swin-red-hover transition-colors duration-200">
                           Get tickets
