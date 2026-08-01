@@ -26,5 +26,6 @@ This is **SVU_Booking** — a booking, ticketing, and visitor-tracking platform 
 | `_docs/USER_ROLES.md` | Roles, permissions, auth methods |
 | `_docs/DATABASE_SCHEMA.md` | Tables, RLS policies, relationships |
 | `_docs/TECH_STACK.md` | Stack decisions and rationale |
+| `_docs/CONTENT_MAP.md` | Where content lives (GitHub/Vercel/Supabase/external) + "where do I change X" cheat sheet |
 | `_docs/INTEGRATIONS.md` | Stripe, Eventbrite, Resend, QR, Calendar |
 | `_docs/AI_AGENTS.md` | Agent design (aspirational — not yet implemented) |
