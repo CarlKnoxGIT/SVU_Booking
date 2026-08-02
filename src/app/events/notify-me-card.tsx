@@ -1,87 +1,81 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useEffect, useRef } from 'react'
 import { submitEventNotifySignup } from './actions'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { SplitButton } from '@/components/public-site/split-control'
 
 type State = { error?: string; success?: boolean } | null
 
 export function NotifyMeCard() {
+  const successRef = useRef<HTMLElement>(null)
   const [state, formAction, pending] = useActionState(
     submitEventNotifySignup as (state: State, formData: FormData) => Promise<State>,
     null
   )
 
+  useEffect(() => {
+    if (state?.success) successRef.current?.focus()
+  }, [state?.success])
+
   if (state?.success) {
     return (
-      <div className="relative overflow-hidden rounded-2xl border border-sky-400/40 bg-gradient-to-br from-sky-500/[0.14] via-sky-500/[0.05] to-transparent p-8 text-center">
-        <div className="pointer-events-none absolute -top-24 -right-24 h-48 w-48 rounded-full bg-sky-400/30 blur-3xl" />
-        <div className="relative">
-          <div className="mb-3 text-4xl text-sky-300">✦</div>
-          <h2 className="text-[22px] font-semibold text-white mb-1">You&rsquo;re on the list</h2>
-          <p className="text-[14px] text-white leading-relaxed">
+      <section
+        ref={successRef}
+        className="enquiry-section event-notify event-notify--success"
+        role="status"
+        tabIndex={-1}
+        data-reveal-block
+      >
+        <div className="enquiry-section__intro">
+          <p className="eyebrow">Event updates</p>
+          <h2>You&rsquo;re on the list.</h2>
+        </div>
+        <div className="event-notify__confirmation">
+          <p>
             We&rsquo;ll email you when new SVU events are announced.
           </p>
         </div>
-      </div>
+      </section>
     )
   }
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-sky-400/40 bg-gradient-to-br from-sky-500/[0.14] via-sky-500/[0.05] to-white/[0.01] p-7 shadow-[0_0_40px_-12px_rgba(56,189,248,0.3)]">
-      <div className="pointer-events-none absolute -top-24 -right-24 h-56 w-56 rounded-full bg-sky-400/30 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-32 -left-20 h-56 w-56 rounded-full bg-sky-500/15 blur-3xl" />
-
-      <div className="relative">
-        <div className="mb-3 flex items-center gap-2.5">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-sky-400" />
-          </span>
-          <p className="text-[11px] font-bold tracking-[0.2em] text-sky-300 uppercase">Coming next</p>
-        </div>
-
-        <h2 className="text-[26px] font-semibold text-white leading-tight tracking-tight">
-          More sessions <span className="text-sky-300">coming soon</span>
-        </h2>
-        <p className="mt-3 text-[16px] text-white leading-relaxed max-w-prose">
+    <section className="enquiry-section event-notify" aria-labelledby="event-notify-title" data-reveal-block>
+      <div className="enquiry-section__intro">
+        <p className="eyebrow">Coming next</p>
+        <h2 id="event-notify-title">More sessions coming soon.</h2>
+        <p>
           Be the first to know. Drop your name and email and we&rsquo;ll let you know the moment SVU events go live — one email, no spam, ever.
         </p>
+      </div>
 
-      <form action={formAction} className="mt-6 space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="notify_name" className="text-[13px] text-white/85 uppercase tracking-wide">
-              Name
-            </Label>
-            <Input
-              id="notify_name"
-              name="name"
-              type="text"
-              required
-              maxLength={200}
-              placeholder="Jane Smith"
-              className="border-white/10 bg-white/5 text-white placeholder:text-zinc-600 focus-visible:ring-sky-400 rounded-none"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="notify_email" className="text-[13px] text-white/85 uppercase tracking-wide">
-              Email
-            </Label>
-            <Input
-              id="notify_email"
-              name="email"
-              type="email"
-              required
-              placeholder="jane@example.com"
-              className="border-white/10 bg-white/5 text-white placeholder:text-zinc-600 focus-visible:ring-sky-400 rounded-none"
-            />
-          </div>
+      <form action={formAction} className="mock-form notify-form">
+        <div className="form-field">
+          <label htmlFor="notify_name">Name</label>
+          <input
+            id="notify_name"
+            name="name"
+            type="text"
+            required
+            maxLength={200}
+            autoComplete="name"
+            placeholder="Jane Smith"
+          />
+        </div>
+        <div className="form-field">
+          <label htmlFor="notify_email">Email</label>
+          <input
+            id="notify_email"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            placeholder="jane@example.com"
+          />
         </div>
 
         <div
+          className="form-honeypot"
           aria-hidden="true"
           style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}
         >
@@ -97,18 +91,18 @@ export function NotifyMeCard() {
         </div>
 
         {state?.error && (
-          <p className="text-sm text-red-400">{state.error}</p>
+          <p className="form-status is-visible form-field--wide" role="alert">{state.error}</p>
         )}
 
-        <Button
-          type="submit"
-          disabled={pending}
-          className="w-full sm:w-auto bg-sky-500 hover:bg-sky-400 text-white rounded-none px-6 py-2.5 text-[13px] font-semibold transition-colors"
-        >
-          {pending ? 'Adding…' : 'Notify me'}
-        </Button>
+        <div className="mock-form__footer form-field--wide">
+          <p>One email when new public events are announced. No ongoing newsletter.</p>
+          <SplitButton
+            type="submit"
+            disabled={pending}
+            label={pending ? 'Adding…' : 'Notify me'}
+          />
+        </div>
       </form>
-      </div>
-    </div>
+    </section>
   )
 }

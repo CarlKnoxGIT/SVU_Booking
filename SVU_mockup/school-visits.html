@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Plan a curriculum-tailored school visit to the Swinburne Virtual Universe.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="navigation.css">
+    <link rel="stylesheet" href="service-pages.css">
+    <link rel="stylesheet" href="school-visits.css">
+    <link rel="stylesheet" href="footer.css">
+    <link rel="icon" href="logo.ico">
+    <script src="navigation.js" defer></script>
+    <title>School Visits | Swinburne Virtual Universe</title>
+</head>
+<body class="service-page school-visits-page">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <header class="site-header" data-site-navigation>
+        <div class="site-header__inner">
+            <a class="site-nav__brand" href="index.html" aria-label="Swinburne Virtual Universe home">
+                <span class="site-nav__brand-art" aria-hidden="true">
+                    <img src="swin-logo.svg" alt="">
+                </span>
+            </a>
+            <nav class="site-nav" aria-label="Primary navigation">
+                <ul class="site-nav__list">
+                    <li class="site-nav__item">
+                        <a class="site-nav__link" href="index.html#about">
+                            <span class="site-nav__label">About</span>
+                        </a>
+                    </li>
+                    <li class="site-nav__item site-nav__services is-current-section" data-services-item>
+                        <button class="site-nav__trigger" type="button" aria-expanded="false" aria-controls="site-services-menu" data-services-trigger>
+                            <span class="site-nav__label">Services</span>
+                            <img src="down-arrow.svg" alt="">
+                        </button>
+                        <ul class="site-nav__dropdown" id="site-services-menu" data-services-dropdown hidden inert>
+                            <li>
+                                <a class="site-nav__dropdown-link" href="public-events.html">
+                                    <span class="site-nav__label">Browse Events</span>
+                                    <img class="site-nav__selection-icon" src="navigation-events-icon.svg" alt="">
+                                </a>
+                            </li>
+                            <li>
+                                <a class="site-nav__dropdown-link" href="school-visits.html" aria-current="page">
+                                    <span class="site-nav__label">School Visits</span>
+                                    <img class="site-nav__selection-icon" src="navigation-events-icon.svg" alt="">
+                                </a>
+                            </li>
+                            <li>
+                                <a class="site-nav__dropdown-link" href="private-event-hire.html">
+                                    <span class="site-nav__label">Private Hires</span>
+                                    <img class="site-nav__selection-icon" src="navigation-events-icon.svg" alt="">
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="site-nav__item">
+                        <a class="site-nav__link" href="index.html#contact">
+                            <span class="site-nav__label">Contact</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <span class="site-nav__staff" aria-disabled="true">Staff Login</span>
+        </div>
+    </header>
+
+    <main id="main-content" class="scroll-container">
+        <section class="service-hero page-section" data-reveal-section>
+            <div class="service-hero__copy">
+                <div>
+                    <h1>School visits</h1>
+                    <p class="service-hero__description">Curriculum-aligned sessions are being developed for students in Years 3–12. Register your interest to hear when school visits open.</p>
+                </div>
+                <div class="service-hero__intro">
+                    <a href="#programs" class="down-button">
+                        <div>
+                            <div class="text-container-border">
+                                <div class="text-indicator">
+                                    <p>Explore programs</p>
+                                    <p>Explore programs</p>
+                                </div>
+                            </div>
+                            <div class="img-container-border">
+                                <div class="img-indicator">
+                                    <img src="down-arrow.svg" alt="">
+                                    <img src="down-arrow.svg" alt="">
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <figure class="service-hero__media" data-reveal-media>
+                <img src="SVU01D.jpg" alt="Students immersed in a large-scale scientific visualisation">
+                <figcaption>Students can explore astronomical scale, motion and evidence together with an expert presenter.</figcaption>
+            </figure>
+        </section>
+
+        <section class="page-section" id="programs" data-reveal-section>
+            <div class="programs-statement">
+                <h2>Each presenter-led session connects curriculum concepts with real scientific data, large-scale visualisation and shared exploration.</h2>
+            </div>
+            <dl class="fact-grid fact-grid--four">
+                <div>
+                    <dt>Display</dt>
+                    <dd>100m² curved LED wall</dd>
+                </div>
+                <div>
+                    <dt>Sound</dt>
+                    <dd>360° immersive audio</dd>
+                </div>
+                <div>
+                    <dt>Session length</dt>
+                    <dd>45–60 minutes</dd>
+                </div>
+                <div>
+                    <dt>Year levels</dt>
+                    <dd>Years 3–12</dd>
+                </div>
+            </dl>
+            <div class="feature-grid feature-grid--three">
+                <article class="feature-card" data-reveal-block>
+                    <span class="feature-card__number">Primary · Years 3–6</span>
+                    <h3>Our Solar System</h3>
+                    <p>Explore the planets, moons and the Sun through real NASA data and imagery, aligned with Earth and Space sciences.</p>
+                </article>
+                <article class="feature-card" data-reveal-block>
+                    <span class="feature-card__number">Lower secondary · Years 7–9</span>
+                    <h3>Scale of the Universe</h3>
+                    <p>Journey from Earth to the cosmic web while exploring distance, light-years and the structure of galaxies.</p>
+                </article>
+                <article class="feature-card" data-reveal-block>
+                    <span class="feature-card__number">VCE · Years 10–12</span>
+                    <h3>Stars &amp; Stellar Evolution</h3>
+                    <p>Use H-R diagrams and real astrophysical data to examine stellar lifecycles and supernovae, aligned with Unit 3/4 Physics.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="page-section journey-section" data-reveal-section>
+            <div class="section-heading">
+                <p class="eyebrow">What happens next</p>
+                <h2>From interest to immersion.</h2>
+            </div>
+            <ol class="journey-list">
+                <li data-reveal-block>
+                    <span>01</span>
+                    <div>
+                        <h3>Register your interest</h3>
+                        <p>Tell us about your school, year levels and approximate student numbers. There is no commitment at this stage.</p>
+                    </div>
+                </li>
+                <li data-reveal-block>
+                    <span>02</span>
+                    <div>
+                        <h3>We'll be in touch</h3>
+                        <p>When sessions are ready, registered schools will hear first about availability and pricing.</p>
+                    </div>
+                </li>
+                <li data-reveal-block>
+                    <span>03</span>
+                    <div>
+                        <h3>Visit the SVU</h3>
+                        <p>Arrive at Swinburne's Hawthorn Campus and let an SVU facilitator run the full immersive session. No preparation is required.</p>
+                    </div>
+                </li>
+            </ol>
+        </section>
+
+        <section class="page-section enquiry-section" id="register-interest" data-reveal-section>
+            <div class="enquiry-section__intro">
+                <p class="eyebrow">Register your interest</p>
+                <h2>Tell us about your school.</h2>
+                <p>There is no commitment. This prototype demonstrates how schools will be able to register before sessions open.</p>
+            </div>
+            <form class="mock-form" data-prototype-form data-form-name="school visit registration">
+                <div class="form-field">
+                    <label for="school-contact-name">Your name</label>
+                    <input id="school-contact-name" name="name" type="text" autocomplete="name" placeholder="Jane Smith" required>
+                </div>
+                <div class="form-field">
+                    <label for="school-contact-email">Email</label>
+                    <input id="school-contact-email" name="email" type="email" autocomplete="email" placeholder="jane@school.vic.edu.au" required>
+                </div>
+                <div class="form-field form-field--wide">
+                    <label for="school-name">School name</label>
+                    <input id="school-name" name="school" type="text" autocomplete="organization" placeholder="Riverside Primary School" required>
+                </div>
+                <div class="form-field">
+                    <label for="school-year-level">Year level(s)</label>
+                    <select id="school-year-level" name="year_level" required>
+                        <option value="">Select…</option>
+                        <option value="Primary (Years 3–6)">Primary (Years 3–6)</option>
+                        <option value="Lower Secondary (Years 7–9)">Lower Secondary (Years 7–9)</option>
+                        <option value="Senior / VCE (Years 10–12)">Senior / VCE (Years 10–12)</option>
+                        <option value="Mixed year levels">Mixed year levels</option>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="school-student-count">Approximate number of students</label>
+                    <input id="school-student-count" name="student_count" type="number" inputmode="numeric" min="1" max="200" placeholder="30" required>
+                </div>
+                <div class="form-field form-field--wide">
+                    <label for="school-notes">Anything else <span class="field-optional">(optional)</span></label>
+                    <textarea id="school-notes" name="notes" rows="4" placeholder="Share curriculum requirements, access needs or questions that may help us."></textarea>
+                </div>
+                <div class="mock-form__footer form-field--wide">
+                    <p>This is a demonstration form. Your information will not be sent or stored.</p>
+                    <button type="submit" class="right-button prototype-submit">
+                        <span class="text-container-border">
+                            <span class="text-indicator">
+                                <span>Register interest</span>
+                                <span aria-hidden="true">Register interest</span>
+                            </span>
+                        </span>
+                        <span class="img-container-border">
+                            <span class="img-indicator">
+                                <img src="right-arrow.svg" alt="">
+                                <img src="right-arrow.svg" alt="" aria-hidden="true">
+                            </span>
+                        </span>
+                    </button>
+                </div>
+                <p class="form-status form-field--wide" data-form-status role="status" aria-live="polite"></p>
+            </form>
+        </section>
+    </main>
+
+    <div class="footer" data-reveal-section>
+        <div class="footer-content">
+            <div class="logo">
+                <img src="swin-logo.svg" alt="">
+            </div>
+            <div class="copyright">
+                <p>We acknowledge and pay respects to the Elders and Traditional Owners of the land, the Wurundjeri People of the Kulin people. We pay our respects to their elders past, present and emerging.</p>
+                <p>Copyright © Swinburne University of Technology 2026. All Rights Reserved. Swinburne University of Technology Hawthorn Campus, Melbourne</p>
+            </div>
+            <div class="links">
+                <div class="navigation">
+                    <h2>Navigation</h2>
+                    <a href="index.html">Home</a>
+                    <a href="index.html#about">About</a>
+                    <a href="index.html#contact">Contact</a>
+                </div>
+                <div class="footer-services">
+                    <h2>Services</h2>
+                    <a href="public-events.html">Public Events</a>
+                    <a href="school-visits.html">School Visits</a>
+                    <a href="private-event-hire.html">Private Event Hire</a>
+                    <span class="footer-link-muted" aria-disabled="true">Staff Login</span>
+                </div>
+            </div>
+        </div>
+        <div class="acronym">
+            <h1>S</h1>
+            <h1>V</h1>
+            <h1>U</h1>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js"></script>
+    <script src="smooth-scroll.js"></script>
+    <script src="text-reveal.js"></script>
+    <script src="prototype-forms.js"></script>
+</body>
+</html>

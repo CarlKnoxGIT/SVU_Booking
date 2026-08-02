@@ -1,8 +1,8 @@
-import Link from 'next/link'
 import Image from 'next/image'
-import SwinburneLogo from '@/components/swinburne-logo'
+import { PublicShell } from '@/components/public-site/public-shell'
+import { publicAsset } from '@/components/public-site/asset-path'
+import { SplitLink } from '@/components/public-site/split-control'
 import { EnquiryForm } from './enquiry-form'
-import { ParallaxHero } from '@/components/parallax-hero'
 
 export const metadata = {
   title: 'Enquire — Swinburne Virtual Universe',
@@ -11,116 +11,140 @@ export const metadata = {
 
 export default function EnquirePage() {
   return (
-    <main className="bg-black text-white">
-
-      {/* Nav */}
-      <nav className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-8 py-6">
-        <Link href="/">
-          <SwinburneLogo className="h-[89px] w-auto" />
-        </Link>
-        <Link
-          href="/login"
-          className="rounded-full border border-white/15 bg-white/5 backdrop-blur-sm px-4 py-1.5 text-[12px] font-medium text-white/60 hover:text-white hover:bg-white/10 transition-all duration-200"
-        >
-          Staff sign in
-        </Link>
-      </nav>
-
-      {/* Hero */}
-      <section className="relative h-[55vh] min-h-[420px] flex flex-col items-start justify-end overflow-hidden">
-        <ParallaxHero>
-          <Image
-            src="/images/SVU11C.jpg"
-            alt="Host presenting to an audience inside the SVU"
-            fill
-            priority
-            className="object-cover object-center"
-            sizes="100vw"
-          />
-        </ParallaxHero>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/95" />
-        <div className="relative z-10 px-8 sm:px-16 pb-14 max-w-2xl">
-          <p className="text-[11px] font-bold tracking-[0.18em] text-swin-red-light uppercase mb-4">
-            Private hire
-          </p>
-          <h1 className="text-4xl sm:text-5xl font-light leading-[1.08] tracking-[-1px]">
-            Your event.<br />An unforgettable stage.
-          </h1>
-        </div>
-      </section>
-
-      {/* Content */}
-      <section className="mx-auto max-w-5xl px-8 py-20">
-
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-16">
-
-          {/* Left — what's included */}
-          <div className="lg:col-span-2">
-            <p className="text-[12px] font-bold tracking-[0.18em] text-white/85 uppercase mb-8">
-              What's included
-            </p>
-            <div className="space-y-6">
-              {[
-                { title: '100m² LED wall', desc: 'Full curved surface available for custom content, branding, or SVU experiences.' },
-                { title: '360° spatial audio', desc: 'Surround sound system with 12 channels of pristine spatial audio.' },
-                { title: 'Technical operator', desc: 'Dedicated AV technician for setup, run of show, and pack down.' },
-                { title: 'Up to 60 guests', desc: 'Seated or standing configurations across the full floor area.' },
-                { title: 'Custom content', desc: 'Bring your own visuals or work with our team to create something bespoke.' },
-              ].map(({ title, desc }) => (
-                <div key={title} className="border-t border-white/[0.06] pt-6">
-                  <h4 className="text-[15px] font-semibold text-white mb-1">{title}</h4>
-                  <p className="text-[14px] text-white leading-relaxed">{desc}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-12 border border-white/[0.07] bg-white/[0.02] p-6">
-              <p className="text-[12px] font-bold tracking-[0.16em] text-white/85 uppercase mb-3">Location</p>
-              <p className="text-[15px] text-white leading-relaxed">
-                Swinburne, Hawthorn Campus<br />
-                ATC Building, Room 103<br />
-                <span className="text-white/75 text-[13px]">Free parking available on evenings and weekends</span>
+    <PublicShell current="hire" pageClassName="service-page private-hire-page">
+      <main id="main-content" className="scroll-container" tabIndex={-1}>
+        <section className="service-hero page-section" data-reveal-section>
+          <div className="service-hero__copy">
+            <div>
+              <h1 data-reveal-line>Private event hire</h1>
+              <p className="service-hero__description" data-reveal-line>
+                Plan a tailored private experience for an organisation, industry partner, research
+                team, or creative collaborator.
               </p>
             </div>
-
-            <div className="mt-6 border border-white/[0.07] bg-white/[0.02] p-6">
-              <p className="text-[12px] font-bold tracking-[0.16em] text-white/85 uppercase mb-3">Contact</p>
-              <a
-                href="mailto:svu@swin.edu.au"
-                className="text-[15px] text-swin-red-light hover:text-white transition-colors duration-200"
-              >
-                svu@swin.edu.au
-              </a>
+            <div className="service-hero__intro" data-reveal-block>
+              <SplitLink href="/enquire#event-support" label="Explore support" direction="down" />
             </div>
           </div>
+          <figure className="service-hero__media" data-reveal-media>
+            <Image
+              src={publicAsset('/images/SVU20B.jpg')}
+              alt="Guests gathered for a presentation inside the Swinburne Virtual Universe"
+              fill
+              priority
+              sizes="100vw"
+            />
+            <figcaption>
+              Private events can combine presentation, visualisation, and performance in one shared environment.
+            </figcaption>
+          </figure>
+        </section>
 
-          {/* Right — form */}
-          <div className="lg:col-span-3">
-            <p className="text-[12px] font-bold tracking-[0.18em] text-white/85 uppercase mb-8">
-              Send an enquiry
+        <section className="page-section editorial-split" id="event-support" data-reveal-section>
+          <div className="section-heading">
+            <p className="eyebrow" data-reveal-line>Event support</p>
+            <h2 data-reveal-line>Supported from setup to pack-down.</h2>
+          </div>
+          <div className="editorial-split__content">
+            <p className="large-copy" data-reveal-line>Bring the brief. The SVU team will help deliver it.</p>
+            <p data-reveal-line>
+              The team works with you to shape the format, prepare custom content, configure and test
+              the space, operate the run of show, and manage pack-down.
             </p>
+            <ol className="support-list">
+              {[
+                {
+                  number: '01',
+                  title: 'Scope and prepare',
+                  copy: 'Confirm the audience, format, timing, and visual or audio content needed for the event.',
+                },
+                {
+                  number: '02',
+                  title: 'Set up and test',
+                  copy: 'Configure the room, prepare the LED wall and spatial audio, and test content before guests arrive.',
+                },
+                {
+                  number: '03',
+                  title: 'Run the event',
+                  copy: 'A dedicated technical operator supports the run of show and pack-down.',
+                },
+              ].map((step) => (
+                <li key={step.number} data-reveal-block>
+                  <span>{step.number}</span>
+                  <div>
+                    <h3>{step.title}</h3>
+                    <p>{step.copy}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+            <dl className="detail-list" data-reveal-block>
+              <div>
+                <dt>Content</dt>
+                <dd>Bring your own visuals or develop something bespoke with the team</dd>
+              </div>
+              <div>
+                <dt>Technical support</dt>
+                <dd>Dedicated operator for setup, run of show, and pack-down</dd>
+              </div>
+              <div>
+                <dt>Capacity</dt>
+                <dd>Up to 60 guests in seated or standing configurations</dd>
+              </div>
+              <div>
+                <dt>Location</dt>
+                <dd>Advanced Technologies Centre, Hawthorn Campus</dd>
+              </div>
+            </dl>
+          </div>
+        </section>
+
+        <section className="page-section location-section" id="location" data-reveal-section>
+          <div className="location-section__intro">
+            <p className="eyebrow" data-reveal-line>Find the SVU</p>
+            <h2 data-reveal-line>Inside the ATC at Hawthorn.</h2>
+            <p data-reveal-line>
+              The Swinburne Virtual Universe is located in the Advanced Technologies Centre at
+              427–451 Burwood Road, Hawthorn.
+            </p>
+            <div data-reveal-block>
+              <SplitLink
+                href="https://www.google.com/maps/dir/?api=1&destination=-37.82267,145.0384"
+                label="Open directions"
+                external
+                target="_blank"
+                rel="noopener noreferrer"
+              />
+            </div>
+          </div>
+          <div className="campus-map" data-reveal-block role="region" aria-label="Map showing the Advanced Technologies Centre at Swinburne's Hawthorn campus">
+            <iframe
+              className="campus-map__iframe"
+              title="Advanced Technologies Centre at Swinburne Hawthorn"
+              src="https://www.openstreetmap.org/export/embed.html?bbox=145.029%2C-37.828%2C145.048%2C-37.817&layer=mapnik&marker=-37.82267%2C145.0384"
+              loading="lazy"
+            />
+            <div className="campus-map__label">
+              <span>Destination</span>
+              <strong>ATC / SVU</strong>
+              <span>427–451 Burwood Road, Hawthorn</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="page-section enquiry-section" id="enquire" data-reveal-section>
+          <div className="enquiry-section__intro">
+            <p className="eyebrow" data-reveal-line>Register your interest</p>
+            <h2 data-reveal-line>Tell us what you want to create.</h2>
+            <p data-reveal-line>
+              Share the shape of your event and the SVU team will get back to you within two business days.
+            </p>
+          </div>
+          <div data-reveal-block>
             <EnquiryForm />
           </div>
-
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-white/[0.06] py-10 px-8">
-        <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <SwinburneLogo className="h-7 w-auto opacity-60" />
-            <p className="text-[13px] text-white/75">Hawthorn Campus, Melbourne</p>
-          </div>
-          <div className="flex gap-6 text-[13px] text-white/75">
-            <Link href="/events" className="hover:text-white transition-colors">Events</Link>
-            <Link href="/school-groups" className="hover:text-white transition-colors">Schools</Link>
-            <Link href="/enquire" className="hover:text-white transition-colors">Hire</Link>
-            <Link href="/login" className="hover:text-white transition-colors">Staff</Link>
-          </div>
-        </div>
-      </footer>
-
-    </main>
+        </section>
+      </main>
+    </PublicShell>
   )
 }

@@ -1,0 +1,32 @@
+/* Public events page */
+
+.public-events-page .service-hero__media img {
+    object-position:center 45%;
+}
+
+.empty-state {
+    min-height:62vh;
+    display:grid;
+    grid-template-columns:minmax(19rem, 0.8fr) minmax(0, 1.2fr);
+    align-items:start;
+    gap:8vw;
+}
+
+.empty-state__content {
+    grid-column:1;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:2rem;
+}
+
+@media (max-width: 900px) {
+    .empty-state__content {
+        grid-column:1;
+    }
+}
+
+.empty-state__content > p:not(.large-copy) {
+    max-width:38rem;
+    color:var(--color-text);
+}

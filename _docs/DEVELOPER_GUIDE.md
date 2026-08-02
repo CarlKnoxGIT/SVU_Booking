@@ -178,6 +178,8 @@ Listed in `.env.example`. Production values are set in Vercel:
 | Variable | Purpose |
 |----------|---------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase API endpoint |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Preferred public browser key (RLS-aware) |
+| `SUPABASE_SECRET_KEY` | Preferred server-only admin key; bypasses RLS and must never be exposed |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public anon key (RLS-aware) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Bypasses RLS — server-only, never expose |
 | `NEXT_PUBLIC_BASE_PATH` | Set to `/bookings` in production, empty locally |

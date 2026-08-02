@@ -1,0 +1,134 @@
+/* Global footer */
+
+.footer {
+    width:100%;
+    padding:10vh 2.5vw;
+    border-top:2px solid #333;
+    margin-top:10vh;
+    display:flex;
+    flex-direction: column;
+    gap:3vh;
+    padding-bottom:0;
+}
+
+.footer-content {
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:5vw;
+}
+
+.footer-content .links {
+    display:flex;
+    flex-direction: column;
+    gap:3vh;
+    justify-content:flex-start;
+}
+
+.footer-content .links > div a {
+    text-decoration: none;
+    color:white;
+    font-size:var(--new-main-text-size);
+    line-height:1.2;
+    width:max-content;
+    display: inline-block;
+    position: relative;
+    margin-bottom:1.5vh;
+    margin-right: 1.5vw;
+    padding-bottom:0.5vh;
+}
+
+.footer-content .links > div a::before {
+    content:'';
+    position:absolute;
+    bottom:0;
+    left:0;
+    background:white;
+    width:100%;
+    height:2px;
+    transform:scaleX(0);
+    transform-origin:right;
+    transition:transform 0.3s ease;
+}
+
+.footer-content .links > div a:hover::before,
+.footer-content .links > div a:focus-visible::before,
+.footer-content .links > div a[aria-current="page"]::before {
+    transform:scaleX(1);
+    transition:transform 0.3s ease;
+    transform-origin:left;
+}
+
+.footer-content h2 {
+    font-size:1.5em;
+    line-height:normal;
+    margin-bottom:1.5vh;
+}
+
+.footer .acronym {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding-top:5vh;
+}
+
+.footer .acronym h1 {
+    font-size:15em;
+    line-height:0.9;
+    font-weight:300;
+}
+
+.footer .acronym h1 .reveal-line {
+    transition-duration:1.35s;
+}
+
+.footer-content .copyright {
+    display:flex;
+    flex-direction: column;
+    gap:1.5vh;
+    justify-content:flex-start;
+    width:50%;
+}
+
+.footer-link-muted {
+    display:block;
+    width:max-content;
+    color:#777;
+    font-size:var(--new-main-text-size);
+    line-height:1.2;
+    margin-bottom:1.5vh;
+    padding-bottom:0.5vh;
+}
+
+@media (max-width: 900px) {
+    .footer-content {
+        flex-wrap:wrap;
+    }
+
+    .footer-content .copyright {
+        width:65%;
+    }
+
+    .footer .acronym h1 {
+        font-size:clamp(7rem, 22vw, 12rem);
+    }
+}
+
+@media (max-width: 640px) {
+    .footer {
+        padding-left:5vw;
+        padding-right:5vw;
+    }
+
+    .footer-content {
+        flex-direction:column;
+    }
+
+    .footer-content .copyright {
+        width:100%;
+    }
+
+    .footer-content .links {
+        width:100%;
+    }
+}

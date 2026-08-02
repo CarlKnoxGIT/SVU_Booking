@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { getSupabasePublicConfig } from '@/lib/supabase/config'
 
 // Routes that require authentication
 const PROTECTED_PATHS = ['/admin', '/staff', '/dashboard', '/bookings', '/account']
@@ -9,10 +10,11 @@ const ADMIN_ONLY_PATHS = ['/admin']
 
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
+  const { url, publishableKey } = getSupabasePublicConfig()
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    url,
+    publishableKey,
     {
       cookies: {
         getAll() {

@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
-import { Open_Sans } from "next/font/google";
+import { Funnel_Display, Open_Sans } from "next/font/google";
 import "./globals.css";
+import "./public-site.css";
 
 const openSans = Open_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800"],
+  display: "swap",
+});
+
+const funnelDisplay = Funnel_Display({
+  variable: "--font-public",
+  subsets: ["latin"],
   display: "swap",
 });
 
@@ -23,7 +30,7 @@ export default function RootLayout({
   return (
     <html
       lang="en-GB"
-      className={`${openSans.variable} h-full antialiased dark`}
+      className={`${openSans.variable} ${funnelDisplay.variable} h-full antialiased dark`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

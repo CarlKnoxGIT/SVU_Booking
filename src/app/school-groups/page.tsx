@@ -1,164 +1,158 @@
-import Link from 'next/link'
 import Image from 'next/image'
-import SwinburneLogo from '@/components/swinburne-logo'
-import { ParallaxHero } from '@/components/parallax-hero'
+import { publicAsset } from '@/components/public-site/asset-path'
+import { PublicShell } from '@/components/public-site/public-shell'
+import { SplitLink } from '@/components/public-site/split-control'
 import { SchoolInterestForm } from './school-interest-form'
 
 export const metadata = {
   title: 'School Visits — Swinburne Virtual Universe',
-  description: 'Bring your class inside a 100m² curved LED wall. Curriculum-aligned immersive experiences for primary and secondary students — coming soon.',
+  description:
+    'Bring your class inside a 100m² curved LED wall. Curriculum-aligned immersive experiences for primary and secondary students — coming soon.',
 }
 
 export default function SchoolGroupsPage() {
   return (
-    <main className="bg-black text-white">
-
-      {/* Nav */}
-      <nav className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-8 py-6">
-        <Link href="/">
-          <SwinburneLogo className="h-[89px] w-auto" />
-        </Link>
-        <Link
-          href="/login"
-          className="rounded-full border border-white/15 bg-white/5 backdrop-blur-sm px-4 py-1.5 text-[12px] font-medium text-white/60 hover:text-white hover:bg-white/10 transition-all duration-200"
-        >
-          Staff sign in
-        </Link>
-      </nav>
-
-      {/* Hero */}
-      <section className="relative h-[70vh] min-h-[520px] flex flex-col items-start justify-end overflow-hidden">
-        <ParallaxHero>
-          <Image
-            src="/images/SVU01D.jpg"
-            alt="Students in 3D glasses inside the Virtual Universe"
-            fill
-            priority
-            className="object-cover object-center"
-            sizes="100vw"
-          />
-        </ParallaxHero>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/30 to-black/90" />
-        <div className="relative z-10 px-8 sm:px-16 pb-16 max-w-2xl">
-          <p className="text-[11px] font-bold tracking-[0.18em] text-swin-red-light uppercase mb-4">
-            Educational visits · Coming soon
-          </p>
-          <h1 className="text-4xl sm:text-6xl font-light leading-[1.06] tracking-[-1px] mb-5">
-            Bring the cosmos<br />into the classroom
-          </h1>
-          <p className="text-white text-lg leading-relaxed max-w-md">
-            We're building curriculum-aligned sessions inside the SVU. Register your interest and we'll let you know when school visits open.
-          </p>
-        </div>
-      </section>
-
-      {/* Main content */}
-      <section className="mx-auto max-w-5xl px-8 py-20">
-
-        {/* Key details strip */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 border-b border-white/[0.07] pb-16 mb-16">
-          {[
-            { value: '100m²', label: 'Curved LED wall' },
-            { value: '360°', label: 'Immersive audio' },
-            { value: '45–60 min', label: 'Session length' },
-            { value: 'Yrs 3–12', label: 'All year levels' },
-          ].map(({ value, label }) => (
-            <div key={label}>
-              <p className="text-2xl font-light text-white mb-1">{value}</p>
-              <p className="text-[13px] text-white/85 uppercase tracking-wide">{label}</p>
+    <PublicShell current="schools" pageClassName="service-page school-visits-page">
+      <main id="main-content" className="scroll-container" tabIndex={-1}>
+        <section className="service-hero page-section" data-reveal-section>
+          <div className="service-hero__copy">
+            <div>
+              <h1>School visits</h1>
+              <p className="service-hero__description">
+                Curriculum-aligned sessions are being developed for students in Years 3–12. Register
+                your interest to hear when school visits open.
+              </p>
             </div>
-          ))}
-        </div>
+            <div className="service-hero__intro">
+              <SplitLink href="#programs" label="Explore programs" direction="down" />
+            </div>
+          </div>
 
-        {/* Programs */}
-        <div className="mb-20">
-          <p className="text-[12px] font-bold tracking-[0.18em] text-white/85 uppercase mb-10">
-            Programs in development
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {[
-              {
-                level: 'Primary',
-                years: 'Years 3–6',
-                title: 'Our Solar System',
-                desc: 'Explore the planets, moons and the Sun through real NASA data and imagery. Aligned to Earth and Space sciences.',
-              },
-              {
-                level: 'Lower Secondary',
-                years: 'Years 7–9',
-                title: 'Scale of the Universe',
-                desc: 'Journey from Earth to the cosmic web. Covers distance, light-years, and the structure of galaxies.',
-              },
-              {
-                level: 'VCE',
-                years: 'Years 10–12',
-                title: 'Stars & Stellar Evolution',
-                desc: 'H-R diagrams, stellar lifecycles, and supernovae rendered in real astrophysical data. Aligned to Unit 3/4 Physics.',
-              },
-            ].map((program) => (
-              <div
-                key={program.title}
-                className="border border-white/[0.07] bg-white/[0.02] p-7 hover:border-white/[0.14] transition-all duration-200"
-              >
-                <p className="text-[10px] font-bold tracking-[0.16em] text-swin-red-light uppercase mb-1">
-                  {program.level} · {program.years}
+          <figure className="service-hero__media" data-reveal-media>
+            <Image
+              src={publicAsset('/images/SVU01D.jpg')}
+              alt="Students immersed in a large-scale scientific visualisation"
+              fill
+              priority
+              sizes="100vw"
+            />
+            <figcaption>
+              Students can explore astronomical scale, motion and evidence together with an expert
+              presenter.
+            </figcaption>
+          </figure>
+        </section>
+
+        <section className="page-section" id="programs" data-reveal-section>
+          <div className="programs-statement">
+            <h2>
+              Each presenter-led session connects curriculum concepts with real scientific data,
+              large-scale visualisation and shared exploration.
+            </h2>
+          </div>
+
+          <dl className="fact-grid fact-grid--four">
+            <div>
+              <dt>Display</dt>
+              <dd>100m² curved LED wall</dd>
+            </div>
+            <div>
+              <dt>Sound</dt>
+              <dd>360° immersive audio</dd>
+            </div>
+            <div>
+              <dt>Session length</dt>
+              <dd>45–60 minutes</dd>
+            </div>
+            <div>
+              <dt>Year levels</dt>
+              <dd>Years 3–12</dd>
+            </div>
+          </dl>
+
+          <div className="feature-grid feature-grid--three">
+            <article className="feature-card" data-reveal-block>
+              <span className="feature-card__number">Primary · Years 3–6</span>
+              <h3>Our Solar System</h3>
+              <p>
+                Explore the planets, moons and the Sun through real NASA data and imagery, aligned
+                with Earth and Space sciences.
+              </p>
+            </article>
+            <article className="feature-card" data-reveal-block>
+              <span className="feature-card__number">Lower secondary · Years 7–9</span>
+              <h3>Scale of the Universe</h3>
+              <p>
+                Journey from Earth to the cosmic web while exploring distance, light-years and the
+                structure of galaxies.
+              </p>
+            </article>
+            <article className="feature-card" data-reveal-block>
+              <span className="feature-card__number">VCE · Years 10–12</span>
+              <h3>Stars &amp; Stellar Evolution</h3>
+              <p>
+                Use H-R diagrams and real astrophysical data to examine stellar lifecycles and
+                supernovae, aligned with Unit 3/4 Physics.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section className="page-section journey-section" data-reveal-section>
+          <div className="section-heading">
+            <p className="eyebrow">What happens next</p>
+            <h2>From interest to immersion.</h2>
+          </div>
+
+          <ol className="journey-list">
+            <li data-reveal-block>
+              <span>01</span>
+              <div>
+                <h3>Register your interest</h3>
+                <p>
+                  Tell us about your school, year levels and approximate student numbers. There is
+                  no commitment at this stage.
                 </p>
-                <h3 className="text-lg font-light text-white mb-3">{program.title}</h3>
-                <p className="text-[14px] text-white leading-relaxed">{program.desc}</p>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* What happens next */}
-        <div className="mb-20">
-          <p className="text-[12px] font-bold tracking-[0.18em] text-white/85 uppercase mb-10">
-            What happens next
-          </p>
-          <div className="space-y-8">
-            {[
-              { step: '01', title: 'Register your interest', desc: 'Tell us about your school, year levels, and how many students. No commitment required — just let us know you\'re interested.' },
-              { step: '02', title: 'We\'ll be in touch', desc: 'Once sessions are ready, we\'ll reach out to registered schools first with availability and pricing information.' },
-              { step: '03', title: 'Visit the SVU', desc: 'Arrive at Swinburne\'s Hawthorn Campus. Your facilitator will run the full immersive session — no preparation required.' },
-            ].map(({ step, title, desc }) => (
-              <div key={step} className="flex gap-8 items-start border-t border-white/[0.06] pt-8">
-                <p className="text-[12px] font-bold text-white/70 w-8 flex-shrink-0 mt-0.5">{step}</p>
-                <div>
-                  <h4 className="text-[16px] font-semibold text-white mb-1">{title}</h4>
-                  <p className="text-[14px] text-white leading-relaxed">{desc}</p>
-                </div>
+            </li>
+            <li data-reveal-block>
+              <span>02</span>
+              <div>
+                <h3>We&apos;ll be in touch</h3>
+                <p>
+                  When sessions are ready, registered schools will hear first about availability
+                  and pricing.
+                </p>
               </div>
-            ))}
-          </div>
-        </div>
+            </li>
+            <li data-reveal-block>
+              <span>03</span>
+              <div>
+                <h3>Visit the SVU</h3>
+                <p>
+                  Arrive at Swinburne&apos;s Hawthorn Campus and let an SVU facilitator run the full
+                  immersive session. No preparation is required.
+                </p>
+              </div>
+            </li>
+          </ol>
+        </section>
 
-        {/* Interest form */}
-        <div className="border border-white/[0.07] bg-white/[0.02] p-10">
-          <div className="mb-8">
-            <h2 className="text-2xl font-light text-white mb-2">Register your interest</h2>
-            <p className="text-[14px] text-white/85">No commitment — we'll contact you when school sessions open.</p>
+        <section
+          className="page-section enquiry-section"
+          id="register-interest"
+          data-reveal-section
+        >
+          <div className="enquiry-section__intro">
+            <p className="eyebrow">Register your interest</p>
+            <h2>Tell us about your school.</h2>
+            <p>
+              There is no commitment. Register now and we&apos;ll contact you when school visits open.
+            </p>
           </div>
           <SchoolInterestForm />
-        </div>
-
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-white/[0.06] py-10 px-8">
-        <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <SwinburneLogo className="h-7 w-auto opacity-60" />
-            <p className="text-[13px] text-white/75">Hawthorn Campus, Melbourne</p>
-          </div>
-          <div className="flex gap-6 text-[13px] text-white/75">
-            <Link href="/events" className="hover:text-white transition-colors">Events</Link>
-            <Link href="/school-groups" className="hover:text-white transition-colors">Schools</Link>
-            <Link href="/enquire" className="hover:text-white transition-colors">Hire</Link>
-            <Link href="/login" className="hover:text-white transition-colors">Staff</Link>
-          </div>
-        </div>
-      </footer>
-
-    </main>
+        </section>
+      </main>
+    </PublicShell>
   )
 }

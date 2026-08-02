@@ -1,0 +1,171 @@
+/* School visits page */
+
+.school-visits-page .service-hero__media img {
+    object-position:center 43%;
+}
+
+.programs-statement {
+    margin-bottom:clamp(3rem, 6vh, 5rem);
+}
+
+.programs-statement h2 {
+    max-width:none;
+    font-size:clamp(2.25rem, 3.5vw, 3.5rem);
+    line-height:1.05;
+}
+
+.fact-grid {
+    display:grid;
+    gap:1px;
+    margin-bottom:clamp(3rem, 6vh, 5rem);
+    background:var(--line);
+}
+
+.fact-grid--four {
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+}
+
+.fact-grid > div {
+    min-height:10rem;
+    padding:2rem;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    gap:2rem;
+    background:var(--surface);
+}
+
+.fact-grid dt {
+    color:var(--muted);
+    font-size:1rem;
+}
+
+.fact-grid dd {
+    font-size:clamp(1.25rem, 1.8vw, 1.75rem);
+    line-height:1.1;
+}
+
+.feature-grid {
+    display:grid;
+    gap:1vw;
+    margin-top:clamp(3rem, 6vh, 5rem);
+}
+
+.feature-grid--three {
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+}
+
+.feature-grid--four {
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+}
+
+.feature-grid--five {
+    grid-template-columns:repeat(5, minmax(0, 1fr));
+}
+
+.feature-card {
+    min-height:22rem;
+    padding:5vh 3vw;
+    display:flex;
+    flex-direction:column;
+    gap:1.3rem;
+    background:var(--surface);
+}
+
+.feature-card__number {
+    color:var(--muted);
+    font-size:1rem;
+}
+
+.feature-card p {
+    margin-top:auto;
+    color:var(--color-text);
+    font-size:1rem;
+}
+
+.journey-section {
+    display:grid;
+    grid-template-columns:minmax(18rem, 0.6fr) minmax(0, 1.4fr);
+    gap:8vw;
+}
+
+
+.journey-list {
+    list-style:none;
+    border-top:1px solid var(--line);
+}
+
+.journey-list li {
+    min-height:10rem;
+    padding:1.7rem 0;
+    display:grid;
+    grid-template-columns:4rem 1fr;
+    gap:1.5rem;
+    border-bottom:1px solid var(--line);
+}
+
+.journey-list li > span {
+    color:var(--muted);
+    font-size:1rem;
+}
+
+.journey-list li > div {
+    display:flex;
+    flex-direction:column;
+    gap:1rem;
+}
+
+.journey-list p {
+    max-width:36rem;
+    color:var(--color-text);
+    font-size:1rem;
+}
+
+@media (max-width: 1200px) {
+    .feature-grid--four,
+    .feature-grid--five {
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+    }
+
+    .feature-grid--five .feature-card:last-child {
+        grid-column:1 / -1;
+        min-height:16rem;
+    }
+}
+
+@media (max-width: 900px) {
+    .feature-grid--three .feature-card {
+        min-height:17rem;
+    }
+
+    .fact-grid--four {
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .fact-grid--four {
+        grid-template-columns:1fr;
+    }
+
+    .fact-grid > div {
+        min-height:8.5rem;
+    }
+
+    .feature-grid--four,
+    .feature-grid--five {
+        grid-template-columns:1fr;
+    }
+
+    .feature-grid--five .feature-card:last-child {
+        grid-column:auto;
+    }
+
+    .feature-card {
+        min-height:17rem;
+    }
+
+    .journey-list li {
+        grid-template-columns:2.5rem 1fr;
+    }
+}

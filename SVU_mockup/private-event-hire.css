@@ -1,0 +1,267 @@
+/* Private event hire page */
+
+.private-hire-page .service-hero__media img {
+    object-position:center 40%;
+}
+
+.editorial-split {
+    display:grid;
+    grid-template-columns:minmax(19rem, 0.8fr) minmax(0, 1.2fr);
+    gap:8vw;
+}
+
+.editorial-split__content {
+    display:flex;
+    flex-direction:column;
+    gap:2rem;
+}
+
+.editorial-split__content > p:not(.large-copy) {
+    max-width:46rem;
+    color:var(--color-text);
+}
+
+
+.detail-list {
+    margin-top:2rem;
+    border-top:1px solid var(--line);
+}
+
+.detail-list > div {
+    display:grid;
+    grid-template-columns:minmax(8rem, 0.35fr) 1fr;
+    gap:2rem;
+    padding:1.35rem 0;
+    border-bottom:1px solid var(--line);
+}
+
+.detail-list dt {
+    color:var(--muted);
+    font-size:1rem;
+}
+
+.detail-list dd {
+    font-size:1.1rem;
+}
+
+.support-list {
+    list-style:none;
+    border-top:1px solid var(--line);
+}
+
+.support-list li {
+    min-height:10rem;
+    padding:1.7rem 0;
+    display:grid;
+    grid-template-columns:4rem 1fr;
+    gap:1.5rem;
+    border-bottom:1px solid var(--line);
+}
+
+.support-list li > span {
+    color:var(--muted);
+    font-size:1rem;
+}
+
+.support-list li > div {
+    display:flex;
+    flex-direction:column;
+    gap:1rem;
+}
+
+.support-list p {
+    max-width:36rem;
+    color:var(--color-text);
+    font-size:1rem;
+}
+
+.location-section {
+    display:grid;
+    grid-template-columns:minmax(18rem, 0.55fr) minmax(0, 1.45fr);
+    gap:7vw;
+    align-items:start;
+}
+
+.location-section__intro {
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:2rem;
+}
+
+.location-section__intro h2 {
+    max-width:10ch;
+}
+
+.location-section__intro > p:not(.eyebrow) {
+    max-width:30rem;
+    font-size:1rem;
+}
+
+.campus-map {
+    position:relative;
+    min-height:70vh;
+    overflow:hidden;
+    background:var(--surface);
+    border:1px solid var(--line);
+}
+
+.campus-map__canvas {
+    position:absolute;
+    inset:0;
+    z-index:1;
+}
+
+.campus-map__fallback {
+    position:absolute;
+    z-index:2;
+    inset:0;
+    padding:3rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-size:1rem;
+}
+
+.campus-map__fallback a {
+    margin-left:0.3em;
+    color:inherit;
+    text-decoration:underline;
+}
+
+.campus-map.is-ready .campus-map__fallback {
+    display:none;
+}
+
+.campus-map__label {
+    position:absolute;
+    z-index:500;
+    left:1.5rem;
+    bottom:1.5rem;
+    width:min(22rem, calc(100% - 7rem));
+    padding:1.25rem;
+    display:flex;
+    flex-direction:column;
+    gap:0.35rem;
+    color:var(--color-text);
+    background:rgba(3, 7, 5, 0.92);
+    border:1px solid #333333;
+    pointer-events:none;
+}
+
+.campus-map__label span {
+    font-size:0.85rem;
+}
+
+.campus-map__label strong {
+    font-size:1.6rem;
+    font-weight:300;
+}
+
+.campus-map .leaflet-tile-pane {
+    filter:grayscale(1) contrast(1.05) brightness(1.55);
+}
+
+.campus-map .leaflet-campus-map-labels-pane {
+    opacity:0.78;
+    filter:grayscale(1) contrast(1.08) brightness(1.18);
+}
+
+.campus-map .leaflet-control-zoom,
+.campus-map .leaflet-control-attribution {
+    margin:0 !important;
+    border:0;
+    border-radius:0;
+    box-shadow:none;
+}
+
+.campus-map .leaflet-control-zoom {
+    border-top:1px solid var(--line);
+    border-left:1px solid var(--line);
+}
+
+.campus-map .leaflet-control-zoom a {
+    width:3rem;
+    height:3rem;
+    color:var(--color-text);
+    background:#030705;
+    border:0;
+    border-bottom:1px solid var(--line);
+    border-radius:0 !important;
+    font-family:"Funnel Display", sans-serif;
+    font-size:1.5rem;
+    line-height:3rem;
+}
+
+.campus-map .leaflet-control-zoom a:hover,
+.campus-map .leaflet-control-zoom a:focus {
+    color:#030705;
+    background:var(--color-text);
+}
+
+.campus-map .leaflet-control-attribution {
+    padding:0.25rem 0.45rem;
+    color:var(--color-text);
+    background:rgba(3, 7, 5, 0.84);
+    font-size:0.65rem;
+}
+
+.campus-map .leaflet-control-attribution a {
+    color:inherit;
+}
+
+.campus-map__marker {
+    display:block;
+    width:1.5rem;
+    height:1.5rem;
+    background:var(--color-text);
+}
+
+.campus-map .leaflet-tooltip {
+    padding:0.55rem 0.7rem;
+    color:var(--color-text);
+    background:#030705;
+    border:1px solid var(--color-text);
+    border-radius:0;
+    box-shadow:none;
+    font-family:"Funnel Display", sans-serif;
+    font-size:0.85rem;
+    font-weight:300;
+}
+
+.campus-map .leaflet-tooltip::before {
+    display:none;
+}
+
+@media (max-width: 900px) {
+    .private-hire-page .editorial-split,
+    .location-section {
+        grid-template-columns:1fr;
+    }
+
+    .campus-map {
+        min-height:60vh;
+    }
+}
+
+@media (max-width: 640px) {
+    .detail-list > div {
+        grid-template-columns:1fr;
+        gap:0.7rem;
+    }
+
+    .support-list li {
+        grid-template-columns:2.5rem 1fr;
+    }
+
+    .campus-map {
+        min-height:32rem;
+    }
+
+    .campus-map__label {
+        left:1rem;
+        bottom:1rem;
+        width:calc(100% - 5rem);
+    }
+}

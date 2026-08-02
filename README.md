@@ -2,7 +2,25 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+Create a local environment file and add the values from your Supabase project's
+**Connect** dialog (or **Settings > API Keys**):
+
+```bash
+cp .env.example .env.local
+```
+
+At minimum, local development requires:
+
+```dotenv
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+SUPABASE_SECRET_KEY=sb_secret_...
+```
+
+The legacy `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY`
+names remain supported. Never expose or commit the secret/service-role key.
+
+Then run the development server:
 
 ```bash
 npm run dev
