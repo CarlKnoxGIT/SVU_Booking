@@ -835,6 +835,32 @@ In `src/app/events/page.tsx`, replace the "Coming soon" `<span>` block with:
 
 ---
 
+## Session 19 — 2026-08-02
+
+### Completed — public frontend visual merge
+
+- [x] Rebuilt `/`, `/events`, `/school-groups`, and `/enquire` to match the supplied `SVU_mockup/` visual system.
+- [x] Preserved homepage visitor aggregation, event/Eventbrite availability, notify signup, school-interest, and private-enquiry behaviour without changing server actions, APIs, integrations, staff, or admin screens.
+- [x] Added a `.svu-public`-scoped editorial system, floating accessible navigation, split controls, shared footer, reduced-motion handling, responsive layouts, and base-path-safe assets.
+- [x] Reused the existing matching photographs and added the mockup's unique logo/icon/video assets. The full film is deferred behind a roughly 1 MiB silent preview rather than autoplaying the 73.86 MiB source.
+- [x] Added root-level `PLAN.md` and `SCRATCHPAD.md` with scope, decisions, validation results, and the outstanding source-video caption limitation.
+- [x] Verified targeted ESLint, TypeScript/production builds, exact 390px and desktop layouts, live form presentation, event listing, campus map, and a production-style `/bookings` base-path run.
+
+### Validation note
+
+- Full repository lint still has the pre-existing unrelated baseline (21 errors, 14 warnings) in admin/staff/ticketing/mockup files; all changed TS/TSX files pass targeted ESLint.
+- The supplied narrated film has no caption track. A trustworthy transcript/caption file is still required from its owner; an inaccurate automated draft was not shipped.
+
+### Files changed
+
+- Public pages/forms under `src/app/{page.tsx,events,school-groups,enquire}`
+- Public-only presentation under `src/components/public-site/`, `src/app/home-experience.tsx`, and `src/app/public-site.css`
+- `src/app/layout.tsx` for the scoped public font variable/CSS import
+- Unique public assets under `public/svu/`
+- `PLAN.md`, `SCRATCHPAD.md`, and this progress entry
+
+---
+
 ## Blockers & Open Questions
 
 | Issue | Status | Notes |

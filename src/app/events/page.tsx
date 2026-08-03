@@ -1,10 +1,15 @@
 import { createClient } from '@/lib/supabase/server'
-import Link from 'next/link'
 import Image from 'next/image'
-import SwinburneLogo from '@/components/swinburne-logo'
-import { ParallaxHero } from '@/components/parallax-hero'
 import { getTicketAvailability, getSessionCount } from '@/lib/eventbrite/client'
+import { publicAsset } from '@/components/public-site/asset-path'
+import { PublicShell } from '@/components/public-site/public-shell'
+import { SplitLink } from '@/components/public-site/split-control'
 import { NotifyMeCard } from './notify-me-card'
+
+export const metadata = {
+  title: 'Public Events | Swinburne Virtual Universe',
+  description: 'Explore public experiences at the Swinburne Virtual Universe.',
+}
 
 const NUMBER_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
 const countWord = (n: number) => NUMBER_WORDS[n] ?? String(n)
@@ -43,168 +48,146 @@ export default async function EventsPage() {
   )
 
   return (
-    <main className="bg-black text-white">
-      {/* Nav */}
-      <nav className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-8 py-6">
-        <Link href="/">
-          <SwinburneLogo className="h-[89px] w-auto" />
-        </Link>
-        <Link
-          href="/login"
-          className="rounded-full border border-white/15 bg-white/5 backdrop-blur-sm px-4 py-1.5 text-[12px] font-medium text-white/60 hover:text-white hover:bg-white/10 transition-all duration-200"
-        >
-          Staff sign in
-        </Link>
-      </nav>
-
-      {/* Hero */}
-      <div className="relative h-72 overflow-hidden">
-        <ParallaxHero>
-          <Image
-            src="/images/SVU11C.jpg"
-            alt="SVU events"
-            fill
-            priority
-            className="object-cover object-center"
-            sizes="100vw"
-          />
-        </ParallaxHero>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/70" />
-        <div className="absolute inset-0 flex flex-col items-center justify-end pb-10 text-center">
-          <Link href="/" className="text-[11px] font-bold tracking-[0.2em] text-white/80 uppercase hover:text-white transition-colors mb-3">
-            Swinburne's Virtual Universe
-          </Link>
-          <h1 className="text-4xl font-light tracking-tight">Upcoming Events</h1>
-          <p className="mt-2 text-base text-white">Immersive experiences on a 100m² curved LED wall.</p>
-        </div>
-      </div>
-
-      <div className="mx-auto max-w-3xl px-6 pb-20">
-
-        {/* National Science Week — external event, tickets via Humanitix */}
-        <a
-          href="https://events.humanitix.com/seeds-of-science-festival"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group mb-4 block rounded-2xl border border-white/[0.07] bg-white/[0.02] p-6 hover:border-white/[0.14] hover:bg-white/[0.04] transition-all duration-200"
-        >
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1 min-w-0">
-              <p className="mb-2 text-[12px] font-semibold tracking-wide text-swin-red-light uppercase">
-                Fri 21 August · 16:00 – 19:00 · National Science Week
+    <PublicShell current="events" pageClassName="service-page public-events-page">
+      <main id="main-content" className="scroll-container" tabIndex={-1}>
+        <section className="service-hero page-section" data-reveal-section>
+          <div className="service-hero__copy">
+            <div>
+              <h1 data-reveal-line>Public events</h1>
+              <p className="service-hero__description" data-reveal-line>
+                Explore presenter-led public and community experiences at Swinburne&apos;s Hawthorn campus.
               </p>
-              <h2 className="text-[20px] font-semibold text-white">Seeds of Science Festival</h2>
-              <p className="mt-2 text-[16px] text-white leading-relaxed line-clamp-2">
-                Celebrate National Science Week with an afternoon of discovery — researcher talks, the
-                Festival Hub, and immersive Virtual Tours of the Universe with Professor Matthew Bailes.
-              </p>
-              <div className="mt-4 flex items-center gap-4 text-[14px]">
-                <span className="font-semibold text-white">Free</span>
-              </div>
             </div>
-            <span
-              className="glow-pill flex-shrink-0 inline-flex rounded-xl"
-              style={{ '--glow-delay': '-0.6s', '--glow-strength': '0.375' } as React.CSSProperties}
-            >
-              <span className="rounded-xl bg-swin-red px-4 py-2 text-[13px] font-semibold text-white transition-colors duration-200 group-hover:bg-swin-red-hover">
-                Get tickets
-              </span>
-            </span>
+            <div className="service-hero__intro" data-reveal-block>
+              <SplitLink href="#whats-on" label="View public program" direction="down" />
+            </div>
           </div>
-        </a>
 
-        {/* Events */}
-        {events && events.length > 0 ? (
-          <div className="space-y-4">
-            {events.map((event, i) => {
-              const live = availability[i]
-              const hasCount = live?.ticketsLeft != null && live?.capacity != null
-              const ticketsLeft = hasCount ? live!.ticketsLeft! : (event.max_capacity ?? 0) - (event.tickets_sold ?? 0)
-              const soldOut = live ? live.soldOut : ticketsLeft <= 0
-              const sessions = sessionCounts[i]
-              const date = event.event_date ? new Date(event.event_date) : null
+          <figure className="service-hero__media" data-reveal-media>
+            <Image
+              src={publicAsset('/images/SVU07BCropped5.jpg')}
+              alt="An audience surrounded by a vivid space visualisation inside the Swinburne Virtual Universe"
+              fill
+              priority
+              sizes="100vw"
+            />
+            <figcaption>
+              Public sessions bring an audience and expert presenter together for a shared journey through space.
+            </figcaption>
+          </figure>
+        </section>
 
-              return (
-                <div
-                  key={event.id}
-                  className="group rounded-2xl border border-white/[0.07] bg-white/[0.02] p-6 hover:border-white/[0.14] hover:bg-white/[0.04] transition-all duration-200"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
+        <section className="page-section public-events-program" id="whats-on" data-reveal-section>
+          <header className="section-heading event-listing__heading" data-reveal-block>
+            <p className="eyebrow">What&apos;s on</p>
+            <h2>Upcoming public events.</h2>
+            <p>
+              Discover presenter-led sessions, community programs, and immersive journeys through space.
+            </p>
+          </header>
+
+          <div className="event-listing">
+            <article className="event-listing__item event-listing__item--featured" data-reveal-block>
+              <div className="event-listing__meta event-listing__date">
+                <p>Fri 21 August · 16:00 – 19:00</p>
+                <p>National Science Week</p>
+              </div>
+              <div className="event-listing__content">
+                <h3 className="event-listing__title">Seeds of Science Festival</h3>
+                <p className="event-listing__description">
+                  Celebrate National Science Week with an afternoon of discovery — researcher talks, the
+                  Festival Hub, and immersive Virtual Tours of the Universe with Professor Matthew Bailes.
+                </p>
+                <p className="event-listing__price">Free</p>
+              </div>
+              <div className="event-listing__action">
+                <SplitLink
+                  href="https://events.humanitix.com/seeds-of-science-festival"
+                  label="Get tickets"
+                  external
+                  target="_blank"
+                  rel="noopener noreferrer"
+                />
+              </div>
+            </article>
+
+            {events && events.length > 0 ? (
+              events.map((event, i) => {
+                const live = availability[i]
+                const hasCount = live?.ticketsLeft != null && live?.capacity != null
+                const ticketsLeft = hasCount ? live!.ticketsLeft! : (event.max_capacity ?? 0) - (event.tickets_sold ?? 0)
+                const soldOut = live ? live.soldOut : ticketsLeft <= 0
+                const sessions = sessionCounts[i]
+                const date = event.event_date ? new Date(event.event_date) : null
+
+                return (
+                  <article key={event.id} className="event-listing__item" data-reveal-block>
+                    <div className="event-listing__meta event-listing__date">
                       {date && (
-                        <p className="mb-2 text-[12px] font-semibold tracking-wide text-swin-red-light uppercase">
+                        <p>
                           {date.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'long' })}
                           {sessions && sessions > 1
                             ? <> · {countWord(sessions)} shows available</>
                             : event.start_time && <> · {event.start_time.slice(0, 5)}{event.end_time && <> – {event.end_time.slice(0, 5)}</>}</>}
                         </p>
                       )}
-                      <h2 className="text-[20px] font-semibold text-white">{event.title}</h2>
-                      {event.description && (
-                        <p className="mt-2 text-[16px] text-white leading-relaxed line-clamp-2">
-                          {event.description}
-                        </p>
-                      )}
+                      <p>{soldOut ? 'Sold out' : event.humanitix_url ? 'Tickets available' : 'Coming soon'}</p>
+                    </div>
 
-                      <div className="mt-4 flex items-center gap-4 text-[14px]">
-                        <span className="font-semibold text-white">
+                    <div className="event-listing__content">
+                      <h3 className="event-listing__title">{event.title}</h3>
+                      {event.description && <p className="event-listing__description">{event.description}</p>}
+                      <div className="event-listing__details">
+                        <p className="event-listing__price">
                           {event.ticket_price === 0 || event.ticket_price === null
                             ? 'Free'
                             : live?.minPrice
                               ? `Children's tickets only $${live.minPrice}`
                               : `$${event.ticket_price}`}
-                        </span>
+                        </p>
                         {hasCount && !soldOut && (
-                          <span className={ticketsLeft <= 10 ? 'text-swin-red-light font-medium' : 'text-white'}>
+                          <p className="event-listing__availability">
                             {ticketsLeft} of {live!.capacity} tickets left
-                          </span>
+                          </p>
                         )}
                       </div>
                     </div>
 
-                    {soldOut ? (
-                      <span className="flex-shrink-0 rounded-xl bg-white/10 px-4 py-2 text-[13px] font-semibold text-white/50 cursor-default">
-                        Sold out
-                      </span>
-                    ) : event.humanitix_url ? (
-                      <a
-                        href={event.humanitix_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="glow-pill flex-shrink-0 inline-flex rounded-xl"
-                        style={{ '--glow-delay': `${-1.3 * (i + 1)}s`, '--glow-strength': '0.375' } as React.CSSProperties}
-                      >
-                        <span className="rounded-xl bg-swin-red px-4 py-2 text-[13px] font-semibold text-white hover:bg-swin-red-hover transition-colors duration-200">
-                          Get tickets
-                        </span>
-                      </a>
-                    ) : (
-                      <span className="flex-shrink-0 rounded-xl bg-white/20 px-4 py-2 text-[13px] font-semibold text-white/60 cursor-default">
-                        Coming soon
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-            <NotifyMeCard />
+                    <div className="event-listing__action">
+                      {soldOut ? (
+                        <span className="event-listing__state">Sold out</span>
+                      ) : event.humanitix_url ? (
+                        <SplitLink
+                          href={event.humanitix_url}
+                          label="Get tickets"
+                          external
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        />
+                      ) : (
+                        <span className="event-listing__state">Coming soon</span>
+                      )}
+                    </div>
+                  </article>
+                )
+              })
+            ) : (
+              <div className="event-listing__empty" data-reveal-block>
+                <p className="large-copy">Check back soon.</p>
+                <p>New dates and registration details will appear here when sessions are released.</p>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] px-6 py-24 text-center">
-              <p className="text-white text-base">No upcoming events scheduled.</p>
-              <p className="mt-2 text-white/75 text-sm">Check back soon.</p>
-            </div>
-            <NotifyMeCard />
-          </div>
-        )}
 
-        {hiddenAvail?.capacity != null && hiddenLeft !== null && (
-          <p className="mt-6 text-center text-[13px] tabular-nums text-white/60 select-none pointer-events-none">
-            {hiddenLeft} / {hiddenAvail.capacity}
-          </p>
-        )}
-      </div>
-    </main>
+          {hiddenAvail?.capacity != null && hiddenLeft !== null && (
+            <p className="event-listing__hidden-count" aria-label={`${hiddenLeft} of ${hiddenAvail.capacity} tickets remaining`}>
+              {hiddenLeft} / {hiddenAvail.capacity}
+            </p>
+          )}
+
+          <NotifyMeCard />
+        </section>
+      </main>
+    </PublicShell>
   )
 }

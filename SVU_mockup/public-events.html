@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore public experiences at the Swinburne Virtual Universe.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="navigation.css">
+    <link rel="stylesheet" href="service-pages.css">
+    <link rel="stylesheet" href="public-events.css">
+    <link rel="stylesheet" href="footer.css">
+    <link rel="icon" href="logo.ico">
+    <script src="navigation.js" defer></script>
+    <title>Public Events | Swinburne Virtual Universe</title>
+</head>
+<body class="service-page public-events-page">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <header class="site-header" data-site-navigation>
+        <div class="site-header__inner">
+            <a class="site-nav__brand" href="index.html" aria-label="Swinburne Virtual Universe home">
+                <span class="site-nav__brand-art" aria-hidden="true">
+                    <img src="swin-logo.svg" alt="">
+                </span>
+            </a>
+            <nav class="site-nav" aria-label="Primary navigation">
+                <ul class="site-nav__list">
+                    <li class="site-nav__item">
+                        <a class="site-nav__link" href="index.html#about">
+                            <span class="site-nav__label">About</span>
+                        </a>
+                    </li>
+                    <li class="site-nav__item site-nav__services is-current-section" data-services-item>
+                        <button class="site-nav__trigger" type="button" aria-expanded="false" aria-controls="site-services-menu" data-services-trigger>
+                            <span class="site-nav__label">Services</span>
+                            <img src="down-arrow.svg" alt="">
+                        </button>
+                        <ul class="site-nav__dropdown" id="site-services-menu" data-services-dropdown hidden inert>
+                            <li>
+                                <a class="site-nav__dropdown-link" href="public-events.html" aria-current="page">
+                                    <span class="site-nav__label">Browse Events</span>
+                                    <img class="site-nav__selection-icon" src="navigation-events-icon.svg" alt="">
+                                </a>
+                            </li>
+                            <li>
+                                <a class="site-nav__dropdown-link" href="school-visits.html">
+                                    <span class="site-nav__label">School Visits</span>
+                                    <img class="site-nav__selection-icon" src="navigation-events-icon.svg" alt="">
+                                </a>
+                            </li>
+                            <li>
+                                <a class="site-nav__dropdown-link" href="private-event-hire.html">
+                                    <span class="site-nav__label">Private Hires</span>
+                                    <img class="site-nav__selection-icon" src="navigation-events-icon.svg" alt="">
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="site-nav__item">
+                        <a class="site-nav__link" href="index.html#contact">
+                            <span class="site-nav__label">Contact</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <span class="site-nav__staff" aria-disabled="true">Staff Login</span>
+        </div>
+    </header>
+
+    <main id="main-content" class="scroll-container">
+        <section class="service-hero page-section" data-reveal-section>
+            <div class="service-hero__copy">
+                <div>
+                    <h1>Public events</h1>
+                    <p class="service-hero__description">Explore presenter-led public and community experiences at Swinburne's Hawthorn campus.</p>
+                </div>
+                <div class="service-hero__intro">
+                    <a href="#whats-on" class="down-button">
+                        <div>
+                            <div class="text-container-border">
+                                <div class="text-indicator">
+                                    <p>View public program</p>
+                                    <p>View public program</p>
+                                </div>
+                            </div>
+                            <div class="img-container-border">
+                                <div class="img-indicator">
+                                    <img src="down-arrow.svg" alt="">
+                                    <img src="down-arrow.svg" alt="">
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <figure class="service-hero__media" data-reveal-media>
+                <img src="SVU07BCropped5.jpg" alt="An audience surrounded by a vivid space visualisation inside the Swinburne Virtual Universe">
+                <figcaption>Public sessions bring an audience and expert presenter together for a shared journey through space.</figcaption>
+            </figure>
+        </section>
+
+        <section class="page-section empty-state" id="whats-on" data-reveal-section>
+            <div class="empty-state__content">
+                <p class="large-copy">Check back soon.</p>
+                <p>New dates and registration details will appear on the official SVU events listing when sessions are released.</p>
+                <a href="https://www.svu3d.ai/bookings/events" class="right-button">
+                    <div>
+                        <div class="text-container-border">
+                            <div class="text-indicator">
+                                <p>View official events</p>
+                                <p>View official events</p>
+                            </div>
+                        </div>
+                        <div class="img-container-border">
+                            <div class="img-indicator">
+                                <img src="right-arrow.svg" alt="">
+                                <img src="right-arrow.svg" alt="">
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <div class="footer" data-reveal-section>
+        <div class="footer-content">
+            <div class="logo">
+                <img src="swin-logo.svg" alt="">
+            </div>
+            <div class="copyright">
+                <p>We acknowledge and pay respects to the Elders and Traditional Owners of the land, the Wurundjeri People of the Kulin people. We pay our respects to their elders past, present and emerging.</p>
+                <p>Copyright © Swinburne University of Technology 2026. All Rights Reserved. Swinburne University of Technology Hawthorn Campus, Melbourne</p>
+            </div>
+            <div class="links">
+                <div class="navigation">
+                    <h2>Navigation</h2>
+                    <a href="index.html">Home</a>
+                    <a href="index.html#about">About</a>
+                    <a href="index.html#contact">Contact</a>
+                </div>
+                <div class="footer-services">
+                    <h2>Services</h2>
+                    <a href="public-events.html">Public Events</a>
+                    <a href="school-visits.html">School Visits</a>
+                    <a href="private-event-hire.html">Private Event Hire</a>
+                    <span class="footer-link-muted" aria-disabled="true">Staff Login</span>
+                </div>
+            </div>
+        </div>
+        <div class="acronym">
+            <h1>S</h1>
+            <h1>V</h1>
+            <h1>U</h1>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js"></script>
+    <script src="smooth-scroll.js"></script>
+    <script src="text-reveal.js"></script>
+</body>
+</html>

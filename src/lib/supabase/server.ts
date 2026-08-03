@@ -1,12 +1,14 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { getSupabasePublicConfig } from './config'
 
 export async function createClient() {
   const cookieStore = await cookies()
+  const { url, publishableKey } = getSupabasePublicConfig()
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    url,
+    publishableKey,
     {
       cookies: {
         getAll() {
@@ -28,9 +30,23 @@ export async function createClient() {
 
 /** Service-role client — bypasses RLS. Server-side only. */
 export function createAdminClient() {
+  const { url } = getSupabasePublicConfig()
+  const secretKey = (
+    process.env.SUPABASE_SECRET_KEY
+    ?? process.env.SUPABASE_SERVICE_ROLE_KEY
+  )?.trim()
+
+  if (!secretKey) {
+    throw new Error(
+      'Supabase admin access is not configured. Missing SUPABASE_SECRET_KEY '
+      + '(or legacy SUPABASE_SERVICE_ROLE_KEY). Add it to .env.local, then restart '
+      + 'the Next.js development server.'
+    )
+  }
+
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    url,
+    secretKey,
     {
       cookies: { getAll: () => [], setAll: () => {} },
     }

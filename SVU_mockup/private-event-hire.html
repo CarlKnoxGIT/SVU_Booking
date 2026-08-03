@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Plan a tailored private event at the Swinburne Virtual Universe.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="navigation.css">
+    <link rel="stylesheet" href="service-pages.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="private-event-hire.css">
+    <link rel="stylesheet" href="footer.css">
+    <link rel="icon" href="logo.ico">
+    <script src="navigation.js" defer></script>
+    <title>Private Event Hire | Swinburne Virtual Universe</title>
+</head>
+<body class="service-page private-hire-page">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <header class="site-header" data-site-navigation>
+        <div class="site-header__inner">
+            <a class="site-nav__brand" href="index.html" aria-label="Swinburne Virtual Universe home">
+                <span class="site-nav__brand-art" aria-hidden="true">
+                    <img src="swin-logo.svg" alt="">
+                </span>
+            </a>
+            <nav class="site-nav" aria-label="Primary navigation">
+                <ul class="site-nav__list">
+                    <li class="site-nav__item">
+                        <a class="site-nav__link" href="index.html#about">
+                            <span class="site-nav__label">About</span>
+                        </a>
+                    </li>
+                    <li class="site-nav__item site-nav__services is-current-section" data-services-item>
+                        <button class="site-nav__trigger" type="button" aria-expanded="false" aria-controls="site-services-menu" data-services-trigger>
+                            <span class="site-nav__label">Services</span>
+                            <img src="down-arrow.svg" alt="">
+                        </button>
+                        <ul class="site-nav__dropdown" id="site-services-menu" data-services-dropdown hidden inert>
+                            <li>
+                                <a class="site-nav__dropdown-link" href="public-events.html">
+                                    <span class="site-nav__label">Browse Events</span>
+                                    <img class="site-nav__selection-icon" src="navigation-events-icon.svg" alt="">
+                                </a>
+                            </li>
+                            <li>
+                                <a class="site-nav__dropdown-link" href="school-visits.html">
+                                    <span class="site-nav__label">School Visits</span>
+                                    <img class="site-nav__selection-icon" src="navigation-events-icon.svg" alt="">
+                                </a>
+                            </li>
+                            <li>
+                                <a class="site-nav__dropdown-link" href="private-event-hire.html" aria-current="page">
+                                    <span class="site-nav__label">Private Hires</span>
+                                    <img class="site-nav__selection-icon" src="navigation-events-icon.svg" alt="">
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="site-nav__item">
+                        <a class="site-nav__link" href="index.html#contact">
+                            <span class="site-nav__label">Contact</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <span class="site-nav__staff" aria-disabled="true">Staff Login</span>
+        </div>
+    </header>
+
+    <main id="main-content" class="scroll-container">
+        <section class="service-hero page-section" data-reveal-section>
+            <div class="service-hero__copy">
+                <div>
+                    <h1>Private event hire</h1>
+                    <p class="service-hero__description">Plan a tailored private experience for an organisation, industry partner, research team or creative collaborator.</p>
+                </div>
+                <div class="service-hero__intro">
+                    <a href="#event-support" class="down-button">
+                        <div>
+                            <div class="text-container-border">
+                                <div class="text-indicator">
+                                    <p>Explore support</p>
+                                    <p>Explore support</p>
+                                </div>
+                            </div>
+                            <div class="img-container-border">
+                                <div class="img-indicator">
+                                    <img src="down-arrow.svg" alt="">
+                                    <img src="down-arrow.svg" alt="">
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <figure class="service-hero__media" data-reveal-media>
+                <img src="SVU20B.jpg" alt="Guests gathered for a presentation inside the Swinburne Virtual Universe">
+                <figcaption>Private events can combine presentation, visualisation and performance in one shared environment.</figcaption>
+            </figure>
+        </section>
+
+        <section class="page-section editorial-split" id="event-support" data-reveal-section>
+            <div class="section-heading">
+                <p class="eyebrow">Event support</p>
+                <h2>Supported from setup to pack-down.</h2>
+            </div>
+            <div class="editorial-split__content">
+                <p class="large-copy">Bring the brief. The SVU team will help deliver it.</p>
+                <p>The team works with you to shape the format, prepare custom content, configure and test the space, operate the run of show, and manage pack-down.</p>
+                <ol class="support-list">
+                    <li data-reveal-block>
+                        <span>01</span>
+                        <div>
+                            <h3>Scope and prepare</h3>
+                            <p>Confirm the audience, format, timing and visual or audio content needed for the event.</p>
+                        </div>
+                    </li>
+                    <li data-reveal-block>
+                        <span>02</span>
+                        <div>
+                            <h3>Set up and test</h3>
+                            <p>Configure the room, prepare the LED wall and spatial audio, and test content before guests arrive.</p>
+                        </div>
+                    </li>
+                    <li data-reveal-block>
+                        <span>03</span>
+                        <div>
+                            <h3>Run the event</h3>
+                            <p>A dedicated technical operator supports the run of show and pack-down.</p>
+                        </div>
+                    </li>
+                </ol>
+                <dl class="detail-list">
+                    <div>
+                        <dt>Content</dt>
+                        <dd>Bring your own visuals or develop something bespoke with the team</dd>
+                    </div>
+                    <div>
+                        <dt>Technical support</dt>
+                        <dd>Dedicated operator for setup, run of show and pack-down</dd>
+                    </div>
+                    <div>
+                        <dt>Capacity</dt>
+                        <dd>Up to 60 guests in seated or standing configurations</dd>
+                    </div>
+                    <div>
+                        <dt>Location</dt>
+                        <dd>ATC Building, Hawthorn Campus</dd>
+                    </div>
+                </dl>
+            </div>
+        </section>
+
+        <section class="page-section location-section" id="location" data-reveal-section>
+            <div class="location-section__intro">
+                <p class="eyebrow">Find the SVU</p>
+                <h2>Inside the ATC at Hawthorn.</h2>
+                <p>The Swinburne Virtual Universe is located in the Advanced Technologies Centre at 427–451 Burwood Road, Hawthorn.</p>
+                <a href="https://www.google.com/maps/dir/?api=1&amp;destination=-37.82267,145.0384" class="right-button" target="_blank" rel="noopener">
+                    <div>
+                        <div class="text-container-border">
+                            <div class="text-indicator">
+                                <p>Open directions</p>
+                                <p aria-hidden="true">Open directions</p>
+                            </div>
+                        </div>
+                        <div class="img-container-border">
+                            <div class="img-indicator">
+                                <img src="right-arrow.svg" alt="">
+                                <img src="right-arrow.svg" alt="" aria-hidden="true">
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="campus-map" data-campus-map data-reveal-block role="region" aria-label="Interactive map showing the Advanced Technologies Centre at Swinburne's Hawthorn campus">
+                <div class="campus-map__canvas" data-campus-map-canvas></div>
+                <p class="campus-map__fallback">The interactive map could not be loaded. <a href="https://www.google.com/maps/dir/?api=1&amp;destination=-37.82267,145.0384" target="_blank" rel="noopener">Open directions in Google Maps</a>.</p>
+                <div class="campus-map__label">
+                    <span>Destination</span>
+                    <strong>ATC / SVU</strong>
+                    <span>427–451 Burwood Road, Hawthorn</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="page-section enquiry-section" id="enquire" data-reveal-section>
+            <div class="enquiry-section__intro">
+                <p class="eyebrow">Register your interest</p>
+                <h2>Tell us what you want to create.</h2>
+                <p>This prototype demonstrates how an organisation will be able to share an event brief with the SVU team.</p>
+            </div>
+            <form class="mock-form" data-prototype-form data-form-name="private event enquiry">
+                <div class="form-field">
+                    <label for="event-contact-name">Your name</label>
+                    <input id="event-contact-name" name="name" type="text" autocomplete="name" placeholder="Jane Smith" required>
+                </div>
+                <div class="form-field">
+                    <label for="event-contact-email">Email</label>
+                    <input id="event-contact-email" name="email" type="email" autocomplete="email" placeholder="jane@example.com" required>
+                </div>
+                <div class="form-field form-field--wide">
+                    <label for="event-organisation">Organisation</label>
+                    <input id="event-organisation" name="organisation" type="text" autocomplete="organization" placeholder="Organisation name" required>
+                </div>
+                <div class="form-field">
+                    <label for="event-type">Event type</label>
+                    <select id="event-type" name="event_type" required>
+                        <option value="">Select…</option>
+                        <option value="corporate">Corporate event</option>
+                        <option value="product_launch">Product launch</option>
+                        <option value="conference">Conference / summit</option>
+                        <option value="school">School group</option>
+                        <option value="private">Private experience</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="event-guest-count">Estimated guests <span class="field-optional">(optional)</span></label>
+                    <input id="event-guest-count" name="guest_count" type="number" inputmode="numeric" min="1" max="60" placeholder="40">
+                </div>
+                <div class="form-field form-field--wide">
+                    <label for="event-preferred-date">Preferred date(s) <span class="field-optional">(optional)</span></label>
+                    <input id="event-preferred-date" name="preferred_date" type="text" placeholder="Mid-June, flexible">
+                </div>
+                <div class="form-field form-field--wide">
+                    <label for="event-message">Message <span class="field-optional">(optional)</span></label>
+                    <textarea id="event-message" name="message" rows="5" placeholder="Tell us about your event, requirements, access needs or questions."></textarea>
+                </div>
+                <div class="mock-form__footer form-field--wide">
+                    <p>This is a demonstration form. Your information will not be sent or stored.</p>
+                    <button type="submit" class="right-button prototype-submit">
+                        <span class="text-container-border">
+                            <span class="text-indicator">
+                                <span>Register interest</span>
+                                <span aria-hidden="true">Register interest</span>
+                            </span>
+                        </span>
+                        <span class="img-container-border">
+                            <span class="img-indicator">
+                                <img src="right-arrow.svg" alt="">
+                                <img src="right-arrow.svg" alt="" aria-hidden="true">
+                            </span>
+                        </span>
+                    </button>
+                </div>
+                <p class="form-status form-field--wide" data-form-status role="status" aria-live="polite"></p>
+            </form>
+        </section>
+    </main>
+
+    <div class="footer" data-reveal-section>
+        <div class="footer-content">
+            <div class="logo">
+                <img src="swin-logo.svg" alt="">
+            </div>
+            <div class="copyright">
+                <p>We acknowledge and pay respects to the Elders and Traditional Owners of the land, the Wurundjeri People of the Kulin people. We pay our respects to their elders past, present and emerging.</p>
+                <p>Copyright © Swinburne University of Technology 2026. All Rights Reserved. Swinburne University of Technology Hawthorn Campus, Melbourne</p>
+            </div>
+            <div class="links">
+                <div class="navigation">
+                    <h2>Navigation</h2>
+                    <a href="index.html">Home</a>
+                    <a href="index.html#about">About</a>
+                    <a href="index.html#contact">Contact</a>
+                </div>
+                <div class="footer-services">
+                    <h2>Services</h2>
+                    <a href="public-events.html">Public Events</a>
+                    <a href="school-visits.html">School Visits</a>
+                    <a href="private-event-hire.html">Private Event Hire</a>
+                    <span class="footer-link-muted" aria-disabled="true">Staff Login</span>
+                </div>
+            </div>
+        </div>
+        <div class="acronym">
+            <h1>S</h1>
+            <h1>V</h1>
+            <h1>U</h1>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="smooth-scroll.js"></script>
+    <script src="private-hire-map.js"></script>
+    <script src="text-reveal.js"></script>
+    <script src="prototype-forms.js"></script>
+</body>
+</html>
